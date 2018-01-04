@@ -1,0 +1,14 @@
+{
+  "server-name": "%%NAME%%",
+  "content-database": "%%DATABASE%%",
+  "modules-database": "%%MODULES_DATABASE%%",
+  "authentication": "application-level",
+  "server-type": "http",
+  "group-name": "Default",
+  "default-user": "default-user",
+  "rewrite-resolves-globally": true,
+  "port": %%PORT%%,
+  "root": "/",
+  "url-rewriter": "/server/rewrite.xqy",
+  "error-handler": "/server/error.xqy"
+}

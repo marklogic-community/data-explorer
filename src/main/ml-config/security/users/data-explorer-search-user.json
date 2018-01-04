@@ -1,0 +1,6 @@
+{
+  "user-name": "search-user",
+  "password": "password",
+  "description":"Search user for Ferret",
+  "role":["data-explorer-search-role"]
+}

@@ -1,0 +1,84 @@
+.element > .element-label {
+	color:grey;
+}
+
+.element > .element-label::after {
+	content: ":";
+}
+
+.element-heading > .element-label {
+	color:black;
+	font-weight: bold;
+}
+
+.element-heading {
+	margin-top:12px;
+}
+
+.element, .element-heading {
+	padding-left: 10px;
+	margin: 1px;
+	border-color: transparent;
+	border-width: 1px;
+	border-style: solid;
+}
+
+.element:hover, .element-heading:hover {
+	border-width: 1px;
+	border-color: black;
+	border-style: solid;
+}
+
+.attribute {
+	border-width: 1px;
+	border-color: black;
+	border-style: dotted;
+}
+.attribute-name {
+	font-weight: bold;
+}
+
+.attribute-value {
+	margin-left: 4px;
+}
+
+.value {
+	display: block
+}
+
+code {
+	white-space: pre-wrap;
+}
+
+.document-header{
+	background-color:#7F7F7F; 
+	color:white;
+	text-align: center;
+	padding: 3px;
+}
+
+.related-items-col{
+	border-left: rgb(144, 144, 144) 1px inset;
+	min-height: 200px;
+	margin-top: 5px;
+	padding-left: 5px;
+}
+
+.xml-button {
+	float:right;
+}
+
+.home {
+    float: right;
+    position: absolute;
+    top: 2px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.label-permission, .label-collection{
+	margin-left:4px;
+	font-size: 12px;
+	display: inline-block;
+}

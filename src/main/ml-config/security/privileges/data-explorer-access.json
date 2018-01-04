@@ -1,0 +1,5 @@
+{
+  "privilege-name":"data-explorer-access",
+  "action":"http://marklogic.com/ps/data-explorer-access",
+  "kind":"execute"
+}

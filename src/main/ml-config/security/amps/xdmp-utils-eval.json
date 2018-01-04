@@ -1,0 +1,7 @@
+{
+  "namespace": "http://marklogic.com/data-explore/lib/xdmp-utils",
+  "local-name": "eval",
+  "document-uri": "/server/lib/xdmp-utils.xqy",
+  "modules-database": "%%MODULES_DATABASE%%",
+  "role": ["data-explorer-ext-amp-role"]
+}

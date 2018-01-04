@@ -1,0 +1,6 @@
+{
+  "user-name": "default-user",
+  "description": "Ferret Default User",
+  "password": "default-user",
+  "role": [ "data-explorer-default-role"]
+}

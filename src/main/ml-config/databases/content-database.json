@@ -1,0 +1,8 @@
+{
+  "database-name" : "%%DATABASE%%",
+  "maintain-last-modified": true,
+  "collection-lexicon": true,
+  "word-searches": true,
+  "uri-lexicon": true,
+  "directory-creation": "manual"
+}

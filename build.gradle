@@ -1,0 +1,153 @@
+buildscript {
+    repositories {
+        maven { url "http://repo1.maven.org/maven2" }
+        maven { url "http://developer.marklogic.com/maven2/" }
+    }
+
+    dependencies {
+        classpath 'com.marklogic:mlcp:8.0-5'
+        classpath 'com.marklogic:mlcp-util:0.3.0'
+    }
+}
+
+plugins {
+  id "java"
+  id "net.saliman.properties" version "1.4.6"
+  id "com.marklogic.ml-gradle" version "3.2.1"
+  id "idea"
+}
+
+configurations {
+    mlcp
+}
+
+dependencies {
+  compile "com.marklogic:ml-app-deployer:3.2.0"
+
+  // For reading command-line args
+  compile "com.beust:jcommander:1.72"
+
+  mlcp "com.marklogic:mlcp:9.0.3"
+  // mlcp needs a log4j.properties file for logging
+  mlcp files("lib")
+}
+
+repositories {
+  jcenter()
+  mavenCentral()
+
+    maven { url "http://developer.marklogic.com/maven2/" }
+    maven { url "http://repository.cloudera.com/artifactory/cloudera-repos/" }
+}
+
+
+task MyTask() {
+    println 'Port =' + mlAppConfig.restPort
+    println 'Modules Database =' + mlAppConfig.modulesDatabaseName
+}
+
+task exportQueriesAndViews(type: com.marklogic.gradle.task.MlcpTask) {
+	description = "Export the View and Query documents"
+	classpath = configurations.mlcp
+	command = "EXPORT"
+	//host = "localhost" // defaults to mlHost
+	//port = 8000 // defaults to 8000
+	//username = "admin" // defaults to mlRestAdminUsername, which defaults to mlUsername
+	//password = "admin" // defaults to mlRestAdminPassword, which defaults to mlPassword
+	database = mlAppConfig.contentDatabaseName
+	output_file_path = "data/export"
+  directory_filter = "/adhoc/"
+}
+
+task importQueriesAndViews(type: com.marklogic.gradle.task.MlcpTask) {
+    description = "Import the View and Query documents"
+    classpath = configurations.mlcp
+    command = "IMPORT"
+    //host = "localhost" // defaults to mlHost
+    //port = 8000 // defaults to 8000
+    //username = "admin" // defaults to mlRestAdminUsername, which defaults to mlUsername
+    //password = "admin" // defaults to mlRestAdminPassword, which defaults to mlPassword
+    database = mlAppConfig.contentDatabaseName
+    input_file_path = "data/export"
+    directory_filter = "/adhoc/"
+}
+
+task loadDemoData(type: com.marklogic.gradle.task.MlcpTask) {
+  description = "Load Demo Data into the Content Database; can override the database via -PdemoDatabase=some-other-database"
+  classpath = configurations.mlcp
+  command = "IMPORT"
+  database = demoDatabase
+  input_file_path = "DemoData/farmers-markets.csv"
+  input_file_type = "delimited_text"
+  delimited_root_name = "farmersMarket"
+  output_collections = "DemoData"
+  output_permissions = "data-explorer-data-role,read,data-explorer-data-role,update"
+  document_type = "XML"
+  output_uri_suffix = ".xml"
+  namespace = "http://marklogic.com/ferret/demodata"
+}
+
+task deleteDemoData(type: com.marklogic.gradle.task.MarkLogicTask) {
+  description = "Delete the DemoData collection"
+  doLast {
+    def client = mlAppConfig.newAppServicesDatabaseClient(mlAppConfig.getContentDatabaseName())
+    try {
+      client.newServerEval().xquery("xdmp:collection-delete('DemoData')").eval()
+    } finally {
+      client.release()
+    }
+  }
+}
+
+task exportDemoDataToZip(type: com.marklogic.gradle.task.datamovement.DataMovementTask) {
+  description = "After loading the farmers-market.csv file, use this to export it out to a directory that can then be zipped up to update DemoData/farmers-markets.zip"
+  doLast {
+    def client = mlAppConfig.newAppServicesDatabaseClient(mlAppConfig.getContentDatabaseName())
+    try {
+      def dir = new File("build/export")
+      dir.mkdirs()
+      def qbt = newQueryBatcherTemplate(client)
+      def consumer = new com.marklogic.client.ext.datamovement.consumer.WriteToFileConsumer(dir)
+      def listener = new com.marklogic.client.datamovement.ExportListener()
+      listener.onDocumentReady(consumer)
+      qbt.applyOnCollections(listener, "DemoData")
+    } finally {
+      client.release()
+    }
+  }
+}
+
+/**
+ * Customize the jar that can be used for deploying the data-explorer.
+ *
+ * The jar can then be built by running "gradle clean jar", and then run via "java -jar build/libs/data-explorer.jar".
+ */
+jar {
+  baseName = "data-explorer"
+  manifest {
+    attributes("Main-Class": "com.marklogic.dataexplorer.Main")
+  }
+  // Create a "fat" jar
+  from {
+    configurations.compile.collect {
+      it.isDirectory() ? it : zipTree(it)
+    }
+  }
+  from ("src/main/ml-modules") {
+    into "META-INF/com.marklogic.dataexplorer/ml-modules"
+  }
+  from ("src/main/ml-config") {
+    into "META-INF/com.marklogic.dataexplorer/ml-config"
+  }
+  from(".") {
+    include "gradle.properties"
+    into "META-INF/com.marklogic.dataexplorer"
+    rename {
+      "data-explorer.properties"
+    }
+  }
+  from("DemoData") {
+    include "farmers-markets.zip"
+    into "META-INF/com.marklogic.dataexplorer"
+  }
+}

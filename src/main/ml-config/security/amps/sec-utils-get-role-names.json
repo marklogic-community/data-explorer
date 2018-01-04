@@ -1,0 +1,7 @@
+{
+  "namespace": "http://marklogic.com/data-explore/lib/sec-utils",
+  "local-name": "get-role-names",
+  "document-uri": "/server/lib/sec-utils.xqy",
+  "modules-database": "%%MODULES_DATABASE%%",
+  "role": ["data-explorer-ext-amp-role"]
+}

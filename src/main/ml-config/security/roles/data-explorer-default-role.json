@@ -1,0 +1,5 @@
+{
+  "role-name": "data-explorer-default-role",
+  "description": "Role for Ferret App",
+  "role": ["data-explorer-modules-role"]
+}
