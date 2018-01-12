@@ -202,7 +202,8 @@ factory('$click', function() {
           excludedeleted: 1,
           go: 1,
           pagenumber: pageNumber,
-          exportCsv:exportCsv
+          exportCsv:exportCsv,
+          includeMatches: true
         }
       }).success(function(data, status, headers, config) {
     	  if(exportCsv){

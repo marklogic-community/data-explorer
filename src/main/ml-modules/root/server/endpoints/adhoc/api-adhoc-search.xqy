@@ -58,6 +58,10 @@ declare function local:get-result()
   let $view-name := map:get($cfg:getRequestFieldsMap, "viewName")
   let $pagination-size := map:get($cfg:getRequestFieldsMap, "pagination-size")
   let $export-csv := map:get($cfg:getRequestFieldsMap, "exportCsv")
+
+  let $include-matches := 
+    if ($export-csv eq "true") then fn:false() (: csv export doesn't require match data :)
+    else xs:boolean((map:get($cfg:getRequestFieldsMap, "includeMatches"), fn:false())[1]) (: check for query option, otherwise false :)
   
   (: transaction-mode "query" causes XDMP-UPDATEFUNCTIONFROMQUERY on any update :)
   let $code-with-prolog :=
@@ -102,7 +106,8 @@ declare function local:get-result()
       map:put($searchParams, "database", $database),
       map:put($searchParams, "docType", $doc-type),
       map:put($searchParams, "queryName", $query-name),
-      map:put($searchParams, "viewName", $view-name)
+      map:put($searchParams, "viewName", $view-name),
+      map:put($searchParams, "includeMatches", $include-matches)
       (:map:put($searchParams, "facets", local:build-facets($doc-type)):)
     )
 
@@ -148,13 +153,35 @@ declare function local:get-json(){
       let $results-json :=
         for $r in $result/results/result
         let $json := for $p in $r/part
-            return if(fn:count($p/value) > 1) then
-                     let $values := $p/value/node() ! fn:concat('"',fn:replace(fn:replace(xdmp:quote(.),'"','\\"'),"'","&apos;"),'"')
-                     return fn:concat('"',$p/name,'":',to-json:seq-to-array-json($values))                 
-            else    
-                     let $value := fn:replace(fn:replace(xdmp:quote($p/value/node()),'"','\\"'),"'","&apos;")
-                     return fn:concat('"',$p/name,'":"',$value,'"')
-        let $r-json := fn:string-join($json,",")
+          return if(fn:count($p/value) > 1) then
+            let $values := $p/value/node() ! fn:concat('"',fn:replace(fn:replace(xdmp:quote(.),'"','\\"'),"'","&apos;"),'"')
+            return fn:concat('"',$p/name,'":',to-json:seq-to-array-json($values))
+          else
+            let $value := fn:replace(fn:replace(xdmp:quote($p/value/node()),'"','\\"'),"'","&apos;")
+            return fn:concat('"',$p/name,'":"',$value,'"')
+        
+        let $matches := 
+          for $match in $r/match
+          let $match-json := json:object()
+          let $highlights := json:to-array(
+            for $highlight in $match/highlight
+            let $highlight-json := json:object()
+            return (
+              map:put($highlight-json, "index", $highlight/@index),
+              map:put($highlight-json, "value", $highlight/fn:string()),
+              $highlight-json
+            ))
+          return (
+            map:put($match-json, "path", $match/path/fn:string()),
+            if (fn:empty($match/column)) then () else map:put($match-json, "column", $match/column/fn:string()),
+            map:put($match-json, "snippet", $match/snippet/fn:string()),
+            map:put($match-json, "highlights", json:to-array($highlights)),
+            $match-json
+          )
+        let $matches-json := if (fn:empty($matches)) then () else fn:concat('"$matches":', xdmp:quote(json:to-array($matches)))
+
+        let $r-json := fn:string-join(($json, $matches-json), ",")
+
         return fn:concat("{",$r-json,"}")
       let $results-json := to-json:seq-to-array-json($results-json)
       let $results-header-json := to-json:seq-to-array-json(to-json:string-sequence-to-json($result/result-headers/header))
