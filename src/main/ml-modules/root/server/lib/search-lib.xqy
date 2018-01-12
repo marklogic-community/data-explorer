@@ -236,13 +236,14 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
       <match>
         <path>{ $trunc-uri }</path>
         { if (fn:empty($column)) then () else <column>{ $column/fn:string() }</column> }
-        <snippet>{ $match/fn:string() }</snippet>
+        <parts>
         {
-          for $highlight in $match/search:highlight
-          let $preceding-text := fn:string-join($highlight/preceding-sibling::node() ! fn:string(), "")
-          return 
-          <highlight index="{ fn:string-length($preceding-text) }">{ $highlight/fn:string() }</highlight>
+          for $match-part in $match/child::node()
+          return if (fn:node-name($match-part) eq xs:QName("search:highlight"))
+          then <highlight>{ $match-part/fn:string() }</highlight>
+          else <text>{ $match-part/fn:string() }</text>
         }
+        </parts>
       </match>
     else ()
 

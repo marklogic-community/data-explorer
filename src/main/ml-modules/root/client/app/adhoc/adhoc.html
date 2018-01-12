@@ -71,13 +71,29 @@
               	  <thead>
               	    <tr>
                       <th ng-repeat="(key,value) in results['results'][0]">{{key}}</th>
+                      <th ng-if="includeMatches">
+                        <em>All Matches</em>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr ng-repeat="result in results['results']">
                       <td ng-repeat="(key,value) in result">
                         <span ng-show="key == 'uri'" ng-bind-html="to_trusted(value)"></span>
-                        <span ng-hide="key == 'uri'" ng-bind-html="to_value(value)"></span>
+                        <span ng-hide="key == 'uri'" ng-bind-html="to_value(key, value, result)"></span>
+                      </td>
+                      <td ng-if="includeMatches">
+                        <div>
+                          <dl>
+                            <dt ng-repeat-start="match in result['$matches']">
+                              <span class="strong" ng-if="match.column">{{ match.column }}</span>
+                              <span ng-if="!match.column">{{ match.path }}</span>
+                            </dt>
+                            <dd style="padding-bottom:3px" ng-repeat-end>
+                              <span ng-repeat="part in match.parts" ng-class="{ 'search-match-highlight': part.highlight }">{{ part.highlight || part }}</span>
+                            </dd>
+                          </dl>
+                        </div>
                       </td>
                     </tr>
                   </tbody>

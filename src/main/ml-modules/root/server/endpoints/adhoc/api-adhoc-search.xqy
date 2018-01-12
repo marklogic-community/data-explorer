@@ -163,19 +163,21 @@ declare function local:get-json(){
         let $matches := 
           for $match in $r/match
           let $match-json := json:object()
-          let $highlights := json:to-array(
-            for $highlight in $match/highlight
-            let $highlight-json := json:object()
-            return (
-              map:put($highlight-json, "index", $highlight/@index),
-              map:put($highlight-json, "value", $highlight/fn:string()),
-              $highlight-json
-            ))
+          let $match-parts := json:to-array(
+            for $match-part in $match/parts/node()
+            return if (fn:node-name($match-part) eq xs:QName("highlight")) then
+              let $highlight-json := json:object()
+              return (
+                map:put($highlight-json, "highlight", $match-part/fn:string()),
+                $highlight-json
+              )
+            else
+              $match-part/fn:string()
+          )
           return (
             map:put($match-json, "path", $match/path/fn:string()),
             if (fn:empty($match/column)) then () else map:put($match-json, "column", $match/column/fn:string()),
-            map:put($match-json, "snippet", $match/snippet/fn:string()),
-            map:put($match-json, "highlights", json:to-array($highlights)),
+            map:put($match-json, "parts", json:to-array($match-parts)),
             $match-json
           )
         let $matches-json := if (fn:empty($matches)) then () else fn:concat('"$matches":', xdmp:quote(json:to-array($matches)))
