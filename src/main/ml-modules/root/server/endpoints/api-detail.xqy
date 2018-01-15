@@ -60,6 +60,7 @@ declare function local:get-json($uri as xs:string, $db as xs:string){
 	let $doctype 	 := fn:local-name( $doc )
     let $collections :=detail-lib:get-collections($uri,$db)
 	let $permissions :=detail-lib:get-permissions($uri,$db)
+    let $triples := detail-lib:get-triples($uri, $db)
 	let $related-map 	 :=detail-lib:find-related-items-by-document($doc,$db)
     let $related-items-json :=
         for $key in map:keys($related-map)
@@ -69,14 +70,13 @@ declare function local:get-json($uri as xs:string, $db as xs:string){
         return to-json:xml-obj-to-json($item)
     let $related-json := to-json:seq-to-array-json($related-items-json)
     let $permissions-json := to-json:seq-to-array-json(to-json:xml-obj-to-json($permissions))
-
     let $collections-json := to-json:seq-to-array-json(to-json:string-sequence-to-json($collections))
-
     let $xml := 
         <output>
             <type>{$doctype}</type>
             <collections>{$collections-json}</collections>
             <permissions>{$permissions-json}</permissions>
+            <triples>{ to-json:seq-to-array-json(for $t in $triples return xdmp:quote($t)) }</triples>
             <text>{$docText}</text>
             <xml>{$docXml}</xml>
             <related>{$related-json}</related>
