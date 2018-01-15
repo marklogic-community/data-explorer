@@ -23,16 +23,31 @@ factory('$click', function() {
     $scope.to_trusted = function(html_code) {
       return $sce.trustAsHtml(html_code);
     };
-    $scope.to_value = function(values) {
-    	if(Array.isArray(values)){
-    		var str=""
-    		for (var i in values){
-    			str=str + '<div class="multi-value-box">'+values[i]+'</div>'
-    		}    			
-    		return  $sce.trustAsHtml(str)
-    	}
-        return values;
-      };
+
+    function highlightText(value, termsToHighlight) {
+      var str = value;
+      _.forEach(termsToHighlight, term => str = str.replace(term, '<span class="search-match-highlight">' + term + '</span>'));
+      return str;
+    }
+
+    $scope.to_value = function(key, values, result) {
+      var matchesObj = result['$matches'];
+      var termsToHighlight = _(matchesObj).filter({ column: key }).map(f => _.map(f.parts, 'highlight')).flatten().value();
+      var result = '';
+
+      if (Array.isArray(values)) {
+        var str = ""
+        for (var i in values) {
+          str = str + '<div class="multi-value-box">' + values[i] + '</div>';
+        }
+        result = highlightText(str, termsToHighlight);
+      } else {
+        result = highlightText(values, termsToHighlight);;
+      }
+
+      return $sce.trustAsHtml(result);
+    };
+
     $http.get('/api/adhoc').success(function(data, status, headers, config) {
       if (status == 200 && Array.isArray(data)) {
         $scope.databases = data;
@@ -176,6 +191,7 @@ factory('$click', function() {
     	$scope.message = 'Searching....';
     	$scope.results = {};
       }
+      $scope.includeMatches = !!$scope.searchText || _.some($scope.inputField || []);
       $http.get('/api/search', {
         params: {
           database: $scope.selectedDatabase,
@@ -202,7 +218,8 @@ factory('$click', function() {
           excludedeleted: 1,
           go: 1,
           pagenumber: pageNumber,
-          exportCsv:exportCsv
+          exportCsv:exportCsv,
+          includeMatches: $scope.includeMatches
         }
       }).success(function(data, status, headers, config) {
     	  if(exportCsv){

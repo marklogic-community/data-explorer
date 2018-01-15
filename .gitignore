@@ -1,0 +1,6 @@
+/build
+.gradle
+.idea
+.DS_Store
+data-explorer.iml
+out
