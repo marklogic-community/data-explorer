@@ -53,10 +53,14 @@ declare function local:recurse($node) {
 
 
 declare function local:get-json($uri as xs:string, $db as xs:string){
-	let $doc 		 :=detail-lib:get-document($uri,$db)/element()
+    let $content-type := detail-lib:get-document-content-type($uri,$db)
+    let $doc 		 := if ( $content-type = "application/xml") then
+                           detail-lib:get-document($uri,$db)/element()
+                        else
+                            detail-lib:get-document($uri,$db)
     let $rawDoc     := xdmp:quote(local:render-document(detail-lib:get-document($uri,$db)))
     let $docText    := fn:normalize-space(fn:replace(xdmp:quote($rawDoc),'"', '\\"'))
-    let $docXml     := fn:normalize-space(fn:replace(xdmp:quote($doc),'"', '\\"'))
+    let $docData     := fn:normalize-space(fn:replace(xdmp:quote($doc),'"', '\\"'))
 	let $doctype 	 := fn:local-name( $doc )
     let $collections :=detail-lib:get-collections($uri,$db)
 	let $permissions :=detail-lib:get-permissions($uri,$db)
@@ -78,8 +82,9 @@ declare function local:get-json($uri as xs:string, $db as xs:string){
             <collections>{$collections-json}</collections>
             <permissions>{$permissions-json}</permissions>
             <text>{$docText}</text>
-            <xml>{$docXml}</xml>
+            <data>{$docData}</data>
             <related>{$related-json}</related>
+            <mimetype>{$content-type}</mimetype>
         </output>
 
     let $json := to-json:xml-obj-to-json($xml)
