@@ -3,6 +3,8 @@ xquery version "1.0-ml";
 import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
   at "/server/lib/config.xqy";
+import module namespace const = "http://www.marklogic.com/data-explore/lib/const"
+at "/server/lib/const.xqy";
 import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
 import module namespace lib-adhoc-create = "http://marklogic.com/data-explore/lib/adhoc-create-lib" at "/server/lib/adhoc-create-lib.xqy";
 import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json" at "/server/lib/to-json-lib.xqy";
@@ -10,11 +12,9 @@ import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" 
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 
 
-
-
 declare function local:get-structure($is-json as xs:boolean,$doc) {
   if ( $is-json ) then
-      local:get-children-nodes-json(fn:true(),(),$doc/node())
+      ("/",local:get-children-nodes-json(fn:true(),(),$doc/node())/path/fn:string())
   else (
       for $d in $doc/child::*
         return (xdmp:path($d), local:get-structure($is-json,$d)) ! fn:replace(., "\[.*\]", "")
@@ -126,34 +126,38 @@ declare function local:get-children-nodes-xml($path, $node as node()) {
                         else fn:concat($ns-prefix, $localname)
       return
         if($i/node()) then
-          (if ($i/node() instance of text()) then fn:substring(fn:concat("/", $root-ns-prefix, $rootname, "/", $finalpath), 3)
+          (if ($i/node() instance of text()) then
+               <child><path>{fn:substring(fn:concat("/", $root-ns-prefix, $rootname, "/", $finalpath), 3)}</path><dataType>text</dataType></child>
            else (), local:get-children-nodes-xml($finalpath, $i))
            else ()
-      return fn:distinct-values($results)
+      return functx:distinct-deep($results)
 };
 
-declare function local:get-children-nodes-json($get-structure as xs:boolean,$path, $node as node()) {
+declare function local:get-children-nodes-json($get-structure as xs:boolean,$path,$node as node()) {
     let $results :=
         for $i in $node/node()
         let $localname := fn:name($i)
         let $finalpath := fn:concat($path, "/", $localname)
         return
-            if ($i instance of text() or
+            if ($i instance of null-node()) then
+                    ()
+            else if ($i instance of text() or
                     $i instance of  number-node() or
                     $i instance of boolean-node() or
                     ($i instance of null-node() )) then
-                $finalpath
+                <child><path>{$finalpath}</path><dataType>{xdmp:node-kind(xdmp:unpath($finalpath,(),fn:root($i)))[1]}</dataType></child>
             else if ($i instance of object-node() ) then
-                (local:get-children-nodes-json($get-structure,$finalpath, $i),
-                if ($get-structure) then
-                    $finalpath
-                else ()
+                (
+                   local:get-children-nodes-json ($get-structure,$finalpath, $i),
+                   if ($get-structure) then
+                    <child><path>{$finalpath}</path><dataType>object</dataType></child>
+                   else ()
                 )
             else if ($i instance of array-node()) then
-                    local:get-children-nodes-json($get-structure,$path, $i)
+                    local:get-children-nodes-json ($get-structure,$path,$i)
                 else
                     ()
-    return fn:distinct-values($results)
+    return functx:distinct-deep($results)
 };
 
 
@@ -164,11 +168,13 @@ declare function local:render-fields($doc as node(), $type as xs:string,$is-json
                     else
                         local:get-children-nodes-xml((),$doc)
     let $json-arr :=
-      for $xpath in $children
+      for $child in $children
+        let $xpath := $child/path/fn:string()
         let $tokens := fn:tokenize($xpath, "/")
         let $xml :=
             <data>
                 <label>{$label}</label>
+                <dataType>{$child/dataType/fn:string()}</dataType>
                 <xpath>{local:collapse-xpath($is-json,$xpath)}</xpath>
                 <xpathNormal>{fn:normalize-space(fn:tokenize($xpath, "--")[1])}</xpathNormal>
             <elementName>{$tokens[last()]}</elementName>
@@ -217,9 +223,9 @@ try {
 	      <possibleRoots>{
             to-json:seq-to-array-json(to-json:string-sequence-to-json(local:get-structure($is-json,$uploaded-doc)))
           }</possibleRoots>
-	      <rootElement>{fn:replace(xdmp:path($uploaded-doc/node()), "\[.*\]", "")}</rootElement>
+	      <rootElement>{if ($is-json) then "/" else fn:replace(xdmp:path($uploaded-doc/node()), "\[.*\]", "")}</rootElement>
 	        {
-	          let $prefix := cfg:getNamespacePrefix(xs:string(fn:namespace-uri($uploaded-doc/node())))
+	          let $prefix := if($is-json) then () else cfg:getNamespacePrefix(xs:string(fn:namespace-uri($uploaded-doc/node())))
 	          return 
 	          	if ($prefix) then 
 	          		<prefix>{ $prefix }</prefix> 
