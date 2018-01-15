@@ -92,7 +92,8 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
         </request>
         <request uri="^/api/wizard/upload$" endpoint="{$endpoints:API-ADHOC-WIZARD}">
             <param name="uploadedDoc"/>
-            <param name="type"/>                  
+            <param name="mimeType"/>
+            <param name="type"/>
             <http method="POST"/>
         </request>
         <request uri="^/api/wizard/create$" endpoint="{$endpoints:API-ADHOC-WIZARD-CREATE}">

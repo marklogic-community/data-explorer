@@ -17,6 +17,7 @@ angular.module('demoApp')
 
     $scope.inputField = {};
 
+    $scope.isNamespaceAware = true;
     $scope.showNamespaces = false;
     $scope.filename = '';
     
@@ -53,6 +54,7 @@ angular.module('demoApp')
             } else {
                 $scope.message = "Select the desired mode and press the create button";
                 $scope.wizardUploadFormData.append("uploadedDoc", files[0]);
+                $scope.wizardUploadFormData.append("mimeType", files[0]['type']);
                 $scope.messageClass = "form-group"
                 $scope.uploadButtonActive = true;
             }
@@ -82,7 +84,8 @@ angular.module('demoApp')
             return;
         }
         $scope.wizardUploadFormData.append('type',$scope.queryView);
-        var fileMimeType = $scope.wizardUploadFormData.get('uploadedDoc')['type'];
+        var fileMimeType = $scope.wizardUploadFormData.get('mimeType');
+        $scope.isNamespaceAware = isNamespaceAwareMimeType(fileMimeType)
         if ( !isSupportedFileType(fileMimeType) ) {
               $scope.message = "This file-type is not supported. Choose a different file";
               $scope.uploadButtonActive = false;
@@ -199,6 +202,10 @@ angular.module('demoApp')
 
   });
 
-function isSupportedFileType(mimeType) {
+function isNamespaceAwareMimeType(mimeType) {
     return mimeType === "text/xml" || mimeType == "application/xml"
+}
+
+function isSupportedFileType(mimeType) {
+    return mimeType === "text/xml" || mimeType == "application/xml" || mimeType == "application/json"
 };
