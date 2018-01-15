@@ -220,3 +220,4 @@ function isNamespaceAwareMimeType(mimeType) {
 
 function isSupportedFileType(mimeType) {
     return getFileType(mimeType) >= 0;
+};
