@@ -19,7 +19,7 @@ declare variable $cfg:pagesize := 10;
 declare variable $cfg:max-export-records := 1000;
 
 (: does some debug logging when true :)
-declare variable $D := fn:false();
+declare variable $D := fn:true();
 
 declare variable $cfg:NS-IGNORE-LIST := ("http://www.w3.org/XML/1998/namespace");
 
@@ -50,7 +50,14 @@ declare variable $cfg:getRequestFieldsMap :=
     for $field in xdmp:get-request-field-names()
     return
      if (xdmp:get-request-field($field)) then
+     (
+       if ( $cfg:D ) then
+          xdmp:log(fn:concat("RequestField '",$field,"' = '",xdmp:get-request-field($field),"'"))
+       else
+          ()
+       ,
        map:put($map, $field, xdmp:get-request-field($field))
+     )
      else
         ()
   return $map

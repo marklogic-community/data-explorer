@@ -99,11 +99,13 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
         <request uri="^/api/wizard/create$" endpoint="{$endpoints:API-ADHOC-WIZARD-CREATE}">
             <param name="prefix"/>
             <param name="rootElement"/>
+            <param name="fileType"/>
             <param name="queryName"/>
             <param name="viewName"/>
             <param name="queryText"/>
             <param name="database"/>   
             <param name="submit"/>
+            {endpoints:numbered-params("formLabelDataType", (1 to 250))}
             {endpoints:numbered-params("formLabel", (1 to 250))}
             {endpoints:numbered-params("formLabelHidden", (1 to 250))}
             {endpoints:numbered-params("formLabelIncludeMode", (1 to 250))}
