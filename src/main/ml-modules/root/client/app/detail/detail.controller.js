@@ -16,8 +16,6 @@ angular.module('demoApp')
     $scope.tabheading = '';
     $scope.details = Detail.get({database:$scope.database,uri:$scope.uri},function(details){
       $scope.doc = details;
-      console.log("ADDA3");
-      console.log($scope.doc.mimetype);
       if ( $scope.doc.mimetype == "application/json") {
         console.log($scope.doc.data);
         $scope.prettyData = vkbeautify.json($scope.doc.data)
