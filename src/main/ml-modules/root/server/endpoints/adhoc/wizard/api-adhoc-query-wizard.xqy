@@ -12,9 +12,13 @@ import module namespace  check-user-lib = "http://www.marklogic.com/data-explore
 
 
 
-declare function local:getStructure($doc) {
-  for $d in $doc/child::*
-  return (xdmp:path($d), local:getStructure($d)) ! fn:replace(., "\[.*\]", "")
+declare function local:get-structure($is-json as xs:boolean,$doc) {
+  if ( $is-json ) then
+      local:get-children-nodes-json(fn:true(),(),$doc/node())
+  else (
+      for $d in $doc/child::*
+        return (xdmp:path($d), local:get-structure($is-json,$d)) ! fn:replace(., "\[.*\]", "")
+  )
 };
 
 declare function local:registerNamespaces($node as node()) {
@@ -108,9 +112,7 @@ declare function local:registerNamespaces($node as node()) {
     )
 };
 
-declare function local:get-children-nodes($path, $node as node()) {
-
-
+declare function local:get-children-nodes-xml($path, $node as node()) {
   let $results :=
       for $i in $node/node()
       let $ns := xs:string(fn:namespace-uri($i))
@@ -125,30 +127,57 @@ declare function local:get-children-nodes($path, $node as node()) {
       return
         if($i/node()) then
           (if ($i/node() instance of text()) then fn:substring(fn:concat("/", $root-ns-prefix, $rootname, "/", $finalpath), 3)
-           else (), local:get-children-nodes($finalpath, $i))
+           else (), local:get-children-nodes-xml($finalpath, $i))
            else ()
       return fn:distinct-values($results)
 };
 
-declare function local:render-fields($doc as node(), $type as xs:string) {
+declare function local:get-children-nodes-json($get-structure as xs:boolean,$path, $node as node()) {
+    let $results :=
+        for $i in $node/node()
+        let $localname := fn:name($i)
+        let $finalpath := fn:concat($path, "/", $localname)
+        return
+            if ($i instance of text() or
+                    $i instance of  number-node() or
+                    $i instance of boolean-node() or
+                    ($i instance of null-node() )) then
+                $finalpath
+            else if ($i instance of object-node() ) then
+                (local:get-children-nodes-json($get-structure,$finalpath, $i),
+                if ($get-structure) then
+                    $finalpath
+                else ()
+                )
+            else if ($i instance of array-node()) then
+                    local:get-children-nodes-json($get-structure,$path, $i)
+                else
+                    ()
+    return fn:distinct-values($results)
+};
+
+
+declare function local:render-fields($doc as node(), $type as xs:string,$is-json as xs:boolean) {
     let $label := if ($type eq "query") then "Form Field:" else "Column Name:"
-    let $input1 := if ($type eq "query") then "formLabel" else "columnName"
-    let $input2 := if ($type eq "query") then "formLabelHidden" else "columnExpr"
+    let $children := if ( $is-json ) then
+                        local:get-children-nodes-json(fn:false(),(),$doc/node())
+                    else
+                        local:get-children-nodes-xml((),$doc)
     let $json-arr :=
-      for $xpath at $p in local:get-children-nodes((), $doc)
-      let $tokens := fn:tokenize($xpath, "/")
-      let $xml :=
-        <data>
-          <label>{$label}</label>
-          <xpath>{local:collapse-xpath($xpath)}</xpath>
-          <xpathNormal>{fn:normalize-space(fn:tokenize($xpath, "--")[1])}</xpathNormal>
-          <elementName>{$tokens[last()]}</elementName>
-        </data>
-      return to-json:xml-obj-to-json($xml)
+      for $xpath in $children
+        let $tokens := fn:tokenize($xpath, "/")
+        let $xml :=
+            <data>
+                <label>{$label}</label>
+                <xpath>{local:collapse-xpath($is-json,$xpath)}</xpath>
+                <xpathNormal>{fn:normalize-space(fn:tokenize($xpath, "--")[1])}</xpathNormal>
+            <elementName>{$tokens[last()]}</elementName>
+            </data>
+        return to-json:xml-obj-to-json($xml)
     return to-json:seq-to-array-json($json-arr)
 };
 
-declare function local:collapse-xpath($xpath as xs:string){
+declare function local:collapse-xpath($is-json as xs:boolean,$xpath as xs:string){
   let $nodes := fn:tokenize($xpath, "/")
   let $nodescount := fn:count($nodes)
   let $new-xpath :=
@@ -164,26 +193,29 @@ try {
   if (check-user-lib:is-logged-in() and check-user-lib:is-wizard-user())
   then
     let $uploaded-doc := xdmp:unquote(xdmp:get-request-field("uploadedDoc"))
-    let $_ := local:registerNamespaces($uploaded-doc)
-    
+    let $is-json := xdmp:get-request-field("mimeType") = "application/json"
+
     let $type := xdmp:get-request-field("type")
     
     let $type-label := if ($type eq "query") then "Query" else "View"
     let $query-view-name := if ($type eq "query") then "queryName" else "viewName"
-    
+
+    let $_ := if ( $is-json = fn:false() ) then ( local:registerNamespaces($uploaded-doc) ) else ()
     let $namespaces-map := $cfg:NS-MAP
     let $namespaces :=
-      for $key in map:keys($namespaces-map)
-      return
-        to-json:xml-obj-to-json(<namespace><abbrv>{ map:get($namespaces-map, $key) }</abbrv><uri>{ $key }</uri></namespace>)
-    
-    let $fields := local:render-fields($uploaded-doc, $type)
+       if ( $is-json = fn:false() ) then (
+        for $key in map:keys($namespaces-map)
+           return
+             to-json:xml-obj-to-json(<namespace><abbrv>{ map:get($namespaces-map, $key) }</abbrv><uri>{ $key }</uri></namespace>)
+        ) else ()
+
+    let $fields := local:render-fields($uploaded-doc, $type,$is-json)
    
     let $xml :=
       <data>
 	      <type>{ $type-label }</type>
 	      <possibleRoots>{
-            to-json:seq-to-array-json(to-json:string-sequence-to-json(local:getStructure($uploaded-doc)))
+            to-json:seq-to-array-json(to-json:string-sequence-to-json(local:get-structure($is-json,$uploaded-doc)))
           }</possibleRoots>
 	      <rootElement>{fn:replace(xdmp:path($uploaded-doc/node()), "\[.*\]", "")}</rootElement>
 	        {
@@ -200,12 +232,13 @@ try {
     let $_ := xdmp:log( "FROM: /server/endpoints/adhoc/wizard/api-adhoc-query-wizard.xqy", "debug")
     
     let $json := to-json:xml-obj-to-json($xml)
+    let $_ := xdmp:log($json,"debug")
     return $json
   else
     xdmp:set-response-code(401, "User is not authorized.")
     
 } catch ($e) {
   xdmp:log(
-    ("Error processing uploaded sample doc...", xdmp:quote($e)), "notice"),
+    ("Error processing uploaded sample doc...", xdmp:quote($e)), "error"),
   xdmp:rethrow()
 }
