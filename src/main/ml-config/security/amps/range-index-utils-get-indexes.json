@@ -1,0 +1,7 @@
+{
+  "namespace": "http://marklogic.com/data-explore/lib/range-index-utils",
+  "local-name": "get-indexes",
+  "document-uri": "/server/lib/range-index-utils.xqy",
+  "modules-database": "%%MODULES_DATABASE%%",
+  "role": ["data-explorer-ext-amp-role"]
+}
