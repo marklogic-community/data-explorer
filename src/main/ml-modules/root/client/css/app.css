@@ -32,3 +32,8 @@
 
 .multi-value-box:first-child { border-top: 0px; }
 .multi-value-box:not(:first-child) {  border-top: 1px solid; border-color: #ddd;}
+
+.index-indicator {
+  color: #ff0000;
+  font-weight: bold;
+}

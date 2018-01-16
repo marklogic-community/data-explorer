@@ -5,6 +5,7 @@ module namespace riu = "http://marklogic.com/data-explore/lib/range-index-utils"
 import module namespace admin = "http://marklogic.com/xdmp/admin" at "/MarkLogic/admin.xqy";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
 
 declare namespace db = "http://marklogic.com/xdmp/database";
 
@@ -37,11 +38,11 @@ as node()*
 declare function riu:match-index-values($match-text as xs:string*, $database as xs:string, $form-field as xs:string, $limit as xs:integer*)
 as xs:anyAtomicType*
 {
-  let $max-items := fn:max(($limit, 10)[1], 1)
+  let $max-items := fn:max((($limit, 10)[1], 1))
   let $qtext := functx:trim($match-text)
   let $index := riu:get-index($database, $form-field)
 
-  return xdmp:invoke-function(function() {
+  return xu:invoke-function(function() {
     cts:element-value-match(
       riu:form-field-to-qname($form-field),
       if (fn:string-length($qtext) gt 0) then fn:concat("*", $match-text, "*") else "*",

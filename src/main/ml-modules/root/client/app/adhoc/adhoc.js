@@ -7,6 +7,7 @@ angular.module('demoApp')
         url: '/adhoc',
         templateUrl: 'app/adhoc/adhoc.html',
         controller: 'AdhocCtrl',
+        controllerAs: 'ctrl',
         authenticate: true
       });
   });
