@@ -39,6 +39,6 @@ declare function lib-adhoc:get-view-names($database as xs:string, $docType as xs
 	return $names
 };
 
-declare function lib-adhoc:get-query-form-items($docType as xs:string, $query as xs:string) as xs:string*{
-	cfg:get-form-query($docType, $query)/formLabel
+declare function lib-adhoc:get-query-form-items($docType as xs:string, $query as xs:string) as node()* {
+	cfg:get-form-query($docType, $query)//formLabel
 };
