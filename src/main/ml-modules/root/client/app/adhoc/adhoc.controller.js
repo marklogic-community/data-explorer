@@ -103,7 +103,27 @@ factory('$click', function() {
         if (typeof(newValue) !== 'undefined' && newValue != '') {
           for (var i = 0; i < $scope.queries.length; i++) {
             if ($scope.queries[i].query == newValue) {
-              $scope.textFields = $scope.queries[i]['form-options'];
+              var dataTypes = $scope.queries[i]['form-datatypes']
+              var formLabels = $scope.queries[i]['form-labels']
+              var arr = new Array(formLabels.length)
+              for ( i = 0 ; i < formLabels.length ; i++ ) {
+                 var formLabel = formLabels[i]
+                 var dataTypeString = "";
+                 var dt = "text"
+                 if ( i < dataTypes.length ) {
+                    var dataType = dataTypes[i]
+                    dt = dataType
+                    if ( dataType != null && dataType.trim().length > 0 ) {
+                                  dataTypeString = " ("+dataType.trim()+")"
+                     }
+                 }
+                 arr[i] = new Array(3);
+                 arr[i][0] = formLabel;
+                 arr[i][1] = formLabel+dataTypeString
+                 arr[i][2] = dt
+              }
+              $scope.textFields = arr
+              $scope.dataTypes = dataTypes
               break;
             }
           }
