@@ -160,7 +160,6 @@ declare function local:get-children-nodes-json($get-structure as xs:boolean,$pat
     return functx:distinct-deep($results)
 };
 
-
 declare function local:render-fields($doc as node(), $type as xs:string,$is-json as xs:boolean) {
     let $label := if ($type eq "query") then "Form Field:" else "Column Name:"
     let $children := if ( $is-json ) then

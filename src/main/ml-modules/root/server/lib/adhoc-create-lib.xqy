@@ -128,6 +128,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 		  	let $counter := 1
 		  	for $i in (1 to 250)
 		  	let $label := map:get($adhoc-fields, fn:concat("formLabel", $i))
+			let $datatype := map:get($adhoc-fields,fn:concat("formLabelDataType",$i))
 		  	let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
 		  	return
 		  		if (fn:exists($label) and ($mode eq "both" or $mode eq "query")) then
@@ -135,7 +136,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 		          let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
 		          let $_ := xdmp:set($counter, $counter + 1)
 		  		  return
-		  			<formLabel>{ $label }</formLabel>
+		  			<formLabel><label>{ $label }</label><dataType>{ $datatype }</dataType></formLabel>
 		  		else
 		  			()
 		  }
