@@ -19,7 +19,7 @@ declare variable $cfg:pagesize := 10;
 declare variable $cfg:max-export-records := 1000;
 
 (: does some debug logging when true :)
-declare variable $D := fn:false();
+declare variable $D := fn:true();
 
 declare variable $cfg:NS-IGNORE-LIST := ("http://www.w3.org/XML/1998/namespace");
 
