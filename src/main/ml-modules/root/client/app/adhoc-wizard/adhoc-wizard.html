@@ -4,7 +4,7 @@
   <div ng-hide="step != 1" class="row">
       <h1>Step 1 - Upload Example Document XML</h1>
       <div class="wizard-step-detail">
-      	Select a representative XML or JSON-file to use that will help define a query and/or view.
+      	Select a representative file to use that will help define a query and/or view.
       </div>
       <form class="form-horizontal" style="padding-top:10px">
         <div class="form-group">
@@ -75,7 +75,7 @@
 			<div>
 	        	<div ng-if="wizardForm.type == 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it is available to search on, displayed in results, both, or none.</div>
 	        	<div ng-if="wizardForm.type != 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it displayed in results or not.</div>
-				<div ng-show="isNamespaceAware" style="padding-top:5px;padding-bottom:10px">
+				<div style="padding-top:5px;padding-bottom:10px">
 					<span>Namespaces ({{wizardForm.namespaces.length}})</span>
 					<span class="glyphicon" style="icon: pointer" ng-class="showNamespaces ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'"  aria-hidden="true" ng-click="toggleNamespaces()"></span>
 				</div>

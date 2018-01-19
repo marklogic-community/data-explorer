@@ -2,7 +2,6 @@ xquery version "1.0-ml";
 import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
 import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json" at "/server/lib/to-json-lib.xqy";
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
-import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"  at "/server/lib/config.xqy";
 
 (: Expected output 
 
@@ -22,10 +21,8 @@ declare function local:get-queries-views-json($db as xs:string, $doctype as xs:s
 
     let $queries-array-sequence := 
         for $q in $queries
-        let $form-items := lib-adhoc:get-query-form-items($doctype,$q)
-        let $labels := to-json:seq-to-array-json(to-json:string-sequence-to-json($form-items/label))
-        let $datatypes := to-json:seq-to-array-json(to-json:string-sequence-to-json($form-items/dataType))
-        return to-json:xml-obj-to-json(<output><query>{$q}</query><form-labels>{$labels}</form-labels><form-datatypes>{$datatypes}</form-datatypes></output>)
+        let $options := to-json:seq-to-array-json(to-json:string-sequence-to-json(lib-adhoc:get-query-form-items($doctype,$q)))
+        return to-json:xml-obj-to-json(<output><query>{$q}</query><form-options>{$options}</form-options></output>)
 
     let $queries-json := to-json:seq-to-array-json($queries-array-sequence)
     let $views-json   := to-json:seq-to-array-json(to-json:string-sequence-to-json($views))
@@ -41,17 +38,12 @@ declare function local:get-json(){
 	let $db 	 := $tokens[4] (:Since there can be multiple databases with name variations but same doctypes/views:)
 	let $doctype := xdmp:url-decode( $tokens[5] )
 
-	let $output :=
+	return 
 		if (fn:empty($doctype) or $doctype = "") then
 			local:get-doctypes-json($db)
 		else
 			local:get-queries-views-json($db,$doctype)
-    let $_ := if ($cfg:D) then
-        xdmp:log(("Returning Selector JSON:",$output))
-    else ()
-    return $output
 };
-
 let $_ := xdmp:log("FROM: /server/endpoints/adhoc/api-adhoc-selectors.xqy","debug")
 return
        if (check-user-lib:is-logged-in() and (check-user-lib:is-search-user() or check-user-lib:is-wizard-user())) then

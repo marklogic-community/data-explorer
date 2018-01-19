@@ -50,14 +50,7 @@ declare variable $cfg:getRequestFieldsMap :=
     for $field in xdmp:get-request-field-names()
     return
      if (xdmp:get-request-field($field)) then
-     (
-       if ( $cfg:D ) then
-          xdmp:log(fn:concat("RequestField '",$field,"' = '",xdmp:get-request-field($field),"'"))
-       else
-          ()
-       ,
        map:put($map, $field, xdmp:get-request-field($field))
-     )
      else
         ()
   return $map
