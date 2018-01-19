@@ -4,6 +4,11 @@ module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
   at "/server/lib/config.xqy";
 
+
+(:
+    JSON can have properties with spaces. If you use this attributes with spaces in XPath
+    it will not work ("//first//second with space//third"). So we need to transform such XPaths.
+:)
 declare function lib-adhoc:transform-xpath-with-spaces($xpath as xs:string) {
 	fn:string-join(
 			for $i in fn:tokenize($xpath,"/")
