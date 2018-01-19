@@ -35,6 +35,10 @@
     "action" : "http://marklogic.com/xdmp/privileges/admin-module-read",
     "kind" : "execute"
   }, {
+    "privilege-name" : "admin-database",
+    "action" : "http://marklogic.com/xdmp/privileges/admin/database",
+    "kind" : "execute"
+  }, {
     "privilege-name" : "data-explorer-access",
     "action" : "http://marklogic.com/ps/data-explorer-access",
     "kind" : "execute"

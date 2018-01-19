@@ -11,6 +11,8 @@ factory('$click', function() {
 	  };
 	})	
   .controller('AdhocCtrl', function($scope, $http, $sce, Auth, User, AdhocState,$window,$timeout,$click) {
+    var ctrl = this;
+
     // Determine if we arrived here from a back button click
     var displayLastResults = AdhocState.getDisplayLastResults();
     // Restore the saved state
@@ -19,6 +21,24 @@ factory('$click', function() {
     $scope.$watch('currentPage', function(page){
       AdhocState.setPage(page);
     });  
+
+    ctrl.suggestValues = function(field) {
+      return $http.get('/api/suggest-values', {
+        params: {
+          database: $scope.selectedDatabase,
+          rangeIndex: field.item.rangeIndex,
+          qtext: field.value
+        }
+      })
+      .then(function(response) {
+        if (response.data && response.data.values) {
+          return response.data.values;
+        }
+        else {
+          return [];
+        }
+      });
+    };
 
     $scope.to_trusted = function(html_code) {
       return $sce.trustAsHtml(html_code);
