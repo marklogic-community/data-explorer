@@ -124,12 +124,8 @@ declare function local:get-result()
     else
       ()
 
-  let $ret := search-lib:search($searchParams,$database,($export-csv eq "true"))
-  let $_ := if ( $cfg:D ) then
-              xdmp:log(("Returned from search-lib",$ret))
-            else
-              ()
-  return $ret
+  return
+    search-lib:search($searchParams,$database,($export-csv eq "true"))
 };
 
 declare function local:get-json(){
@@ -171,12 +167,7 @@ declare function local:get-json(){
           <max-export-records>{$cfg:max-export-records}</max-export-records>
           <results>{$results-json}</results>
         </output>
-      let $json := to-json:xml-obj-to-json($output)
-      let $_ := if ( $cfg:D ) then
-                    xdmp:log(("Search result JSON",$json))
-                else
-                    ()
-      return $json
+      return to-json:xml-obj-to-json($output)
   };
   
 declare function local:get-csv(){

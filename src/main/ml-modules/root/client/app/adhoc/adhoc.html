@@ -30,10 +30,8 @@
           </div>
           <div ng-show="textFields.length">
             <div ng-repeat="item in textFields" class="form-group">
-              <label for="input{{index+1}}">{{ item[0] }}</label>
-              <select ng-if="item[2] == 'boolean'" ng-model="inputField[$index+1]" class="form-control" ng-options="item for item in ['','true', 'false']"></select>
-              <input ng-if="item[2] == 'text'"  type="text" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item[1] }}"/>
-              <input ng-if="item[2] == 'number'"  type="number" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item[1] }}"/>
+              <label for="input{{index+1}}">{{item}}</label>
+              <input type="text" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{item}}"/>
             </div>
             <button type="submit" ng-click="clickSearch(form)" class="btn btn-default">Search</button>
           </div>
