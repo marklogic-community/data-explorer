@@ -88,6 +88,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="pagenumber"/>
             <param name="pagination-size"/>
             <param name="exportCsv"/>
+            <param name="includeMatches"/>
             <http method="POST"/>
             <http method="GET"/>
         </request>

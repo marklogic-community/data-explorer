@@ -1,5 +1,9 @@
+
+/build
 .gradle
 .idea
+.DS_Store
+data-explorer.iml
 build
 *.iml
 *.ipr
