@@ -30,8 +30,12 @@
           </div>
           <div ng-show="textFields.length">
             <div ng-repeat="item in textFields" class="form-group">
-              <label for="input{{index+1}}">{{item}}</label>
-              <input type="text" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{item}}"/>
+              <label for="input{{ index + 1 }}">
+                {{ item.label }}
+                <span class="index-indicator" ng-if="item.rangeIndex" tooltip="This element currently has a range index.">*</span>
+              </label>
+              <input ng-if="!item.rangeIndex" type="text" class="form-control" ng-model="inputField[$index + 1]" id="input{{ $index + 1 }}" placeholder="{{ item.label }}"/>
+              <input ng-if="item.rangeIndex" type="text" class="form-control" ng-model="inputField[$index + 1]" id="input{{ $index + 1 }}" placeholder="{{ item.label }}" autocomplete="off" typeahead="suggestion for suggestion in ctrl.suggestValues({ value: $viewValue, item: item })"/>
             </div>
             <button type="submit" ng-click="clickSearch(form)" class="btn btn-default">Search</button>
           </div>

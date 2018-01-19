@@ -21,7 +21,7 @@ declare function local:get-queries-views-json($db as xs:string, $doctype as xs:s
 
     let $queries-array-sequence := 
         for $q in $queries
-        let $options := to-json:seq-to-array-json(to-json:string-sequence-to-json(lib-adhoc:get-query-form-items($doctype,$q)))
+        let $options := xdmp:quote(lib-adhoc:get-query-form-items($doctype, $q))
         return to-json:xml-obj-to-json(<output><query>{$q}</query><form-options>{$options}</form-options></output>)
 
     let $queries-json := to-json:seq-to-array-json($queries-array-sequence)
