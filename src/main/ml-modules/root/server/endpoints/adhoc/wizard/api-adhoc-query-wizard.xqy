@@ -145,7 +145,7 @@ declare function local:get-children-nodes-json($get-structure as xs:boolean,$pat
                     $i instance of  number-node() or
                     $i instance of boolean-node() or
                     ($i instance of null-node() )) then
-                <child><path>{$finalpath}</path><dataType>{xdmp:node-kind(xdmp:unpath($finalpath,(),fn:root($i)))[1]}</dataType></child>
+                <child><path>{$finalpath}</path><dataType>{xdmp:node-kind($i)}</dataType></child>
             else if ($i instance of object-node() ) then
                 (
                    local:get-children-nodes-json ($get-structure,$finalpath, $i),

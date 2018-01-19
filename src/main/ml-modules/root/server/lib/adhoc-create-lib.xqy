@@ -4,7 +4,7 @@ module namespace lib-adhoc-create = "http://marklogic.com/data-explore/lib/adhoc
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
-
+import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
 
 declare  namespace sec="http://marklogic.com/xdmp/security";
 
@@ -211,7 +211,7 @@ declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map)
 				  	let $mode := map:get($adhoc-fields, "columnIncludeMode" || $i)
 				  	return
 				  		if (fn:exists($name) and fn:exists($expr) and ($mode eq "both" or $mode eq "view")) then
-				  			<column name="{ $name }" evaluateAs="XPath" expr="{ $expr }" />
+				  			<column name="{ $name }" evaluateAs="XPath" expr="{ lib-adhoc:transform-xpath-with-spaces($expr) }" />
 				  		else
 				  			()
 				  }

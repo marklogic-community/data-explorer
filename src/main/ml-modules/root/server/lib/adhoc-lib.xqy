@@ -4,6 +4,16 @@ module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
   at "/server/lib/config.xqy";
 
+declare function lib-adhoc:transform-xpath-with-spaces($xpath as xs:string) {
+	fn:string-join(
+			for $i in fn:tokenize($xpath,"/")
+			return if (fn:contains($i,' ')) then
+				fn:concat("*[name(.) = '",$i,"']")
+			else
+				$i
+			,'/')
+};
+
 declare function lib-adhoc:get-databases() as xs:string*{
 	for $db in fn:distinct-values(
 				for $server in xdmp:servers()
