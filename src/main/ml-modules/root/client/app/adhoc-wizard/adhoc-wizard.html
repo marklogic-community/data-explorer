@@ -8,18 +8,30 @@
       </div>
       <form class="form-horizontal" style="padding-top:10px">
         <div class="form-group">
-          <label for="uploadedDoc" class="col-sm-2 control-label">Example Document</label>
 <!--           <input type="file" class="name" name="uploadedDoc" onchange="angular.element(this).scope().changeFile(this.files)" size="50"/></label>-->
-		  <div class="col-sm-10">
-	          <label class="btn btn-default">
-	    		Browse <input type="file" onchange="angular.element(this).scope().changeFile(this.files)" hidden></span>
-			  </label>
-			  <span style="margin-left:10px" ng-bind="filename"></span>
-		  </div>          
+		  	   <label for="type" class="col-sm-2 control-label">Example Document</label>
+          
+		  	   <div class="col-sm-8">
+		  		     <label class="btn btn-default">
+			    			Browse File<input type="file" onchange="angular.element(this).scope().changeFile(this.files)" hidden></span>
+					  </label>
+				  		<span style="margin-left:10px" ng-bind="filename"></span> 
+						  Or &nbsp;
+			 		<span class="dropdown">
+					  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Browse MarkLogic
+					  <span class="caret"></span></button>
+					  <ul class="dropdown-menu">
+					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeCollectionName)" >Search by Collection Name</a></li>
+					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeDirectory)" >Search by Directory</a></li>
+					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeRootName)" >Search by Root Element</a></li>
+					  </ul>
+					</span>	
+			  	</div>
         </div>
+        
         <div class="form-group">
           <label for="type" class="col-sm-2 control-label">Query or View</label>
-          <div class="col-sm-10">
+          <div class="col-sm-8">
           	<select class="form-control" name="type" ng-model="queryView" style="width:200px">
       	    	<option value="query">Query</option>
       	    	<option value="view">View</option>
@@ -38,6 +50,82 @@
         </div>
       </form>
   </div>
+  <div class="modal fade" id="selectDocument" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+	  <div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+			<h4 class="modal-title">Select example document by {{searchTypeDescription[searchType]}}</h4>
+		</div>
+		<div class="modal-body">
+			<div class="panel panel-default">
+			 	<div class="panel-body" >
+				 	<form class="navbar-form navbar-left" role="search">
+		  				<div class="form-group">	
+							<div class="input-group input-group-sm">
+							    <select id="database" ng-model="formInput.selectedDatabase" name="database" ng-options="database as database for database in wizardForm.databases" class="form-control" required>
+						            	<option value="">--Choose Database</option>
+						        	</select>
+					        	</div>
+						    <div class="input-group input-group-sm" ng-hide="searchType == searchTypeRootName">
+						      <input type="text" class="form-control" required ng-model="formInput.searchString" placeholder="Enter {{searchTypeDescription[searchType]}}">
+						      <span class="input-group-btn">
+						        <button class="btn btn-default" type="button" ng-click="searchDocuments()">Search</button>
+						      </span>
+						    </div>
+						    <div class="input-group input-group-sm" ng-hide="searchType != searchTypeRootName" >
+							    <select class="form-control" required  ng-model="formInput.searchString" name="rootElement" ng-options="rootElement as rootElement for rootElement in rootElements">
+						            	<option value="">--Choose Root Element</option>
+						        	</select>
+						        	<span class="input-group-btn">
+						        		<button class="btn btn-default" type="button" ng-click="searchDocuments()">Search</button>
+						      	</span>
+					        	</div>
+						 </div>
+					</form>	    
+				 </div>
+			 </div>
+			<div class="row" ng-hide="uris.length == 0">
+			  <div class="col-sm-4" id ="uriList">
+				 <div class="panel panel-default">
+					  	
+					  <div class="panel-body">   
+					  	<ul class="pager">
+						  <li class="previous"><a href="#" ng-click='prev()'><span aria-hidden="true">&larr;</span>Previous</a></li>
+						  <li class="next"><a href="#" ng-click='next()'>Next<span aria-hidden="true">&rarr;</span></a></li>
+						</ul>
+					  	<ul class="list-group list-group-flush">
+			                <a ng-repeat="link in uris" href="#" class="list-group-item" ng-click="searchDocuments(link)">{{link}}</a>
+			               
+			            </ul>
+			         </div>
+			      </div>      
+			  </div>
+			  <div class="col-sm-8">
+			  		<div class="panel panel-default">
+					  <div class="panel-body" ng-hide="doc.text.length > 0">
+					  	Please select a document to view.
+					  </div>
+					  <div class="panel-body pre-scrollable" ng-hide="doc.text.length == 0">
+					  	<code>{{doc.text}}</code>
+					  	<button type="button" class="btn btn-default btn-sm bottom-left" ng-click="selectDocument()">
+				          <span class="glyphicon glyphicon-ok"></span>Select
+				        </button>   
+					  	
+					  </div>
+					</div>
+			</div>
+			</div>
+			<div class="panel panel-default" ng-hide="uris.length > 0">
+			 	<div class="panel-body" > {{noResultsMessage}}</div>
+			</div>
+	    </div>
+      
+		
+		
+	</div>
+  </div>
+</div>
   <div ng-hide="step != 2" class="row">
 	<h1>Step 2 - Choose Relevant Fields</h1>
 	<form class="form-horizontal">
