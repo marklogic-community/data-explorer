@@ -4,6 +4,21 @@ module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
   at "/server/lib/config.xqy";
 
+
+(:
+    JSON can have properties with spaces. If you use this attributes with spaces in XPath
+    it will not work ("//first//second with space//third"). So we need to transform such XPaths.
+:)
+declare function lib-adhoc:transform-xpath-with-spaces($xpath as xs:string) {
+	fn:string-join(
+			for $i in fn:tokenize($xpath,"/")
+			return if (fn:contains($i,' ')) then
+				fn:concat("*[name(.) = '",$i,"']")
+			else
+				$i
+			,'/')
+};
+
 declare function lib-adhoc:get-databases() as xs:string*{
 	for $db in fn:distinct-values(
 				for $server in xdmp:servers()
@@ -39,6 +54,6 @@ declare function lib-adhoc:get-view-names($database as xs:string, $docType as xs
 	return $names
 };
 
-declare function lib-adhoc:get-query-form-items($docType as xs:string, $query as xs:string) as xs:string*{
-	cfg:get-form-query($docType, $query)/formLabel
+declare function lib-adhoc:get-query-form-items($docType as xs:string, $query as xs:string) as node()* {
+	cfg:get-form-query($docType, $query)//formLabel
 };
