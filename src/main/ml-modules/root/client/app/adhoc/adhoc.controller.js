@@ -261,6 +261,18 @@ factory('$click', function() {
     		    downloadFile();
     	  }
     	  else{
+          // Convert simple http urls into links
+          data.results.forEach(function(result, resultRow) {
+            data['results-header'].forEach(function(column) {
+              var columnValue = data.results[resultRow][column]
+              // Run the replace if there is a value and it is not already a hyperlink
+              if(columnValue) {
+                if(!columnValue.match(/<a[^>]*>([^<]+)<\/a>/i)) {
+                  data.results[resultRow][column] = columnValue.replace(/((http(s)?:\/\/\S+)[\.]?)/gi, '<a href="$2" target="_blank">$2</a>');
+                } 
+              }
+            });
+          });
     		  $scope.message = '';
     	      $scope.results = data;
     	      $scope.currentPage = $scope.results['current-page'];
