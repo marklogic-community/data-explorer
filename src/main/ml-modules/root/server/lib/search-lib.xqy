@@ -76,6 +76,15 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
       cfg:get-view($doc-type, $view-name)
     else
       ()
+
+  (: Get the order to display the columns in. Could be 
+   : alphabetical or document-order. If not stored in view,
+   : default to document-order :)
+  let $display-order := 
+    if(fn:exists($view/displayOrder)) then
+      $view/displayOrder/text()
+    else "document-order"
+
   let $log :=
     if ($cfg:D) then
       (
@@ -174,6 +183,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
           <result-count>{search-lib:result-count($search-response)}</result-count>
           <current-page>{$page}</current-page>
           <page-count>{search-lib:page-count($search-response)}</page-count>
+          <display-order>{$display-order}</display-order>
           <result-headers><header>URI</header>{for $c in $view/columns/column return <header>{$c/@name/string()}</header>}</result-headers>
           <results>{$results}</results>
         </output>
@@ -211,7 +221,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
     return
       <result>
       {
-        <part><name>uri</name><value><a href='/detail/{$useDB}/{$uri}'>{$uri}</a></value></part>
+        <part><name>URI</name><value><a href='/detail/{$useDB}/{$uri}'>{$uri}</a></value></part>
         ,
         $view-parts
       }

@@ -133,7 +133,7 @@ declare function lib-adhoc-create:create-edit-form-code($adhoc-fields as map:map
     )
 };
 
-declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map)
+declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map, $display-order as xs:string)
 	as empty-sequence()
 {
 	let $prefix := map:get($adhoc-fields, "prefix")
@@ -169,6 +169,7 @@ declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map)
 						$root-element
 					}
 				  }
+				  <displayOrder>{$display-order}</displayOrder>
 				  <columns>
 				  {
 				  	for $i in (1 to 15)

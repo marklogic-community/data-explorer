@@ -70,14 +70,14 @@
                 <table class="table table-bordered">
               	  <thead>
               	    <tr>
-                      <th ng-repeat="(key,value) in results['results'][0]">{{key}}</th>
+                      <th ng-repeat="hdr in results['results-header']" ng-bind="hdr"></th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr ng-repeat="result in results['results']">
-                      <td ng-repeat="(key,value) in result">
-                        <span ng-show="key == 'uri'" ng-bind-html="to_trusted(value)"></span>
-                        <span ng-hide="key == 'uri'" ng-bind-html="to_value(value)"></span>
+                      <td ng-repeat="key in results['results-header']">
+                        <span ng-show="key == 'URI'" ng-bind-html="to_trusted(result[key])"></span>
+                        <span ng-hide="key == 'URI'" ng-bind-html="to_value(result[key])"></span>
                       </td>
                     </tr>
                   </tbody>

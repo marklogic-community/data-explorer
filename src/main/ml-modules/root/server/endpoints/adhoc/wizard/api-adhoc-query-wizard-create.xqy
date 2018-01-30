@@ -9,6 +9,7 @@ import module namespace  check-user-lib = "http://www.marklogic.com/data-explore
 
 
 let $create-form := map:get($cfg:getRequestFieldsMap, "queryText")
+let $display-order := map:get($cfg:getRequestFieldsMap, "displayOrder")
 let $_ := 
 	if(map:contains($cfg:getRequestFieldsMap, "queryName")) then 
 		let $_ := lib-adhoc-create:create-edit-form-query($cfg:getRequestFieldsMap)
@@ -27,10 +28,10 @@ let $_ :=
 					else if (fn:starts-with($key, "formLabel")) then 
 						map:put($defaultViewMap, "columnName"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
 					else(map:put($defaultViewMap, $key, map:get($cfg:getRequestFieldsMap, $key)))
-				return lib-adhoc-create:create-edit-view($defaultViewMap) 
+				return lib-adhoc-create:create-edit-view($defaultViewMap, $display-order) 
 			)
 			else()
-  	else lib-adhoc-create:create-edit-view($cfg:getRequestFieldsMap)
+  	else lib-adhoc-create:create-edit-view($cfg:getRequestFieldsMap, $display-order)
 let $message :=
     <div>
       <p>Created new query: { map:get($cfg:getRequestFieldsMap, "queryName") }</p>
