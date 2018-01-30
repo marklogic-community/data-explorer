@@ -209,7 +209,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
           if( fn:contains($expr, '$') ) then
             $expr
           else
-            fn:concat('$doc/', $expr)
+            fn:concat('$doc/', $expr,'/fn:string()')
         let $values := xdmp:value(fn:string($expr)) ! fn:normalize-space(.)
         return
           <part><name>{fn:normalize-space($name)}</name>{$values ! <value>{fn:string(.)}</value>}</part>")

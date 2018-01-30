@@ -8,6 +8,7 @@ import module namespace lib-adhoc-create = "http://marklogic.com/data-explore/li
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 
 
+let $_ := xdmp:log("START: /server/endpoints/adhoc/wizard/api-adhoc-query-wizard-create.xqy","debug")
 let $create-form := map:get($cfg:getRequestFieldsMap, "queryText")
 let $display-order := map:get($cfg:getRequestFieldsMap, "displayOrder")
 let $_ := 
@@ -21,11 +22,11 @@ let $_ :=
 				let $_ := 
 					for $key in map:keys($cfg:getRequestFieldsMap)
 					return 
-					if(fn:starts-with($key,"formLabelHidden")) then
+					if(fn:matches($key,"formLabelHidden[0-9]")) then
 						map:put($defaultViewMap, "columnExpr"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
-					else if(fn:starts-with($key, "formLabelIncludeMode")) then
+					else if(fn:matches($key, "formLabelIncludeMode[0-9]")) then
 						map:put($defaultViewMap, "columnIncludeMode"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
-					else if (fn:starts-with($key, "formLabel")) then 
+					else if (fn:matches($key,"formLabel[0-9]")) then
 						map:put($defaultViewMap, "columnName"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
 					else(map:put($defaultViewMap, $key, map:get($cfg:getRequestFieldsMap, $key)))
 				return lib-adhoc-create:create-edit-view($defaultViewMap, $display-order) 

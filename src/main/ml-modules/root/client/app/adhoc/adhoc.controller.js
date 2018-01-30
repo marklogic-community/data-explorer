@@ -103,7 +103,27 @@ factory('$click', function() {
         if (typeof(newValue) !== 'undefined' && newValue != '') {
           for (var i = 0; i < $scope.queries.length; i++) {
             if ($scope.queries[i].query == newValue) {
-              $scope.textFields = $scope.queries[i]['form-options'];
+              var dataTypes = $scope.queries[i]['form-datatypes']
+              var formLabels = $scope.queries[i]['form-labels']
+              var arr = new Array(formLabels.length)
+              for ( i = 0 ; i < formLabels.length ; i++ ) {
+                 var formLabel = formLabels[i]
+                 var dataTypeString = "";
+                 var dt = "text"
+                 if ( i < dataTypes.length ) {
+                    var dataType = dataTypes[i]
+                    dt = dataType
+                    if ( dataType != null && dataType.trim().length > 0 ) {
+                                  dataTypeString = " ("+dataType.trim()+")"
+                     }
+                 }
+                 arr[i] = new Array(3);
+                 arr[i][0] = formLabel;
+                 arr[i][1] = formLabel+dataTypeString
+                 arr[i][2] = dt
+              }
+              $scope.textFields = arr
+              $scope.dataTypes = dataTypes
               break;
             }
           }
@@ -241,6 +261,18 @@ factory('$click', function() {
     		    downloadFile();
     	  }
     	  else{
+          // Convert simple http urls into links
+          data.results.forEach(function(result, resultRow) {
+            data['results-header'].forEach(function(column) {
+              var columnValue = data.results[resultRow][column]
+              // Run the replace if there is a value and it is not already a hyperlink
+              if(columnValue) {
+                if(!columnValue.match(/<a[^>]*>([^<]+)<\/a>/i)) {
+                  data.results[resultRow][column] = columnValue.replace(/((http(s)?:\/\/\S+)[\.]?)/gi, '<a href="$2" target="_blank">$2</a>');
+                } 
+              }
+            });
+          });
     		  $scope.message = '';
           if(data['display-order'] === 'alphabetical'){
             var cols = data['results-header'].slice(1).sort(function (a, b) {

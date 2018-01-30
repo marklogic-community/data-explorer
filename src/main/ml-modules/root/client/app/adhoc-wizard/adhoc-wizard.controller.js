@@ -19,9 +19,11 @@ angular.module('demoApp')
 
     $scope.inputField = {};
 
+    $scope.isNamespaceAware = true;
     $scope.showNamespaces = false;
     $scope.filename = '';
-    
+    $scope.fileType = 0;
+
     $scope.toggleNamespaces = function() {
     	$scope.showNamespaces = !$scope.showNamespaces;
     }
@@ -55,6 +57,7 @@ angular.module('demoApp')
             } else {
                 $scope.message = "Select the desired mode and press the create button";
                 $scope.wizardUploadFormData.append("uploadedDoc", files[0]);
+                $scope.wizardUploadFormData.append("mimeType", files[0]['type']);
                 $scope.messageClass = "form-group"
                 $scope.uploadButtonActive = true;
             }
@@ -84,7 +87,9 @@ angular.module('demoApp')
             return;
         }
         $scope.wizardUploadFormData.append('type',$scope.queryView);
-        var fileMimeType = $scope.wizardUploadFormData.get('uploadedDoc')['type'];
+        var fileMimeType = $scope.wizardUploadFormData.get('mimeType');
+        $scope.isNamespaceAware = isNamespaceAwareMimeType(fileMimeType)
+        $scope.fileType = getFileType(fileMimeType)
         if ( !isSupportedFileType(fileMimeType) ) {
               $scope.message = "This file-type is not supported. Choose a different file";
               $scope.uploadButtonActive = false;
@@ -149,7 +154,7 @@ angular.module('demoApp')
         data.displayOrder = $scope.displayOrder;
 
         data.database = $scope.formInput.selectedDatabase;
-                
+        data.fileType =  $scope.fileType;
         if ($scope.wizardForm.type.toLowerCase() === 'query'){
             data.queryName = $scope.formInput.queryViewName;
 
@@ -158,6 +163,7 @@ angular.module('demoApp')
             	if($scope.wizardForm.fields[i-1].include){
             		data['formLabel'+counter] = $scope.wizardForm.fields[i-1].title;
             		data['formLabelHidden'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
+            		data['formLabelDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
             		data['formLabelIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
             		counter += 1;
             	}
@@ -172,6 +178,7 @@ angular.module('demoApp')
             	if($scope.wizardForm.fields[i-1].include){
 	                data['columnName'+counter] = $scope.wizardForm.fields[i-1].title;
 	                data['columnExpr'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
+            		data['columnDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
 	        		data['columnIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
 	        		counter += 1;
             	}
@@ -202,6 +209,18 @@ angular.module('demoApp')
 
   });
 
+function getFileType(mimeType) {
+    if ( mimeType === "text/xml" || mimeType == "application/xml" ) {
+       return 0;
+    } else if ( mimeType == "application/json" ) {
+           return 1;
+    }
+    return -1;
+}
+function isNamespaceAwareMimeType(mimeType) {
+    return getFileType(mimeType) == 0;
+}
+
 function isSupportedFileType(mimeType) {
-    return mimeType === "text/xml" || mimeType == "application/xml"
+    return getFileType(mimeType) >= 0;
 };
