@@ -73,41 +73,38 @@
 		        <span ng-hide="wizardForm.type == 'query'">View</span>
        		</legend>
 			<div>
-	        	<div ng-if="wizardForm.type == 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it is available to search on, displayed in results, both, or none.</div>
-	        	<div ng-if="wizardForm.type != 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it displayed in results or not.</div>
-				<div ng-show="isNamespaceAware" style="padding-top:5px;padding-bottom:10px">
-					<span>Namespaces ({{wizardForm.namespaces.length}})</span>
-					<span class="glyphicon" style="icon: pointer" ng-class="showNamespaces ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'"  aria-hidden="true" ng-click="toggleNamespaces()"></span>
-				</div>
-				<div ng-show="showNamespaces" style="padding-top:10px">
-					<dl class="dl-horizontal">
-						<dt ng-repeat-start="ns in wizardForm.namespaces" ng-bind="ns.abbrv"></dt>
-						<dd ng-repeat-end ng-bind="ns.uri"></dd>
-					</dl>
-				</div>
-			</div>
-	        <div>
-	        	<div>Display Options</div>
-	        	<div>
-	        		<div class="form-group">
-	        			<label class="col-sm-2 control-label">Column Order</label>
-	        			<div class="col-sm-10">
-	        				<div class="radio">
-  								<label>
+	        	<div ng-if="wizardForm.type == 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it is available to search on, displayed in results, both, or none. You may also choose the column sort order.</div>
+	        	<div ng-if="wizardForm.type != 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it displayed in results or not. You may also choose column sort order</div>
+	        	<div><label>Column Order</label></div>
+	        	<div style="padding-left:20px;">
+	        				<span class="radio-inline">
+  								<label style="font-weight:normal">
     								<input type="radio" ng-model="displayOrder" value="alphabetical">
     								Alphabetical
   								</label>
-							</div>
-	        				<div class="radio">
-  								<label>
+							</span>
+	        				<span class="radio-inline">
+  								<label style="font-weight:normal">
     								<input type="radio" ng-model="displayOrder" value="document-order">
     								Document Order
   								</label>
-							</div>
-							
-	        			</div>
-	        		</div>
+							</span>
 	        	</div>
+				<div ng-show="isNamespaceAware" style="padding-top:5px;padding-bottom:10px">
+					<label>Namespaces ({{wizardForm.namespaces.length}})</label>
+					<span class="glyphicon" style="icon: pointer" ng-class="showNamespaces ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'"  aria-hidden="true" ng-click="toggleNamespaces()"></span>
+				</div>
+				<div ng-show="showNamespaces" style="padding-top:10px">
+					<ul>
+						<li ng-repeat="ns in wizardForm.namespaces">{{ns.abbrv}} - {{ns.uri}}</li>
+					</ul>
+<!--					<dl class="dl-horizontal">
+						<dt ng-repeat-start="ns in wizardForm.namespaces" ng-bind="ns.abbrv"></dt>
+						<dd ng-repeat-end ng-bind="ns.uri"></dd>
+					</dl>-->
+				</div>
+			</div>
+	        <div style="padding-top:10px">
 	        	<div>        		
 	        		<table class="table table-striped">
 	        			<thead>
