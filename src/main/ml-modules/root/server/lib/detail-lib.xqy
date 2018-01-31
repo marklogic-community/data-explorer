@@ -127,3 +127,15 @@ declare function detail-lib:get-document($document-uri as xs:string, $db as xs:s
   </options>)
   return $doc
 };
+
+declare function detail-lib:get-document-content-type($document-uri as xs:string, $db as xs:string){
+    let $doc := xu:eval(
+            'xquery version "1.0-ml";
+  declare variable $document-uri as xs:string external;
+  xdmp:uri-content-type($document-uri)',
+            (xs:QName("document-uri"),$document-uri),
+            <options xmlns="xdmp:eval">
+                <database>{xdmp:database($db)}</database>
+            </options>)
+    return $doc
+};

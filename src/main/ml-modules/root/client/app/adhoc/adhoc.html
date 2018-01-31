@@ -30,12 +30,14 @@
           </div>
           <div ng-show="textFields.length">
             <div ng-repeat="item in textFields" class="form-group">
-              <label for="input{{ index + 1 }}">
+              <label for="input{{index+1}}">
                 {{ item.label }}
                 <span class="index-indicator" ng-if="item.rangeIndex" tooltip="This element currently has a range index.">*</span>
               </label>
-              <input ng-if="!item.rangeIndex" type="text" class="form-control" ng-model="inputField[$index + 1]" id="input{{ $index + 1 }}" placeholder="{{ item.label }}"/>
-              <input ng-if="item.rangeIndex" type="text" class="form-control" ng-model="inputField[$index + 1]" id="input{{ $index + 1 }}" placeholder="{{ item.label }}" autocomplete="off" typeahead="suggestion for suggestion in ctrl.suggestValues({ value: $viewValue, item: item })"/>
+              <select ng-if="!item.rangeIndex && item.dataType === 'boolean'" ng-model="inputField[$index+1]" class="form-control" ng-options="item for item in ['','true', 'false']"></select>
+              <input ng-if="!item.rangeIndex && item.dataType  === 'text'"  type="text" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item.placeholderText }}"/>
+              <input ng-if="!item.rangeIndex && item.dataType  === 'number'"  type="number" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item.placeholderText }}"/>
+              <input ng-if="item.rangeIndex" type="text" class="form-control" ng-model="inputField[$index + 1]" id="input{{ $index + 1 }}" placeholder="{{ item.placeholderText }}" autocomplete="off" typeahead="suggestion for suggestion in ctrl.suggestValues({ value: $viewValue, item: item })"/>
             </div>
             <button type="submit" ng-click="clickSearch(form)" class="btn btn-default">Search</button>
           </div>

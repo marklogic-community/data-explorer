@@ -133,17 +133,24 @@ factory('$click', function() {
     });
 
     $scope.$watch('selectedQuery', function(newValue) {
-      if(!displayLastResults) {
-        $scope.textFields = [];
-        if (typeof(newValue) !== 'undefined' && newValue != '') {
-          for (var i = 0; i < $scope.queries.length; i++) {
-            if ($scope.queries[i].query == newValue) {
-              $scope.textFields = $scope.queries[i]['form-options'];
-              break;
-            }
-          }
-        }
+      if (displayLastResults || typeof(newValue) === 'undefined' || newValue === '') {
+        return;
       }
+
+      $scope.textFields = []; // reset query fields
+      var query = _.find($scope.queries, { query: newValue }); // find query object
+      if (typeof(query) === 'undefined') {
+        return;
+      }
+
+      $scope.textFields = _.map(query['form-options'], function(o) { // do some processing to the field definitions before passing
+        var opt = angular.copy(o);
+        var dataTypeHint = opt.dataType ? ' (' + opt.dataType.trim() + ')' : '';
+        opt.placeholderText = opt.label + dataTypeHint;
+        return opt;
+      });
+
+      $scope.dataTypes = query['form-datatypes'];
     });
 
     $scope.getField = function(field) {
@@ -278,6 +285,18 @@ factory('$click', function() {
     		    downloadFile();
     	  }
     	  else{
+          // Convert simple http urls into links
+          data.results.forEach(function(result, resultRow) {
+            data['results-header'].forEach(function(column) {
+              var columnValue = data.results[resultRow][column]
+              // Run the replace if there is a value and it is not already a hyperlink
+              if(columnValue && _.isString(columnValue)) {
+                if(!columnValue.match(/<a[^>]*>([^<]+)<\/a>/i)) {
+                  data.results[resultRow][column] = columnValue.replace(/((http(s)?:\/\/\S+)[\.]?)/gi, '<a href="$2" target="_blank">$2</a>');
+                } 
+              }
+            });
+          });
     		  $scope.message = '';
     	      $scope.results = data;
     	      $scope.currentPage = $scope.results['current-page'];

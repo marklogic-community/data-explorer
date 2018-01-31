@@ -12,11 +12,18 @@ angular.module('demoApp')
 
     $scope.database = $stateParams.database;
     $scope.uri      = $stateParams.uri;
-    $scope.prettyXML = '';
-
+    $scope.prettyData = '';
+    $scope.tabheading = '';
     $scope.details = Detail.get({database:$scope.database,uri:$scope.uri},function(details){
       $scope.doc = details;
-      $scope.prettyXML = vkbeautify.xml($scope.doc.xml);
+      if ( $scope.doc.mimetype == "application/json") {
+        console.log($scope.doc.data);
+        $scope.prettyData = vkbeautify.json($scope.doc.data)
+        $scope.tabheading = "JSON View";
+      } else {
+        $scope.prettyData = vkbeautify.xml($scope.doc.data);
+        $scope.tabheading = "XML View";
+      }
     });
 
     $scope.to_trusted = function(html_code) {

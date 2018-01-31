@@ -8,6 +8,21 @@ import module namespace riu = "http://marklogic.com/data-explore/lib/range-index
 declare namespace db = "http://marklogic.com/xdmp/database";
 
 
+
+(:
+    JSON can have properties with spaces. If you use this attributes with spaces in XPath
+    it will not work ("//first//second with space//third"). So we need to transform such XPaths.
+:)
+declare function lib-adhoc:transform-xpath-with-spaces($xpath as xs:string) {
+	fn:string-join(
+			for $i in fn:tokenize($xpath,"/")
+			return if (fn:contains($i,' ')) then
+				fn:concat("*[name(.) = '",$i,"']")
+			else
+				$i
+			,'/')
+};
+
 declare function lib-adhoc:get-databases() as xs:string*{
 	for $db in fn:distinct-values(
 				for $server in xdmp:servers()
@@ -43,22 +58,21 @@ declare function lib-adhoc:get-view-names($database as xs:string, $docType as xs
 	return $names
 };
 
-declare function lib-adhoc:get-query-form-items($doc-type as xs:string, $query as xs:string) as json:array {
+declare function lib-adhoc:get-query-form-items($doc-type as xs:string, $query as xs:string) as node()* {
 	let $form-query-doc := cfg:get-form-query($doc-type, $query)
 	let $database := $form-query-doc/database/fn:string()
 
-	let $form-options := for $option in $form-query-doc/formLabel
+	return for $option in $form-query-doc/formLabel
 		let $form-field := fn:tokenize($option/@expr, "/")[fn:last()]
 	  let $range-index := riu:get-index($database, $form-field)
-	  let $json := json:object()
-	  return (
-	  	map:put($json, "label", $option/fn:string()),
+	  return 
+	  <formLabel>
+	  { $option/* }
+	  {
 	  	if (fn:empty($range-index)) then () else (
-	  		map:put($json, "rangeIndex", $form-field), (: this will be used to query for index values :)
-	  		map:put($json, "scalarType", $range-index/db:scalar-type/fn:string())
-	  	),
-	  	$json
-	  )
-
-	return json:to-array($form-options)
+	  		<rangeIndex>{ $form-field }</rangeIndex>,
+	  		<scalarType>{ $range-index/db:scalar-type/fn:string() }</scalarType>
+	  	)
+	  }
+		</formLabel>
 };
