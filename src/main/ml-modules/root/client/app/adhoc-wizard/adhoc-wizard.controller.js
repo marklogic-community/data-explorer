@@ -1,19 +1,19 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('AdhocWizardCtrl', function ($scope, $http, $sce, $interval) {
+  .controller('AdhocWizardCtrl', function ($scope, $http, $sce, $interval, databaseService, wizardService) {
 
     $scope.step = 1;
     $scope.wizardForm;
     $scope.wizardResults = '';
     $scope.queryView = 'query';
     $scope.uploadButtonActive = false;
-    $scope.message = "Choose a file and mode and press submit.";
-    $scope.messageClass = "form-group";
-
+    $scope.message = "";
+    
     $scope.formInput = {};
     $scope.formInput.selectedDatabase = '';
     $scope.formInput.queryViewName = '';
+    $scope.formInput.startingDocType = '';
 
     $scope.inputField = {};
 
@@ -38,6 +38,27 @@ angular.module('demoApp')
 
     $scope.wizardUploadFormData = null;
 
+    databaseService.list().then(function(data) {
+        $scope.availableDatabases = data;
+    });
+
+    $scope.$watch('formInput.selectedDatabase', function(value) {
+        if ($scope.step !== 1 || !value) {
+            return;
+        }
+        wizardService.listDocTypes(value).then(function(docTypes) { 
+            $scope.availableDocTypes = docTypes || [];
+            var error = _.isEmpty(docTypes);
+            $scope.message = error ? 
+                "Could not find any available document types.  Perhaps it contains no documents or you currently have insufficient permissions to read them." 
+                : "";
+        });
+    });
+
+    $scope.$watch('docTypeMethod', function() {
+        $scope.message = "";
+    });
+
     $scope.changeFile = function(files) {
         if (files.length > 0){
         	// kind of hacky, but the event wasn't triggering a digest cycle so the 
@@ -49,14 +70,11 @@ angular.module('demoApp')
             //Take the first selected file
             var fileMimeType = files[0]['type'];
             if ( !isSupportedFileType(fileMimeType) ) {
-                $scope.message = "This file-type is not supported. Choose a different file.";
+                $scope.message = "This file type is not supported. Please choose a different file.";
                 $scope.uploadButtonActive = false;
-                $scope.messageClass = "form-group has-error";
             } else {
-                $scope.message = "Select the desired mode and press the create button";
                 $scope.wizardUploadFormData.append("uploadedDoc", files[0]);
                 $scope.wizardUploadFormData.append("mimeType", files[0]['type']);
-                $scope.messageClass = "form-group"
                 $scope.uploadButtonActive = true;
             }
         }
@@ -77,6 +95,21 @@ angular.module('demoApp')
     			field.title = field.defaultTitle;
     		}
     	}
+    };
+
+    $scope.selectDocumentType = function() {
+        if ($scope.docTypeMethod === 'upload') {
+            $scope.upload();
+        }
+        else if ($scope.docTypeMethod === 'select') {
+            $scope.sample();
+        }
+    };
+
+    $scope.sample = function() {
+        var database = $scope.formInput.selectedDatabase;
+        var docType = $scope.formInput.startingDocType;
+        console.log(database, docType);
     };
 
     $scope.upload = function(){
