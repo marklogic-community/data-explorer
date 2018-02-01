@@ -3,8 +3,11 @@ xquery version "1.0-ml";
 module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib";
 
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
+import module namespace json = "http://marklogic.com/xdmp/json" at "/MarkLogic/json/json.xqy";
+import module namespace riu = "http://marklogic.com/data-explore/lib/range-index-utils" at "/server/lib/range-index-utils.xqy";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
 
+declare namespace db = "http://marklogic.com/xdmp/database";
 declare namespace qry = "http://marklogic.com/cts/query";
 
 (:
@@ -56,8 +59,23 @@ declare function lib-adhoc:get-view-names($database as xs:string, $docType as xs
 	return $names
 };
 
-declare function lib-adhoc:get-query-form-items($docType as xs:string, $query as xs:string) as node()* {
-	cfg:get-form-query($docType, $query)//formLabel
+declare function lib-adhoc:get-query-form-items($doc-type as xs:string, $query as xs:string) as node()* {
+  let $form-query-doc := cfg:get-form-query($doc-type, $query)
+  let $database := $form-query-doc/database/fn:string()
+
+  return for $option in $form-query-doc/formLabel
+    let $form-field := fn:tokenize($option/@expr, "/")[fn:last()]
+    let $range-index := riu:get-index($database, $form-field)
+    return 
+    <formLabel>
+    { $option/* }
+    {
+      if (fn:empty($range-index)) then () else (
+        <rangeIndex>{ $form-field }</rangeIndex>,
+        <scalarType>{ $range-index/db:scalar-type/fn:string() }</scalarType>
+      )
+    }
+    </formLabel>
 };
 
 declare private function lib-adhoc:term-from-root-qname($qname as xs:QName)
