@@ -22,7 +22,7 @@ declare function riu:form-field-to-qname($form-field as xs:string)
 as xs:QName*
 {
   let $ns := cfg:getNamespaceUri(fn:substring-before($form-field, ":"))
-  let $localname := fn:substring-after($form-field, ":")
+  let $localname := if (fn:empty($ns)) then $form-field else fn:substring-after($form-field, ":")
   return fn:QName($ns, $localname)
 };
 
