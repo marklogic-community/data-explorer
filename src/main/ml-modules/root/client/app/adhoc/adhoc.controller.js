@@ -11,6 +11,8 @@ factory('$click', function() {
 	  };
 	})	
   .controller('AdhocCtrl', function($scope, $http, $sce, Auth, User, AdhocState,$window,$timeout,$click) {
+    var ctrl = this;
+
     // Determine if we arrived here from a back button click
     var displayLastResults = AdhocState.getDisplayLastResults();
     // Restore the saved state
@@ -20,19 +22,52 @@ factory('$click', function() {
       AdhocState.setPage(page);
     });  
 
+    ctrl.suggestValues = function(field) {
+      return $http.get('/api/suggest-values', {
+        params: {
+          database: $scope.selectedDatabase,
+          rangeIndex: field.item.rangeIndex,
+          qtext: field.value
+        }
+      })
+      .then(function(response) {
+        if (response.data && response.data.values) {
+          return response.data.values;
+        }
+        else {
+          return [];
+        }
+      });
+    };
+
     $scope.to_trusted = function(html_code) {
       return $sce.trustAsHtml(html_code);
     };
-    $scope.to_value = function(values) {
-    	if(Array.isArray(values)){
-    		var str=""
-    		for (var i in values){
-    			str=str + '<div class="multi-value-box">'+values[i]+'</div>'
-    		}    			
-    		return  $sce.trustAsHtml(str)
-    	}
-        return values;
-      };
+
+    function highlightText(value, termsToHighlight) {
+      var str = value;
+      _.forEach(termsToHighlight, term => str = str.replace(term, '<span class="search-match-highlight">' + term + '</span>'));
+      return str;
+    }
+
+    $scope.to_value = function(key, values, result) {
+      var matchesObj = result['$matches'];
+      var termsToHighlight = _(matchesObj).filter({ column: key }).map(f => _.map(f.parts, 'highlight')).flatten().value();
+      var result = '';
+
+      if (Array.isArray(values)) {
+        var str = ""
+        for (var i in values) {
+          str = str + '<div class="multi-value-box">' + values[i] + '</div>';
+        }
+        result = highlightText(str, termsToHighlight);
+      } else {
+        result = highlightText(values, termsToHighlight);;
+      }
+
+      return $sce.trustAsHtml(result);
+    };
+
     $http.get('/api/adhoc').success(function(data, status, headers, config) {
       if (status == 200 && Array.isArray(data)) {
         $scope.databases = data;
@@ -98,37 +133,24 @@ factory('$click', function() {
     });
 
     $scope.$watch('selectedQuery', function(newValue) {
-      if(!displayLastResults) {
-        $scope.textFields = [];
-        if (typeof(newValue) !== 'undefined' && newValue != '') {
-          for (var i = 0; i < $scope.queries.length; i++) {
-            if ($scope.queries[i].query == newValue) {
-              var dataTypes = $scope.queries[i]['form-datatypes']
-              var formLabels = $scope.queries[i]['form-labels']
-              var arr = new Array(formLabels.length)
-              for ( i = 0 ; i < formLabels.length ; i++ ) {
-                 var formLabel = formLabels[i]
-                 var dataTypeString = "";
-                 var dt = "text"
-                 if ( i < dataTypes.length ) {
-                    var dataType = dataTypes[i]
-                    dt = dataType
-                    if ( dataType != null && dataType.trim().length > 0 ) {
-                                  dataTypeString = " ("+dataType.trim()+")"
-                     }
-                 }
-                 arr[i] = new Array(3);
-                 arr[i][0] = formLabel;
-                 arr[i][1] = formLabel+dataTypeString
-                 arr[i][2] = dt
-              }
-              $scope.textFields = arr
-              $scope.dataTypes = dataTypes
-              break;
-            }
-          }
-        }
+      if (displayLastResults || typeof(newValue) === 'undefined' || newValue === '') {
+        return;
       }
+
+      $scope.textFields = []; // reset query fields
+      var query = _.find($scope.queries, { query: newValue }); // find query object
+      if (typeof(query) === 'undefined') {
+        return;
+      }
+
+      $scope.textFields = _.map(query['form-options'], function(o) { // do some processing to the field definitions before passing
+        var opt = angular.copy(o);
+        var dataTypeHint = opt.dataType ? ' (' + opt.dataType.trim() + ')' : '';
+        opt.placeholderText = opt.label + dataTypeHint;
+        return opt;
+      });
+
+      $scope.dataTypes = query['form-datatypes'];
     });
 
     $scope.getField = function(field) {
@@ -196,6 +218,7 @@ factory('$click', function() {
     	$scope.message = 'Searching....';
     	$scope.results = {};
       }
+      $scope.includeMatches = !!$scope.searchText || _.some($scope.inputField || []);
       $http.get('/api/search', {
         params: {
           database: $scope.selectedDatabase,
@@ -222,7 +245,8 @@ factory('$click', function() {
           excludedeleted: 1,
           go: 1,
           pagenumber: pageNumber,
-          exportCsv:exportCsv
+          exportCsv:exportCsv,
+          includeMatches: $scope.includeMatches
         }
       }).success(function(data, status, headers, config) {
     	  if(exportCsv){
@@ -266,7 +290,7 @@ factory('$click', function() {
             data['results-header'].forEach(function(column) {
               var columnValue = data.results[resultRow][column]
               // Run the replace if there is a value and it is not already a hyperlink
-              if(columnValue) {
+              if(columnValue && _.isString(columnValue)) {
                 if(!columnValue.match(/<a[^>]*>([^<]+)<\/a>/i)) {
                   data.results[resultRow][column] = columnValue.replace(/((http(s)?:\/\/\S+)[\.]?)/gi, '<a href="$2" target="_blank">$2</a>');
                 } 

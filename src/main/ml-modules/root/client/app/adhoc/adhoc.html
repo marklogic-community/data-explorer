@@ -30,10 +30,14 @@
           </div>
           <div ng-show="textFields.length">
             <div ng-repeat="item in textFields" class="form-group">
-              <label for="input{{index+1}}">{{ item[0] }}</label>
-              <select ng-if="item[2] == 'boolean'" ng-model="inputField[$index+1]" class="form-control" ng-options="item for item in ['','true', 'false']"></select>
-              <input ng-if="item[2] == 'text'"  type="text" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item[1] }}"/>
-              <input ng-if="item[2] == 'number'"  type="number" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item[1] }}"/>
+              <label for="input{{index+1}}">
+                {{ item.label }}
+                <span class="index-indicator" ng-if="item.rangeIndex" tooltip="This element currently has a range index.">*</span>
+              </label>
+              <select ng-if="!item.rangeIndex && item.dataType === 'boolean'" ng-model="inputField[$index+1]" class="form-control" ng-options="item for item in ['','true', 'false']"></select>
+              <input ng-if="!item.rangeIndex && item.dataType  === 'text'"  type="text" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item.placeholderText }}"/>
+              <input ng-if="!item.rangeIndex && item.dataType  === 'number'"  type="number" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item.placeholderText }}"/>
+              <input ng-if="item.rangeIndex" type="text" class="form-control" ng-model="inputField[$index + 1]" id="input{{ $index + 1 }}" placeholder="{{ item.placeholderText }}" autocomplete="off" typeahead="suggestion for suggestion in ctrl.suggestValues({ value: $viewValue, item: item })"/>
             </div>
             <button type="submit" ng-click="clickSearch(form)" class="btn btn-default">Search</button>
           </div>
@@ -73,13 +77,37 @@
               	  <thead>
               	    <tr>
                       <th ng-repeat="(key,value) in results['results'][0]">{{key}}</th>
+                      <th ng-if="includeMatches">
+                        <em>All Matches</em>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr ng-repeat="result in results['results']">
                       <td ng-repeat="(key,value) in result">
                         <span ng-show="key == 'uri'" ng-bind-html="to_trusted(value)"></span>
-                        <span ng-hide="key == 'uri'" ng-bind-html="to_value(value)"></span>
+                        <span ng-hide="key == 'uri'" ng-bind-html="to_value(key, value, result)"></span>
+                      </td>
+                      <td ng-if="includeMatches">
+                        <div>
+                          <button type="button" class="btn btn-xs" ng-model="showMatch[$index]" 
+                            uib-btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false"
+                            ng-class="{ 'btn-danger': showMatch[$index], 'btn-primary': !showMatch[$index] }"
+                            ng-click="showMatch[$index] = !showMatch[$index]">
+                            {{ showMatch[$index] ? 'hide' : 'show' }}
+                          </a>
+                        </div>
+                        <div ng-show="showMatch[$index]">
+                          <dl>
+                            <dt ng-repeat-start="match in result['$matches']">
+                              <span class="strong" ng-if="match.column">{{ match.column }}</span>
+                              <span ng-if="!match.column">{{ match.path }}</span>
+                            </dt>
+                            <dd style="padding-bottom:3px" ng-repeat-end>
+                              <span ng-repeat="part in match.parts" ng-class="{ 'search-match-highlight': part.highlight }">{{ part.highlight || part }}</span>
+                            </dd>
+                          </dl>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
