@@ -27,6 +27,19 @@ cts:uris("{$start-uri}",('score-zero',"limit={$max-uris-plus1}"),cts:directory-q
     </options>
   )
 };
+declare function local:get-uris-by-partial-uri($path, $max-uris,$start-uri,$db) {
+let $start-uri:=if($start-uri castable as xs:int) then xs:int($start-uri) else 1
+let $end-uri:=$start-uri + xs:int($max-uris)
+
+let $query:=<query>
+cts:uri-match("{$path}",('score-zero'))[{$start-uri} to {$end-uri}]
+</query>/text()
+    return xu:eval($query,(),
+    <options xmlns="xdmp:eval">
+      <database>{ xdmp:database($db) }</database>
+    </options>
+  )
+};
 declare function local:get-uris-by-collection-name($collection-name, $max-uris,$start-uri,$db) {
    let $max-uris:=xs:int($max-uris)
    let $max-uris-plus1:=$max-uris+1
@@ -62,7 +75,7 @@ declare function local:get-root-element-names($db) {
     let $query:=<query>
                     declare variable $sampleSize := 384; (: 95% +/-5% confidence :)
                     declare variable $sampleThreshold := 1000;
-                    let $numDocs := xdmp:estimate(cts:search(/, cts:and-query(())))
+                    let $numDocs := xdmp:estimate(cts:search(/, cts:true-query()))
                   return fn:distinct-values(
                       if ($numDocs gt $sampleThreshold) then
                         (: Just get a sample :)
@@ -104,6 +117,7 @@ try {
     let $directory := xdmp:get-request-field("directory")
     let $root-element := xdmp:get-request-field("rootElementName")
     let $start-uri := xdmp:get-request-field("startUri")
+    let $partialUri := xdmp:get-request-field("partialUri")
     
     let $max-uris := "10"
     let $_:=xdmp:log("api-adhoc-query-wizard-doc-selection:database-name = "||$db)
@@ -125,6 +139,8 @@ try {
                                     local:get-uris-by-directory($directory, $max-uris,$start-uri,$db)
                              else if($collection-name) then local:get-uris-by-collection-name($collection-name, $max-uris,$start-uri,$db)
                              else if($root-element) then local:get-uris-by-root-element-name($root-element, $max-uris,$start-uri,$db)
+                             else if($partialUri) then 
+                                    local:get-uris-by-partial-uri($partialUri, $max-uris,$start-uri,$db)
                              else local:get-root-element-names($db)
         let $json-results:=to-json:string-sequence-to-json($search-results)
         return "{"||<json>"results":[{$json-results}]</json>/text()||"}"

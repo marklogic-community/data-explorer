@@ -104,7 +104,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="database"/>       
             <param name="rootElementName"/>     
             <param name="startUri"/>     
-            <param name="startIndex"/>     
+            <param name="partialUri"/>     
             <http method="POST"/>
             <http method="GET"/>
         </request>

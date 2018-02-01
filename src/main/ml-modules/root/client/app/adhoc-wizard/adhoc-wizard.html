@@ -18,11 +18,12 @@
 				  		<span style="margin-left:10px" ng-bind="filename"></span> 
 						  Or &nbsp;
 			 		<span class="dropdown">
-					  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Browse MarkLogic
+					  <button class="btn btn-default dropdown-toggle" type="button">Browse MarkLogic
 					  <span class="caret"></span></button>
 					  <ul class="dropdown-menu">
 					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeCollectionName)" >Search by Collection Name</a></li>
 					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeDirectory)" >Search by Directory</a></li>
+					    <li><a href="#" ng-click="openDocSelectionModal(searchTypePartialUri)" >Search by URI</a></li>
 					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeRootName)" >Search by Root Element</a></li>
 					  </ul>
 					</span>	
@@ -55,20 +56,25 @@
 	  <div class="modal-content">
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
-			<h4 class="modal-title">Select example document by {{searchTypeDescription[searchType]}}</h4>
+			<h4 class="modal-title">Select example document by {{searchTypeDescription[searchType]['title']}}</h4>
 		</div>
 		<div class="modal-body">
 			<div class="panel panel-default">
 			 	<div class="panel-body" >
-				 	<form class="navbar-form navbar-left" role="search">
-		  				<div class="form-group">	
+				 		<div class="row">	
+		  					<div class="col-sm-3">
 							<div class="input-group input-group-sm">
-							    <select id="database" ng-model="formInput.selectedDatabase" name="database" ng-options="database as database for database in wizardForm.databases" class="form-control" required>
+							    <select id="database" ng-model="formInput.selectedDatabase" name="database"
+							     ng-options="database as database for database in wizardForm.databases" 
+							     class="form-control pull-right" required>
 						            	<option value="">--Choose Database</option>
 						        	</select>
 					        	</div>
+					        	</div>
+					        	<div class="col-sm-9">
+							
 						    <div class="input-group input-group-sm" ng-hide="searchType == searchTypeRootName">
-						      <input type="text" class="form-control" required ng-model="formInput.searchString" placeholder="Enter {{searchTypeDescription[searchType]}}">
+						      <input type="text" class="form-control" maxlength="80" required ng-model="formInput.searchString" placeholder="{{searchTypeDescription[searchType]['message']}}">
 						      <span class="input-group-btn">
 						        <button class="btn btn-default" type="button" ng-click="searchDocuments()">Search</button>
 						      </span>
@@ -81,8 +87,8 @@
 						        		<button class="btn btn-default" type="button" ng-click="searchDocuments()">Search</button>
 						      	</span>
 					        	</div>
+					        	</div>
 						 </div>
-					</form>	    
 				 </div>
 			 </div>
 			<div class="row" ng-hide="uris.length == 0">

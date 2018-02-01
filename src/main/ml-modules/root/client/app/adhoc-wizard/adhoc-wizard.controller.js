@@ -13,10 +13,12 @@ angular.module('demoApp')
     $scope.searchTypeCollectionName="collectionName";
     $scope.searchTypeDirectory="directory";
     $scope.searchTypeRootName="rootName";
+    $scope.searchTypePartialUri="partialUri";
     $scope.searchTypeDescription={ };
-    $scope.searchTypeDescription[$scope.searchTypeCollectionName]=" Collection name";
-    $scope.searchTypeDescription[$scope.searchTypeDirectory]= "Directory";
-    $scope.searchTypeDescription[$scope.searchTypeRootName]= "Root Element Name";
+    $scope.searchTypeDescription[$scope.searchTypeCollectionName]={title:"Collection name",message:"Please enter a collection name!"};
+    $scope.searchTypeDescription[$scope.searchTypeDirectory]={title:"Directory name",message:"Please enter Directory name to search"};
+    $scope.searchTypeDescription[$scope.searchTypeRootName]= {title:"Root Element Name",message: ""};
+    $scope.searchTypeDescription[$scope.searchTypePartialUri] ={title:"URI",message:"Enter partial uri (wildcard pattern) or a complete URI"};
     $scope.noResultsMessage="";
     	
     $scope.formInput = {};
@@ -83,6 +85,7 @@ angular.module('demoApp')
 		params.append("collectionName" ,$scope.searchType == $scope.searchTypeCollectionName?$scope.formInput.searchString:"");
 		params.append("directory", $scope.searchType == $scope.searchTypeDirectory?$scope.formInput.searchString:"");
 		params.append("rootElementName", $scope.searchType == $scope.searchTypeRootName?$scope.formInput.searchString:"");
+		params.append("partialUri", $scope.searchType == $scope.searchTypePartialUri?$scope.formInput.searchString:"");
 		if($scope.urisStack && $scope.urisStack.length>0){
     			if(nav == "next"){
         			params.append("startUri", $scope.urisStack[($scope.urisStack.length - 1)])
@@ -121,7 +124,18 @@ angular.module('demoApp')
                 }
                 else{
                 		$scope.uris=data.results   
-                		$scope.urisStack.push($scope.uris[($scope.uris.length - 1)])
+                		if($scope.searchType == $scope.searchTypePartialUri){
+                			var maxIndex=0
+                			if($scope.urisStack.length>0)
+                			{
+                				maxIndex=$scope.urisStack[$scope.urisStack.length-1]
+                			}
+                			var newMax=parseInt(maxIndex)+$scope.uris.length
+                			$scope.urisStack.push(newMax);                    		                			
+                		}
+                		else{
+                			$scope.urisStack.push($scope.uris[($scope.uris.length - 1)])
+                		}
                 		$scope.noResultsMessage="No results found";
                 }                
             }
