@@ -82,3 +82,19 @@ code {
 	font-size: 12px;
 	display: inline-block;
 }
+
+.triple {
+
+}
+
+.triple:not(:first-child) {
+	padding-top: 5px;
+}
+
+.triple-label {
+	font-weight: bold;
+}
+
+.triple-value {
+
+}
