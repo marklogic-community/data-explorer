@@ -24,6 +24,7 @@ declare variable $endpoints:API-ADHOC-SELECTORS as xs:string := "/server/endpoin
 declare variable $endpoints:API-SEARCH          as xs:string := "/server/endpoints/adhoc/api-adhoc-search.xqy";
 declare variable $endpoints:API-ADHOC-WIZARD as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard.xqy";
 declare variable $endpoints:API-ADHOC-WIZARD-CREATE as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard-create.xqy";
+declare variable $endpoints:API-ADHOC-WIZARD-LIST-DOCTYPES as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-list-doctypes.xqy";
 
 declare variable $endpoints:API-CHECK-TEMPLATES as xs:string := "/server/endpoints/api-check-templates.xqy";
 
@@ -88,6 +89,10 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="pagination-size"/>
             <param name="exportCsv"/>
             <http method="POST"/>
+            <http method="GET"/>
+        </request>
+        <request uri="^/api/wizard/doctypes$" endpoint="{$endpoints:API-ADHOC-WIZARD-LIST-DOCTYPES}">
+            <param name="database"/>
             <http method="GET"/>
         </request>
         <request uri="^/api/wizard/upload$" endpoint="{$endpoints:API-ADHOC-WIZARD}">

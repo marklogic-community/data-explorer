@@ -35,6 +35,14 @@
     "action" : "http://marklogic.com/xdmp/privileges/admin-module-read",
     "kind" : "execute"
   }, {
+    "privilege-name": "xdmp:plan",
+    "action": "http://marklogic.com/xdmp/privileges/xdmp-plan",
+    "kind": "execute"
+  }, {
+    "privilege-name": "cts:term-query",
+    "action": "http://marklogic.com/xdmp/privileges/term-query",
+    "kind": "execute"
+  }, {
     "privilege-name" : "data-explorer-access",
     "action" : "http://marklogic.com/ps/data-explorer-access",
     "kind" : "execute"
