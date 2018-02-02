@@ -106,10 +106,31 @@ angular.module('demoApp')
         }
     };
 
+    function prepareStep2(data) {
+        $scope.step = 2; 
+        $scope.wizardForm = data;
+        for(var index = 0; index < data.fields.length; index++){ 
+            data.fields[index].include = false;
+            data.fields[index].includeMode = "none";
+            data.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
+        }
+    }
+
     $scope.sample = function() {
         var database = $scope.formInput.selectedDatabase;
         var docType = $scope.formInput.startingDocType;
-        console.log(database, docType);
+        wizardService.sampleDocType(database, docType.ns, docType.localName, $scope.queryView)
+        .success(function(data, status) {
+            if (status == 200) {
+                var selectedDatabase = $scope.formInput.selectedDatabase;
+                prepareStep2(data);
+                $scope.formInput.selectedDatabase = selectedDatabase;
+            }
+        }).error(function(err){
+           console.log(err);
+           $scope.message = "An error occurred. Check the browser console log for details.";
+           $scope.messageClass = "form-group has-error";
+         });
     };
 
     $scope.upload = function(){
@@ -130,14 +151,8 @@ angular.module('demoApp')
                 headers: {'Content-Type': undefined },
                 transformRequest: angular.identity
             }).success(function(data, status){
-                if (status == 200){
-                    $scope.step = 2; 
-                    $scope.wizardForm = data;
-                    for(var index = 0; index < data.fields.length; index++){
-                    	data.fields[index].include = false;
-                    	data.fields[index].includeMode = "none";
-                    	data.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
-                    }                    
+                if (status == 200) {
+                    prepareStep2(data);
                 }
             }).error(function(err){
                console.log(err);

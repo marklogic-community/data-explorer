@@ -27,6 +27,16 @@
       });
     };
 
+    service.sampleDocType = function(database, ns, name, type) {
+      var payload = {
+        database: database,
+        ns: ns,
+        name: name,
+        type: type
+      };
+      return $http.post('/api/wizard/sample', payload);
+    };
+
     return service;
   }
 
