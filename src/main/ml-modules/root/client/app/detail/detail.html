@@ -4,7 +4,7 @@
 	<div class="document-header">{{doc.type}} - {{uri}}</div>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col-md-7">
+			<div class="col-md-8">
 				<tabset>
 		    		<tab heading="Data View" active="true">
 		    			<div id="details"><br/><br/>
@@ -31,7 +31,36 @@
 	    					<h4>Permissions</h4>
 	    					<div ng-hide="!!doc.permissions.length" class="alert alert-warning" role="alert"><strong>Warning!</strong> Admin Only Permissions</div>
 	    					<span class="label label-warning label-permission" ng-repeat="permission in doc.permissions">{{permission['role-name']}}:{{permission.capability}}</span>
-						</div>
+							</div>
+							<div>
+								<h4>Triples</h4>
+								<span ng-hide="!!doc.triples.length">No triples found.</span>
+								<ul class="list-unstyled">
+									<li ng-repeat="triple in doc.triples" class="triple">
+										<div>
+											<span class="triple-label">subject</span>
+											<span class="triple-value">
+												<span ng-if="triple.subject.type" class="label label-default">{{ triple.subject.type }}</span>
+												{{ triple.subject.value }}
+											</span>
+										</div>
+										<div>
+											<span class="triple-label">predicate</span>
+											<span class="triple-value">
+												<span ng-if="triple.predicate.type" class="label label-default">{{ triple.predicate.type }}</span>
+												{{ triple.predicate.value }}
+											</span>
+										</div>
+										<div>
+											<span class="triple-label">object</span>
+											<span class="triple-value">
+												<span ng-if="triple.object.type" class="label label-default">{{ triple.object.type }}</span>
+												{{ triple.object.value }}
+											</span>
+										</div>
+									</li>
+								</ul>
+							</div>
 						<div>
 							<h4>Related Items</h4>
 							<h5 ng-hide="!!doc.related.length">There are no related items</h5>

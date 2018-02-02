@@ -57,6 +57,20 @@ as schema-element(cts:query)
       $query/node()} 
 };
 
+declare function search-lib:custom-snippet(
+  $result as node(), 
+  $cts-query as schema-element(cts:query), 
+  $options as element(search:transform-results)?
+) as element(search:snippet) {
+  (: 
+    cts:element-query causes the default snippet function to return all nodes rather than only those 
+    with matching content; this may be due to how it internally uses cts:walk in appservices/search/snippet.xqy
+    of the Search API.  For now, we'll strip it out just for snippeting.
+  :)
+  let $query := functx:remove-elements-deep($cts-query, "cts:element-query")
+  return search:snippet($result, $query, $options)
+};
+
 declare function search-lib:search($params as map:map, $useDB as xs:string,$export as xs:boolean?){
   let $searchText := fn:concat("",map:get($params, "searchText"))
   let $searchFacet :=  map:get($params, "selectedfacet")
@@ -68,6 +82,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
   let $doc-type := map:get($params, "docType")
   let $query-name := map:get($params, "queryName")
   let $view-name := map:get($params, "viewName")
+  let $include-matches := xs:boolean((map:get($params, "includeMatches"), fn:false())[1])
 
   let $final-search := ($searchText, $searchFacet)
 
@@ -108,7 +123,10 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
       <return-facets>true</return-facets>
       <return-query>true</return-query>
       <search-option>unfiltered</search-option>
-      <transform-results apply="snippet" xmlns="http://marklogic.com/appservices/search">
+      <transform-results 
+          apply="custom-snippet" 
+          ns="http://marklogic.com/data-explore/lib/search-lib"
+          at="/server/lib/search-lib.xqy">
         <per-match-tokens>30</per-match-tokens>
         <max-matches>3</max-matches>
         <max-snippet-chars>200</max-snippet-chars>
@@ -177,7 +195,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
     if ($search-response//search:result) then
       let $results :=
         for $result in $search-response/search:result
-          return search-lib:result-to-view($result,$view,$useDB)
+          return search-lib:result-to-view($result, $view, $useDB, $include-matches)
       return
         <output>
           <result-count>{search-lib:result-count($search-response)}</result-count>
@@ -193,7 +211,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
       </output>
   };
 
-  declare function search-lib:result-to-view($result as element(),$view as element(), $useDB as xs:string){
+  declare function search-lib:result-to-view($result as element(),$view as element(), $useDB as xs:string, $include-matches as xs:boolean){
     let $uri := $result/fn:data(@uri)
     let $doc := detail-lib:get-document($uri,$useDB)
     let $view-xqy := fn:concat($cfg:namespaces,
@@ -218,12 +236,35 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
       ((xs:QName("view"),$view),(xs:QName("doc"),$doc))
     )
 
+    let $matches := if ($include-matches) 
+    then  
+      for $match in $result/search:snippet/search:match return
+      let $trunc-uri := fn:substring-after($match/@path, fn:concat("fn:doc(&quot;", $result/@uri, "&quot;)/"))
+      let $column-expr := fn:replace($trunc-uri, "\*", $view/documentType/@prefix)
+      let $column := $view/columns/column[@expr = $column-expr]/@name
+      return
+      <match>
+        <path>{ $trunc-uri }</path>
+        { if (fn:empty($column)) then () else <column>{ $column/fn:string() }</column> }
+        <parts>
+        {
+          for $match-part in $match/child::node()
+          return if (fn:node-name($match-part) eq xs:QName("search:highlight"))
+          then <highlight>{ $match-part/fn:string() }</highlight>
+          else <text>{ $match-part/fn:string() }</text>
+        }
+        </parts>
+      </match>
+    else ()
+
     return
       <result>
       {
         <part><name>URI</name><value><a href='/detail/{$useDB}/{$uri}'>{$uri}</a></value></part>
         ,
         $view-parts
+        ,
+        $matches
       }
       </result>
   };

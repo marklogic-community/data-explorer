@@ -22,7 +22,9 @@ declare variable $endpoints:API-USERS           as xs:string := "/server/endpoin
 declare variable $endpoints:API-ADHOC-DATABASES as xs:string := "/server/endpoints/adhoc/api-adhoc-databases.xqy";
 declare variable $endpoints:API-ADHOC-SELECTORS as xs:string := "/server/endpoints/adhoc/api-adhoc-selectors.xqy";
 declare variable $endpoints:API-SEARCH          as xs:string := "/server/endpoints/adhoc/api-adhoc-search.xqy";
+declare variable $endpoints:API-SUGGEST-VALUES  as xs:string := "/server/endpoints/adhoc/api-adhoc-suggest-values.xqy";
 declare variable $endpoints:API-ADHOC-WIZARD as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard.xqy";
+declare variable $endpoints:API-ADHOC-WIZARD-SELECT-DOC as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard-doc-selection.xqy";
 declare variable $endpoints:API-ADHOC-WIZARD-CREATE as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard-create.xqy";
 
 declare variable $endpoints:API-CHECK-TEMPLATES as xs:string := "/server/endpoints/api-check-templates.xqy";
@@ -87,7 +89,14 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="pagenumber"/>
             <param name="pagination-size"/>
             <param name="exportCsv"/>
+            <param name="includeMatches"/>
             <http method="POST"/>
+            <http method="GET"/>
+        </request>
+        <request uri="^/api/suggest-values$" endpoint="{ $endpoints:API-SUGGEST-VALUES }">
+            <param name="database"/>
+            <param name="rangeIndex"/>
+            <param name="qtext"/>
             <http method="GET"/>
         </request>
         <request uri="^/api/wizard/upload$" endpoint="{$endpoints:API-ADHOC-WIZARD}">
@@ -95,6 +104,17 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="mimeType"/>
             <param name="type"/>
             <http method="POST"/>
+        </request>
+        <request uri="^/api/wizard/documentSelection$" endpoint="{$endpoints:API-ADHOC-WIZARD-SELECT-DOC}">
+            <param name="collectionName"/>
+            <param name="docUri"/>
+            <param name="directory"/>
+            <param name="database"/>       
+            <param name="rootElementName"/>     
+            <param name="startUri"/>     
+            <param name="partialUri"/>     
+            <http method="POST"/>
+            <http method="GET"/>
         </request>
         <request uri="^/api/wizard/create$" endpoint="{$endpoints:API-ADHOC-WIZARD-CREATE}">
             <param name="prefix"/>

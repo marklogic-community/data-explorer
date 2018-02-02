@@ -132,11 +132,12 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 		  	let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
 		  	return
 		  		if (fn:exists($label) and ($mode eq "both" or $mode eq "query")) then
+						let $field-path := map:get($adhoc-fields, fn:concat("formLabelHidden", $i))
 		  		  let $_ := map:put($form-fields-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelHidden", $i)))
-		          let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
-		          let $_ := xdmp:set($counter, $counter + 1)
+		        let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
+		        let $_ := xdmp:set($counter, $counter + 1)
 		  		  return
-		  			<formLabel><label>{ $label }</label><dataType>{ $datatype }</dataType></formLabel>
+		  			<formLabel expr="{ $field-path }" mode="{ $mode }"><label>{ $label }</label><dataType>{ $datatype }</dataType></formLabel>
 		  		else
 		  			()
 		  }
