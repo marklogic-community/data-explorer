@@ -122,9 +122,7 @@ angular.module('demoApp')
         wizardService.sampleDocType(database, docType.ns, docType.localName, $scope.queryView)
         .success(function(data, status) {
             if (status == 200) {
-                var selectedDatabase = $scope.formInput.selectedDatabase;
                 prepareStep2(data);
-                $scope.formInput.selectedDatabase = selectedDatabase;
             }
         }).error(function(err){
            console.log(err);
