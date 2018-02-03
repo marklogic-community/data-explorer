@@ -10,12 +10,29 @@ angular.module('demoApp')
     $scope.uploadButtonActive = false;
     $scope.message = "";
     
+    $scope.message = "Choose a file and mode and press submit.";
+    $scope.messageClass = "form-group";
+    $scope.searchTypeCollectionName="collectionName";
+    $scope.searchTypeDirectory="directory";
+    $scope.searchTypeRootName="rootName";
+    $scope.searchTypePartialUri="partialUri";
+    $scope.searchTypeDescription={ };
+    $scope.searchTypeDescription[$scope.searchTypeCollectionName]={title:"Collection name",message:"Please enter a collection name!"};
+    $scope.searchTypeDescription[$scope.searchTypeDirectory]={title:"Directory name",message:"Please enter Directory name to search"};
+    $scope.searchTypeDescription[$scope.searchTypeRootName]= {title:"Root Element Name",message: ""};
+    $scope.searchTypeDescription[$scope.searchTypePartialUri] ={title:"URI",message:"Enter partial uri (wildcard pattern) or a complete URI"};
+    $scope.noResultsMessage="";
+    	
     $scope.formInput = {};
     $scope.formInput.selectedDatabase = '';
     $scope.formInput.queryViewName = '';
     $scope.formInput.startingDocType = '';
-
-    $scope.inputField = {};
+    $scope.formInput.searchString = '';
+    $scope.searchType = '';
+    $scope.uris=[];
+    $scope.doc={text:"",type:"",uri:""};
+    $scope.rootElements = [];
+    $scope.urisStack=[];
 
     $scope.isNamespaceAware = true;
     $scope.showNamespaces = false;
@@ -43,7 +60,7 @@ angular.module('demoApp')
     });
 
     $scope.$watch('formInput.selectedDatabase', function(value) {
-        if ($scope.step !== 1 || !value) {
+        if ($scope.step !== 1 || $scope.docTypeMethod !== 'select' || !value) {
             return;
         }
         wizardService.listDocTypes(value).then(function(docTypes) { 
@@ -59,6 +76,142 @@ angular.module('demoApp')
         $scope.message = "";
     });
 
+    $scope.resetSelectedDoc=function(){$scope.doc={text:"",type:"",uri:""}};
+    $scope.openDocSelectionModal=function(searchType){
+    		$scope.uris=[]
+    		$scope.searchType=searchType;
+    		$scope.resetSelectedDoc();
+    		$scope.formInput.searchString="";
+    		$scope.noResultsMessage="Please enter search criteria and click search.";
+    		$http.get('/api/adhoc', {}, {
+            withCredentials: true,
+            headers: {'Content-Type': undefined },
+            transformRequest: angular.identity
+        }).success(function(data, status){
+            if (status == 200){
+                $scope.step = 1; 
+                $scope.wizardForm = {databases:data};
+            		$("#selectDocument").modal();                 
+            }
+        }).error(function(err){
+           console.log(err);
+           $scope.message = "An error occurred. Check the browser console log for details.";
+           $scope.messageClass = "form-group has-error";
+         });
+    };
+    $scope.next=function(){  $scope.searchDocuments("","next");};
+    $scope.prev=function(){  $scope.searchDocuments("","prev");};
+    
+    $scope.searchDocuments=function(docUri,nav){
+    		$scope.doc={text:"",type:"",uri:docUri}
+    		var params = new FormData();
+		params.append("database",$scope.formInput.selectedDatabase);
+		params.append( "docUri" ,docUri?docUri:"");
+		params.append("collectionName" ,$scope.searchType == $scope.searchTypeCollectionName?$scope.formInput.searchString:"");
+		params.append("directory", $scope.searchType == $scope.searchTypeDirectory?$scope.formInput.searchString:"");
+		params.append("rootElementName", $scope.searchType == $scope.searchTypeRootName?$scope.formInput.searchString:"");
+		params.append("partialUri", $scope.searchType == $scope.searchTypePartialUri?$scope.formInput.searchString:"");
+		if($scope.urisStack && $scope.urisStack.length>0){
+    			if(nav == "next"){
+        			params.append("startUri", $scope.urisStack[($scope.urisStack.length - 1)])
+        		}
+        		else if(nav == "prev"){
+        			$scope.urisStack.pop()
+        			params.append("startUri", $scope.urisStack.length>0?$scope.urisStack.pop():"");
+        		}
+        		else{
+        			//new search
+        			$scope.urisStack=[];
+        			params.append("startUri", "")
+        		}
+    		}
+		
+		$http.post('/api/wizard/documentSelection', params, {
+            withCredentials: true,
+            headers: {'Content-Type': undefined },
+            transformRequest: angular.identity            
+        }).success(function(data, status,headers){
+            if (status == 200){
+                $scope.step = 1; 
+                if(docUri){
+                		var contentType=headers("content-type")
+                		if ( contentType.includes("application/json")) {
+				        $scope.doc.text = vkbeautify.json(data);
+				        $scope.doc.type = "application/json";
+				        
+				      } else if ( contentType.includes("application/xml")) {
+				    	  	$scope.doc.text = vkbeautify.xml(data);
+				    	  	$scope.doc.type = "application/xml";
+				      } 
+				      else{
+				    	  	//do nothing
+				      }
+                }
+                else{
+                		$scope.uris=data.results   
+                		if($scope.searchType == $scope.searchTypePartialUri){
+                			var maxIndex=0
+                			if($scope.urisStack.length>0)
+                			{
+                				maxIndex=$scope.urisStack[$scope.urisStack.length-1]
+                			}
+                			var newMax=parseInt(maxIndex)+$scope.uris.length
+                			$scope.urisStack.push(newMax);                    		                			
+                		}
+                		else{
+                			$scope.urisStack.push($scope.uris[($scope.uris.length - 1)])
+                		}
+                		$scope.noResultsMessage="No results found";
+                }                
+            }
+        }).error(function(err){
+           console.log(err);
+           $scope.message = "An error occurred. Check the browser console log for details.";
+           $scope.messageClass = "form-group has-error";
+         });
+    };
+    $scope.$watch('formInput.selectedDatabase', function(newValue) {
+        if($scope.searchType == $scope.searchTypeRootName) {
+        		$scope.rootElements = [];
+          	var params = new FormData();
+	  		params.append("database",newValue);
+	  		
+	  		$http.post('/api/wizard/documentSelection', params, {
+	              withCredentials: true,
+	              headers: {'Content-Type': undefined },
+	              transformRequest: angular.identity            
+	          }).success(function(data, status){
+	              if (status == 200){
+	                  $scope.step = 1; 
+	                  $scope.rootElements=data.results                    
+	              }
+	          }).error(function(err){
+	             console.log(err);
+	             $scope.message = "An error occurred. Check the browser console log for details.";
+	             $scope.messageClass = "form-group has-error";
+	           });
+        }
+    });
+    $scope.selectDocument = function() {
+		$scope.filename = $scope.doc.uri;
+        $scope.wizardUploadFormData = new FormData();
+        //Take the first selected file
+        var fileMimeType = $scope.doc.type;
+        if ( !isSupportedFileType(fileMimeType) ) {
+            $scope.message = "This file-type is not supported. Choose a different file.";
+            $scope.uploadButtonActive = false;
+            $scope.messageClass = "form-group has-error";
+        } else {
+            $scope.message = "Select the desired mode and press the create button";
+            $scope.wizardUploadFormData.append("uploadedDoc", $scope.doc.text);
+            $scope.wizardUploadFormData.append("mimeType", fileMimeType);
+            $scope.messageClass = "form-group"
+            $scope.uploadButtonActive = true;
+            $scope.resetSelectedDoc();
+            $("#selectDocument").modal("hide"); 
+        }
+    };
+    
     $scope.changeFile = function(files) {
         if (files.length > 0){
         	// kind of hacky, but the event wasn't triggering a digest cycle so the 
