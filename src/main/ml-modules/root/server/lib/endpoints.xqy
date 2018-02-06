@@ -132,6 +132,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="viewName"/>
             <param name="queryText"/>
             <param name="database"/>   
+            <param name="displayOrder"/>
             <param name="submit"/>
             {endpoints:numbered-params("formLabelDataType", (1 to 250))}
             {endpoints:numbered-params("formLabel", (1 to 250))}
@@ -140,6 +141,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             {endpoints:numbered-params("columnName", (1 to 250))}
             {endpoints:numbered-params("columnExpr", (1 to 250))}                    
             {endpoints:numbered-params("columnIncludeMode", (1 to 250))}
+            {endpoints:numbered-params("columnDataType", (1 to 250))}            
             <http method="POST"/>
             <http method="GET"/>
         </request>

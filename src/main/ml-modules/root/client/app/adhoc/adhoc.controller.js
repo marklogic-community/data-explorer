@@ -298,8 +298,20 @@ factory('$click', function() {
             });
           });
     		  $scope.message = '';
-    	      $scope.results = data;
-    	      $scope.currentPage = $scope.results['current-page'];
+          if(data['display-order'] === 'alphabetical'){
+            var cols = data['results-header'].slice(1).sort(function (a, b) {
+              return a.toLowerCase().localeCompare(b.toLowerCase());
+            });
+            cols.push(data['results-header'][0]);
+            data['results-header'] = cols;
+          }else {
+            // file order
+            var cols = data['results-header'].slice(1);
+            cols.push(data['results-header'][0]);
+            data['results-header'] = cols;
+          }
+    	    $scope.results = data;
+    	    $scope.currentPage = $scope.results['current-page'];
     	  }
         
       }).error(function(data, status) {

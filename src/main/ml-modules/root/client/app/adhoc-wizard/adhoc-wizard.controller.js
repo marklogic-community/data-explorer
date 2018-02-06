@@ -27,6 +27,9 @@ angular.module('demoApp')
     $scope.formInput.selectedDatabase = '';
     $scope.formInput.queryViewName = '';
     $scope.formInput.startingDocType = '';
+    $scope.displayOrder = 'alphabetical';
+
+    $scope.inputField = {};
     $scope.formInput.searchString = '';
     $scope.searchType = '';
     $scope.uris=[];
@@ -348,6 +351,7 @@ angular.module('demoApp')
         data.queryText = '';
         data.prefix = $scope.wizardForm.prefix;
         data.rootElement = $scope.wizardForm.rootElement;
+        data.displayOrder = $scope.displayOrder;
 
         data.database = $scope.formInput.selectedDatabase;
         data.fileType =  $scope.fileType;
