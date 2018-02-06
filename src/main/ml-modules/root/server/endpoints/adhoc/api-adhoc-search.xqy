@@ -196,6 +196,7 @@ declare function local:get-json(){
           <result-count>{$result/result-count}</result-count>
           <current-page>{$result/current-page}</current-page>
           <page-count>{$result/page-count}</page-count>
+          <display-order>{$result/display-order}</display-order>
           <results-header>{$results-header-json}</results-header>
           <max-export-records>{$cfg:max-export-records}</max-export-records>
           <results>{$results-json}</results>

@@ -76,7 +76,7 @@
                 <table class="table table-bordered">
               	  <thead>
               	    <tr>
-                      <th ng-repeat="(key,value) in results['results'][0]">{{key}}</th>
+                      <th ng-repeat="hdr in results['results-header']" ng-bind="hdr"></th>
                       <th ng-if="includeMatches">
                         <em>All Matches</em>
                       </th>
@@ -84,9 +84,9 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="result in results['results']">
-                      <td ng-repeat="(key,value) in result">
-                        <span ng-show="key == 'uri'" ng-bind-html="to_trusted(value)"></span>
-                        <span ng-hide="key == 'uri'" ng-bind-html="to_value(key, value, result)"></span>
+                      <td ng-repeat="key in results['results-header']">
+                        <span ng-show="key == 'URI'" ng-bind-html="to_trusted(result[key])"></span>
+                        <span ng-hide="key == 'URI'" ng-bind-html="to_value(key, result[key], result)"></span>
                       </td>
                       <td ng-if="includeMatches">
                         <div>

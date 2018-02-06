@@ -124,6 +124,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="viewName"/>
             <param name="queryText"/>
             <param name="database"/>   
+            <param name="displayOrder"/>
             <param name="submit"/>
             {endpoints:numbered-params("formLabelDataType", (1 to 250))}
             {endpoints:numbered-params("formLabel", (1 to 250))}
