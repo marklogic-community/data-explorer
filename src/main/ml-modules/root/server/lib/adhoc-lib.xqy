@@ -1,13 +1,14 @@
 xquery version "1.0-ml";
 
 module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib";
+
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace json = "http://marklogic.com/xdmp/json" at "/MarkLogic/json/json.xqy";
 import module namespace riu = "http://marklogic.com/data-explore/lib/range-index-utils" at "/server/lib/range-index-utils.xqy";
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
 
 declare namespace db = "http://marklogic.com/xdmp/database";
-
-
+declare namespace qry = "http://marklogic.com/cts/query";
 
 (:
     JSON can have properties with spaces. If you use this attributes with spaces in XPath
@@ -59,20 +60,62 @@ declare function lib-adhoc:get-view-names($database as xs:string, $docType as xs
 };
 
 declare function lib-adhoc:get-query-form-items($doc-type as xs:string, $query as xs:string) as node()* {
-	let $form-query-doc := cfg:get-form-query($doc-type, $query)
-	let $database := $form-query-doc/database/fn:string()
+  let $form-query-doc := cfg:get-form-query($doc-type, $query)
+  let $database := $form-query-doc/database/fn:string()
 
-	return for $option in $form-query-doc/formLabel
-		let $form-field := fn:tokenize($option/@expr, "/")[fn:last()]
-	  let $range-index := riu:get-index($database, $form-field)
-	  return 
-	  <formLabel>
-	  { $option/* }
-	  {
-	  	if (fn:empty($range-index)) then () else (
-	  		<rangeIndex>{ $form-field }</rangeIndex>,
-	  		<scalarType>{ $range-index/db:scalar-type/fn:string() }</scalarType>
-	  	)
-	  }
-		</formLabel>
+  return for $option in $form-query-doc/formLabel
+    let $form-field := fn:tokenize($option/@expr, "/")[fn:last()]
+    let $range-index := riu:get-index($database, $form-field)
+    return 
+    <formLabel>
+    { $option/* }
+    {
+      if (fn:empty($range-index)) then () else (
+        <rangeIndex>{ $form-field }</rangeIndex>,
+        <scalarType>{ $range-index/db:scalar-type/fn:string() }</scalarType>
+      )
+    }
+    </formLabel>
+};
+
+declare private function lib-adhoc:term-from-root-qname($qname as xs:QName)
+as xs:unsignedLong
+{
+  let $ns := fn:string(fn:namespace-uri-from-QName($qname))
+  let $eval := fn:concat(
+    if (fn:string-length($ns) le 0) then '' else 'declare namespace qn ="' || $ns || '"; ',
+    'xdmp:plan(/',
+    if (fn:string-length($ns) le 0) then '' else 'qn:',
+    fn:local-name-from-QName($qname),
+    ')'
+  )
+  return xu:eval($eval, ())//qry:term-query[fn:starts-with(qry:annotation, "doc-root")]/qry:key/data()
+};
+
+declare private function lib-adhoc:next-root-qname($query as cts:query?, $except-terms as xs:unsignedLong*)
+as xs:QName*
+{
+  let $full-query := cts:and-query((
+    $query,
+    $except-terms ! cts:not-query(cts:term-query(., 0))
+  ))
+  let $next := fn:head(cts:search(/*, $full-query))
+  let $next-qname := fn:node-name($next)
+  let $next-term := lib-adhoc:term-from-root-qname($next-qname)
+  return (
+    $next-qname,
+    if (fn:empty($next-qname)) then () else lib-adhoc:next-root-qname($query, ($except-terms, $next-term))
+  )
+};
+
+declare function lib-adhoc:get-root-qnames($database as xs:string)
+as xs:QName*
+{
+	xu:invoke-function(function() {
+      lib-adhoc:next-root-qname((), ())
+    },
+    <options xmlns="xdmp:eval">
+      <database>{ xdmp:database($database) }</database>
+    </options>
+  )
 };

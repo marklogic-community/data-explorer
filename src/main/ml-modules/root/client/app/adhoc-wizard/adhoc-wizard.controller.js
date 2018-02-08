@@ -1,13 +1,15 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('AdhocWizardCtrl', function ($scope, $http, $sce, $interval) {
+  .controller('AdhocWizardCtrl', function ($scope, $http, $sce, $interval, databaseService, wizardService) {
 
     $scope.step = 1;
     $scope.wizardForm;
     $scope.wizardResults = '';
     $scope.queryView = 'query';
     $scope.uploadButtonActive = false;
+    $scope.message = "";
+    
     $scope.message = "Choose a file and mode and press submit.";
     $scope.messageClass = "form-group";
     $scope.searchTypeCollectionName="collectionName";
@@ -24,6 +26,7 @@ angular.module('demoApp')
     $scope.formInput = {};
     $scope.formInput.selectedDatabase = '';
     $scope.formInput.queryViewName = '';
+    $scope.formInput.startingDocType = '';
     $scope.displayOrder = 'alphabetical';
 
     $scope.inputField = {};
@@ -54,6 +57,28 @@ angular.module('demoApp')
     // });
 
     $scope.wizardUploadFormData = null;
+
+    databaseService.list().then(function(data) {
+        $scope.availableDatabases = data;
+    });
+
+    $scope.$watch('formInput.selectedDatabase', function(value) {
+        if ($scope.step !== 1 || $scope.docTypeMethod !== 'select' || !value) {
+            return;
+        }
+        wizardService.listDocTypes(value).then(function(docTypes) { 
+            $scope.availableDocTypes = docTypes || [];
+            var error = _.isEmpty(docTypes);
+            $scope.message = error ? 
+                "Could not find any available document types.  Perhaps it contains no documents or you currently have insufficient permissions to read them." 
+                : "";
+        });
+    });
+
+    $scope.$watch('docTypeMethod', function() {
+        $scope.message = "";
+    });
+
     $scope.resetSelectedDoc=function(){$scope.doc={text:"",type:"",uri:""}};
     $scope.openDocSelectionModal=function(searchType){
     		$scope.uris=[]
@@ -189,6 +214,7 @@ angular.module('demoApp')
             $("#selectDocument").modal("hide"); 
         }
     };
+    
     $scope.changeFile = function(files) {
         if (files.length > 0){
         	// kind of hacky, but the event wasn't triggering a digest cycle so the 
@@ -200,14 +226,11 @@ angular.module('demoApp')
             //Take the first selected file
             var fileMimeType = files[0]['type'];
             if ( !isSupportedFileType(fileMimeType) ) {
-                $scope.message = "This file-type is not supported. Choose a different file.";
+                $scope.message = "This file type is not supported. Please choose a different file.";
                 $scope.uploadButtonActive = false;
-                $scope.messageClass = "form-group has-error";
             } else {
-                $scope.message = "Select the desired mode and press the create button";
                 $scope.wizardUploadFormData.append("uploadedDoc", files[0]);
                 $scope.wizardUploadFormData.append("mimeType", files[0]['type']);
-                $scope.messageClass = "form-group"
                 $scope.uploadButtonActive = true;
             }
         }
@@ -230,6 +253,40 @@ angular.module('demoApp')
     	}
     };
 
+    $scope.selectDocumentType = function() {
+        if ($scope.docTypeMethod === 'upload') {
+            $scope.upload();
+        }
+        else if ($scope.docTypeMethod === 'select') {
+            $scope.sample();
+        }
+    };
+
+    function prepareStep2(data) {
+        $scope.step = 2; 
+        $scope.wizardForm = data;
+        for(var index = 0; index < data.fields.length; index++){ 
+            data.fields[index].include = false;
+            data.fields[index].includeMode = "none";
+            data.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
+        }
+    }
+
+    $scope.sample = function() {
+        var database = $scope.formInput.selectedDatabase;
+        var docType = $scope.formInput.startingDocType;
+        wizardService.sampleDocType(database, docType.ns, docType.localName, $scope.queryView)
+        .success(function(data, status) {
+            if (status == 200) {
+                prepareStep2(data);
+            }
+        }).error(function(err){
+           console.log(err);
+           $scope.message = "An error occurred. Check the browser console log for details.";
+           $scope.messageClass = "form-group has-error";
+         });
+    };
+
     $scope.upload = function(){
         if ($scope.wizardUploadFormData == null){
             $scope.message = 'Please choose a file using the browse button.';
@@ -248,14 +305,8 @@ angular.module('demoApp')
                 headers: {'Content-Type': undefined },
                 transformRequest: angular.identity
             }).success(function(data, status){
-                if (status == 200){
-                    $scope.step = 2; 
-                    $scope.wizardForm = data;
-                    for(var index = 0; index < data.fields.length; index++){
-                    	data.fields[index].include = false;
-                    	data.fields[index].includeMode = "none";
-                    	data.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
-                    }                    
+                if (status == 200) {
+                    prepareStep2(data);
                 }
             }).error(function(err){
                console.log(err);

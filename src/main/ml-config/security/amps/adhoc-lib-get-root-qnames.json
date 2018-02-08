@@ -1,0 +1,7 @@
+{
+  "namespace": "http://marklogic.com/data-explore/lib/adhoc-lib",
+  "local-name": "get-root-qnames",
+  "document-uri": "/server/lib/adhoc-lib.xqy",
+  "modules-database": "%%MODULES_DATABASE%%",
+  "role": [ "data-explorer-ext-amp-role" ]
+}

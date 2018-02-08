@@ -2,55 +2,81 @@
 
 <div class="container">
   <div ng-hide="step != 1" class="row">
-      <h1>Step 1 - Upload Example Document XML</h1>
-      <div class="wizard-step-detail">
-      	Select a representative XML or JSON-file to use that will help define a query and/or view.
-      </div>
-      <form class="form-horizontal" style="padding-top:10px">
-        <div class="form-group">
-<!--           <input type="file" class="name" name="uploadedDoc" onchange="angular.element(this).scope().changeFile(this.files)" size="50"/></label>-->
-		  	   <label for="type" class="col-sm-2 control-label">Example Document</label>
-          
-		  	   <div class="col-sm-8">
-		  		     <label class="btn btn-default">
-			    			Browse File<input type="file" onchange="angular.element(this).scope().changeFile(this.files)" hidden></span>
-					  </label>
-				  		<span style="margin-left:10px" ng-bind="filename"></span> 
-						  Or &nbsp;
-			 		<span class="dropdown">
-					  <button class="btn btn-default dropdown-toggle" type="button">Browse MarkLogic
-					  <span class="caret"></span></button>
-					  <ul class="dropdown-menu">
-					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeCollectionName)" >Search by Collection Name</a></li>
-					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeDirectory)" >Search by Directory</a></li>
-					    <li><a href="#" ng-click="openDocSelectionModal(searchTypePartialUri)" >Search by URI</a></li>
-					    <li><a href="#" ng-click="openDocSelectionModal(searchTypeRootName)" >Search by Root Element</a></li>
-					  </ul>
-					</span>	
-			  	</div>
+    <h1>Step 1 - Pick a Document Type</h1>
+    <div class="wizard-step-detail">
+      Select a document type to use that will help define a query and/or view.
+    </div>
+    <div class="col-md-12" style="padding-bottom:10px;">
+      <form>
+
+        <div class="radio">
+          <label><input type="radio" ng-model="docTypeMethod" value="upload">Choose a representative XML or JSON file</label>
         </div>
-        
-        <div class="form-group">
-          <label for="type" class="col-sm-2 control-label">Query or View</label>
-          <div class="col-sm-8">
-          	<select class="form-control" name="type" ng-model="queryView" style="width:200px">
-      	    	<option value="query">Query</option>
-      	    	<option value="view">View</option>
-    	    </select>
+        <div class="radio">
+          <label><input type="radio" ng-model="docTypeMethod" value="select">Sample the database</label>
+        </div>
+
+        <div class="col-md-12" ng-if="docTypeMethod === 'upload'">
+          <div class="form-group">
+            <label for="uploadedDoc" class="control-label">Choose a file:</label>
+            <!-- <input type="file" class="name" name="uploadedDoc" onchange="angular.element(this).scope().changeFile(this.files)" size="50"/></label>-->
+            <div>
+              <label class="btn btn-default">
+                Browse<input type="file" onchange="angular.element(this).scope().changeFile(this.files)" hidden>
+              </label>
+              <span style="margin-left:10px" ng-bind="filename"></span>
+              Or &nbsp;
+              <span class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button">Browse MarkLogic
+                <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                  <li><a href="#" ng-click="openDocSelectionModal(searchTypeCollectionName)" >Search by Collection Name</a></li>
+                  <li><a href="#" ng-click="openDocSelectionModal(searchTypeDirectory)" >Search by Directory</a></li>
+                  <li><a href="#" ng-click="openDocSelectionModal(searchTypePartialUri)" >Search by URI</a></li>
+                  <li><a href="#" ng-click="openDocSelectionModal(searchTypeRootName)" >Search by Root Element</a></li>
+                </ul>
+              </span> 
+            </div>
           </div>
         </div>
-		  <div class="{{messageClass}}">
-			  <div class="col-sm-10">
-			  	<p class="help-block">{{ message }}</p>
-			  </div>
-		  </div>
-		  <div class="form-group">
-        	<div class="col-sm-offset-2 col-sm-10">
-        		<input type="submit" ng-disabled="!uploadButtonActive" value="Create {{queryView}}" ng-click="upload()" class="btn btn-default"/></p>
-        	</div>
+
+        <div class="col-md-12" ng-if="docTypeMethod === 'select'">
+          <div class="form-group">
+            <label for="selectDB">Choose a database:</label>
+            <select id="selectDB" class="form-control" ng-model="formInput.selectedDatabase" ng-options="database as database for database in availableDatabases">
+              <option value="">---</option>
+            </select>
+          </div>
+          <div ng-if="formInput.selectedDatabase" class="form-group">
+            <label for="selectDocType">Choose a document type:</label>
+            <select id="selectDocType" class="form-control" ng-model="formInput.startingDocType" ng-options="item.docType for item in availableDocTypes track by item.docType">
+            </select>
+          </div>
         </div>
+
+        <div class="col-md-12">
+          <div class="form-group has-error">
+            <p class="help-block">{{ message }}</p>
+          </div>
+        </div>
+
+        <div class="col-md-12" ng-if="(docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive)">
+          <div class="form-group">
+            <label for="type" class="control-label">Create a query or view?</label>
+            <select class="form-control" name="type" ng-model="queryView" style="width:200px">
+              <option value="query">Query</option>
+              <option value="view">View</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <input type="submit" value="Create" ng-click="selectDocumentType()" class="btn btn-primary"/>
+          </div>
+        </div>
+
       </form>
+    </div>
   </div>
+
   <div class="modal fade" id="selectDocument" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
 	  <div class="modal-content">
@@ -132,6 +158,7 @@
 	</div>
   </div>
 </div>
+
   <div ng-hide="step != 2" class="row">
 	<h1>Step 2 - Choose Relevant Fields</h1>
 	<form class="form-horizontal">
@@ -155,7 +182,7 @@
 		      	<div class="form-group">
 		      		<label for="database" class="col-sm-2 control-label">Database</label>
 		      		<div class="col-sm-10">
-			        	<select id="database" ng-model="formInput.selectedDatabase" name="database" ng-options="database as database for database in wizardForm.databases" class="form-control" required>
+			        	<select id="database" ng-model="formInput.selectedDatabase" name="database" ng-options="database as database for database in availableDatabases" class="form-control" required>
 			            	<option value="">--Choose Database</option>
 			        	</select>
 		      		</div>
