@@ -1,0 +1,54 @@
+<div ng-include="'components/navbar/navbar.html'"></div>
+<div class="container-fluid">
+  <div class="row">
+  <div class="col-md-12">
+<span class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button">Show {{mode}}
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+      <li><a href="#" ng-click="switchMode('queries')" >Show queries</a></li>
+      <li><a href="#" ng-click="switchMode('views')" >Show views</a></li>
+    </ul>
+    <div ng-show="results.length > 0">
+</span>
+  <div>
+    <table class="search-results-stats">
+      <tr><td><strong>Total Results:</strong></td><td>{{totalCount | number}}
+      </td></tr>
+      <tr><td><strong>Page:</strong></td>
+      <td>{{currentPage}} of {{pageCount | number}}
+
+      </td>
+      </tr>
+    </table>
+    <pagination total-items="totalCount" ng-model="currentPage" items-per-page="PAGE_SIZE" max-size="5" class="pagination-sm" boundary-links="true" ng-click="search()"></pagination>
+  </div>
+    </div>
+              <div style="overflow-x:auto">
+                <table class="table table-bordered">
+              	  <thead>
+              	    <tr>
+                       <th>Name</th><th>Database</th><th>Document Type</th><th>Edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="result in results">
+                      <td><span>{{result['name']}}</span></td>
+                      <td><span>{{result['database']}}</span></td>
+                      <td><span>{{result['docType']}}</span></td>
+                      <td>
+                                                  <div>
+                                                    <a href="">Edit...</a>
+                                                    &nbsp;|&nbsp;
+                                                    <a href="">Remove</>
+                                                  </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+<table class="search-results-stats">
+<tr><td><a href="" align="right">Create new...</a></td></tr></table>
+</div>
+</div>
+</div>

@@ -7,7 +7,7 @@ angular.module('demoApp')
       'link': '/'
     }]
     $rootScope.dataExplorerMenu = [{
-      'title': 'Search',
+      'title': 'Search...',
       'link': '/adhoc'
     }];
 

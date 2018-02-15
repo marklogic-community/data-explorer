@@ -23,8 +23,6 @@ angular.module('demoApp')
               }
               else if(data.queryTemplateExists && data.isSearchUser)
                 $location.path('/adhoc');
-              else if(!data.queryTemplateExists && data.isWizardUser)
-                $location.path('/wizard');
               else 
                 $location.path('/');
             }
