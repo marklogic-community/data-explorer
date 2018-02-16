@@ -7,12 +7,12 @@
     <button class="btn btn-default dropdown-toggle" type="button">{{mode}}
     <span class="caret"></span></button>
     <ul class="dropdown-menu">
-      <li><a href="#" ng-click="switchMode('Queries1')" >Queries</a></li>
+      <li><a href="#" ng-click="switchMode('Queries')" >Queries</a></li>
       <li><a href="#" ng-click="switchMode('Views')" >Views</a></li>
     </ul>
-     <div ng-show="message != ''"  class="col-md-12">
+     <div ng-show="loadError != '' || removeError != ''"  class="col-md-12">
               <div class="form-group has-error">
-                <p class="help-block">{{ message }}</p>
+                <p class="help-block">{{ loadError }}{{ removeError }}</p>
               </div>
             </div>
     <div ng-show="results.length > 0">
@@ -29,7 +29,7 @@
     <pagination total-items="totalCount" ng-model="currentPage" items-per-page="PAGE_SIZE" max-size="5" class="pagination-sm" boundary-links="true" ng-click="search()"></pagination>
   </div>
     </div>
-              <div ng-show="message == ''" style="overflow-x:auto">
+              <div ng-show="loadError == ''" style="overflow-x:auto">
                 <table class="table table-bordered">
               	  <thead>
               	    <tr>
@@ -43,9 +43,9 @@
                       <td><span>{{result['docType']}}</span></td>
                       <td>
                                                   <div>
-                                                    <a href="">Edit...</a>
-                                                    &nbsp;|&nbsp;
-                                                    <a href="">Remove</>
+                                                      <button value="Remove" ng-click="" class="btn btn-primary">Edit...</button>
+                                                      &nbsp;
+                                                      <button value="Remove" ng-click="removeQueryView(result['name'],$event)" class="btn btn-primary">Remove...</button>
                                                   </div>
                       </td>
                     </tr>
@@ -53,7 +53,7 @@
                 </table>
               </div>
 <table class="search-results-stats">
-<tr><td><a href="/wizard/query" align="right">Create new query...</a>&nbsp;|&nbsp;<a href="/wizard/view" align="right">Create new view...</a></td></tr></table>
+    <tr><td><a href="/wizard/query" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>&nbsp;<a href="/wizard/view" align="right"><button ng-click="" class="btn btn-primary">Create new view...</button></a></td></tr></table>
 </div>
 </div>
 </div>
