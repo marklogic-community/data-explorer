@@ -345,6 +345,9 @@ angular.module('demoApp')
     	return true;
     };
     
+    $scope.back = function() {
+        $window.location.href = '/crud';
+    };
 
     $scope.submitWizard = function(){
         var data = {};

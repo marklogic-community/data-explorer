@@ -15,8 +15,13 @@
                 <p class="help-block">{{ loadError }}{{ removeError }}</p>
               </div>
             </div>
-    <div ng-show="results.length > 0">
 </span>
+      <div ng-show="results.length === 0"  class="col-md-12">
+          <div class="form-group has-error">
+              <p class="help-block">No {{mode}} found.</p>
+          </div>
+      </div>
+      <div ng-show="results.length > 0">
   <div>
     <table class="search-results-stats">
       <tr><td><strong>Total Results:</strong></td><td>{{totalCount | number}}
@@ -29,7 +34,7 @@
     <pagination total-items="totalCount" ng-model="currentPage" items-per-page="PAGE_SIZE" max-size="5" class="pagination-sm" boundary-links="true" ng-click="search()"></pagination>
   </div>
     </div>
-              <div ng-show="loadError == ''" style="overflow-x:auto">
+              <div ng-show="loadError == '' && results.length > 0" style="overflow-x:auto">
                 <table class="table table-bordered">
               	  <thead>
               	    <tr>

@@ -38,7 +38,7 @@
               </span> 
             </div>
           </div>
-        </div>
+		</div>
 
         <div class="col-md-12" ng-if="docTypeMethod === 'select'">
           <div class="form-group">
@@ -63,8 +63,15 @@
         <div class="col-md-12" ng-if="(docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive)">
           <div class="form-group">
             <input type="submit" value="Create" ng-click="selectDocumentType()" class="btn btn-primary"/>
-          </div>
+			 <a href="/wizard/query" align="right"><button ng-click="back()" class="btn btn-primary">Back...</button>
+		  </div>
         </div>
+		  <div class="col-md-12" ng-if="!((docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive))">
+			  <div class="form-group">
+				  <a href="/wizard/query" align="right"><button ng-click="back()" class="btn btn-primary">Back...</button>
+			  </div>
+			  </div>
+		  </div>
 
       </form>
     </div>
@@ -253,8 +260,5 @@
     </form>
 
   </div>
-	<table class="search-results-stats">
-		<tr><td><a href="/wizard/query" align="right"><button ng-click="" class="btn btn-primary">Back...</button></a></td></tr></table>
-
 
 </div>
