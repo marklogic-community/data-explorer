@@ -11,9 +11,9 @@ angular.module('demoApp')
 
       $scope.startOffset = 1;
       $scope.results = [];
-      $scope.mode = "queries";
+      $scope.mode = "Queries";
       $scope.totalCount = 0;
-
+      $scope.message = "";
       $scope.$watch('currentPage', function(page){
           $scope.load()
       });
@@ -26,21 +26,19 @@ angular.module('demoApp')
 
       $scope.load=function() {
           var offset = (($scope.currentPage-1) * $scope.PAGE_SIZE)+1
-          console.log(offset);
           crudService.listQueriesViews($scope.mode,offset,$scope.PAGE_SIZE)
               .success(function(data, status) {
                   if (status == 200) {
-                      console.log(data);
+                      $scope.message = '';
                       $scope.totalCount = data['result-count']
                       $scope.results = data['rows']
                       $scope.pageCount = Math.ceil( $scope.totalCount / $scope.PAGE_SIZE)
-                      console.log($scope.pageCount)
                   }
               }).error(function(err){
-              // TODO
-              console.log(err);
+                  $scope.results = []
+                  $scope.message = "An server error occurred. Check the log/";
           });
       }
-      $scope.switchMode("queries");
+      $scope.switchMode("Queries");
     }
   );

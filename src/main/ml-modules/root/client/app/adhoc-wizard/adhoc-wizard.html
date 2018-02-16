@@ -62,13 +62,6 @@
 
         <div class="col-md-12" ng-if="(docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive)">
           <div class="form-group">
-            <label for="type" class="control-label">Create a query or view?</label>
-            <select class="form-control" name="type" ng-model="queryView" style="width:200px">
-              <option value="query">Query</option>
-              <option value="view">View</option>
-            </select>
-          </div>
-          <div class="form-group">
             <input type="submit" value="Create" ng-click="selectDocumentType()" class="btn btn-primary"/>
           </div>
         </div>
@@ -260,9 +253,5 @@
 			</div>
     	</fieldset>
     </form>
-  </div>
-  <div ng-hide="step != 3" class="row">
-    <h1>Finished!</h1>
-    <span ng-bind-html="to_trusted(wizardResults)"></span>
   </div>
 </div>

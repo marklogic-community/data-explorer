@@ -4,7 +4,7 @@ angular.module('demoApp')
   .config(function ($stateProvider) {
     $stateProvider
       .state('adhoc-wizard', {
-        url: '/wizard',
+        url: '/wizard/:queryView',
         templateUrl: 'app/adhoc-wizard/adhoc-wizard.html',
         controller: 'AdhocWizardCtrl',
         authenticate: true

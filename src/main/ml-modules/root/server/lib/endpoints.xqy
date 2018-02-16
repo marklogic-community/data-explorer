@@ -14,7 +14,7 @@ declare variable $endpoints:DEFAULT             as xs:string := "/client/index.h
 
 declare variable $endpoints:API-AUTH                as xs:string := "/server/endpoints/api-auth.xqy";
 declare variable $endpoints:API-DEAUTH              as xs:string := "/server/endpoints/api-auth-deauth.xqy";
-declare variable $endpoints:API-CRUD-LIST-QUERIES-VIEW as xs:string := "/server/endpoints/crud-list-queries-views.xqy";
+declare variable $endpoints:API-CRUD-LIST-QUERIES-VIEW as xs:string := "/server/endpoints/api-crud-list-queries-views.xqy";
 declare variable $endpoints:API-USERS-PASS      as xs:string := "/server/endpoints/api-users-pass.xqy";
 declare variable $endpoints:API-DETAIL          as xs:string := "/server/endpoints/api-detail.xqy";
 declare variable $endpoints:API-GET-XML-DOC     as xs:string := "/server/endpoints/api-get-xml-doc.xqy";
@@ -41,6 +41,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
         <request uri="^/login$" endpoint="{$endpoints:DEFAULT}"/>
         <request uri="^/adhoc$" endpoint="{$endpoints:DEFAULT}"/>
         <request uri="^/wizard$" endpoint="{$endpoints:DEFAULT}"/>
+        <request uri="^/crud$" endpoint="{$endpoints:DEFAULT}"/>
         <request uri="^/index\.htm" endpoint="{$endpoints:DEFAULT}"/>
 
         <request uri="^/auth$" endpoint="{$endpoints:API-AUTH}">

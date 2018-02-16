@@ -1,15 +1,15 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('AdhocWizardCtrl', function ($scope, $http, $sce, $interval, databaseService, wizardService) {
+  .controller('AdhocWizardCtrl', function ($window,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
 
     $scope.step = 1;
     $scope.wizardForm;
     $scope.wizardResults = '';
-    $scope.queryView = 'query';
+    $scope.queryView =  $stateParams.queryView;
     $scope.uploadButtonActive = false;
     $scope.message = "";
-    
+    console.log($scope.queryView);
     $scope.message = "Choose a file and mode and press submit.";
     $scope.messageClass = "form-group";
     $scope.searchTypeCollectionName="collectionName";
@@ -390,7 +390,7 @@ angular.module('demoApp')
             params:data
         }).success(function(data, status, headers, config) {
             $scope.wizardResults = data;
-            $scope.step = 3;
+            $window.location.href = '/crud';
         }).error(function(data, status){
             if (status == 500){
               $scope.wizardResults = "Server Error, please make changes and try again";
