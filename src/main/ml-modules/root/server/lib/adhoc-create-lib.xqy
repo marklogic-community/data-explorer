@@ -204,6 +204,17 @@ declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map, $di
 						$root-element
 					}
 				  }
+				  <namespaces>
+					  {
+						  let $cnt := map:get($adhoc-fields, "namespaceCount")
+						  return if ( fn:empty($cnt)) then () else (
+						  	for $i in (1 to xs:integer($cnt))
+						     let $abbrv := map:get($adhoc-fields, "namespaceAbbrv" || $i)
+						     let $uri := map:get($adhoc-fields, "namespaceUri" || $i)
+							 return <namespace><abbr>{$abbrv}</abbr><uri>{$uri}</uri></namespace>
+						 )
+					  }
+				  </namespaces>
 				  <displayOrder>{$display-order}</displayOrder>
 				  <columns>
 				  {
@@ -212,8 +223,8 @@ declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map, $di
 				  	let $expr := map:get($adhoc-fields, "columnExpr" || $i)
 				  	let $mode := map:get($adhoc-fields, "columnIncludeMode" || $i)
 				  	return
-				  		if (fn:exists($name) and fn:exists($expr) and ($mode eq "both" or $mode eq "view")) then
-				  			<column name="{ $name }" evaluateAs="XPath" expr="{ lib-adhoc:transform-xpath-with-spaces($expr) }" />
+				  		if ( fn:exists($expr) ) then
+				  			<column name="{ $name }" mode="{$mode}" evaluateAs="XPath" expr="{ lib-adhoc:transform-xpath-with-spaces($expr) }" />
 				  		else
 				  			()
 				  }

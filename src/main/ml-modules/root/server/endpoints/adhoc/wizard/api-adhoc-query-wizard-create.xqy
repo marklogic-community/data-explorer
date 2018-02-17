@@ -21,8 +21,12 @@ let $_ :=
 				let $_ := map:put($defaultViewMap, "viewName", map:get($cfg:getRequestFieldsMap,"queryName")||"-Default-View")
 				let $_ := 
 					for $key in map:keys($cfg:getRequestFieldsMap)
-					return 
-					if(fn:matches($key,"formLabelHidden[0-9]")) then
+					return
+						if(fn:matches($key,"namespaceAbbrv[0-9]")) then
+							map:put($defaultViewMap, "namespaceAbbrv"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
+					else if(fn:matches($key,"namespaceUri[0-9]")) then
+								map:put($defaultViewMap, "namespaceUri"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
+					else if(fn:matches($key,"formLabelHidden[0-9]")) then
 						map:put($defaultViewMap, "columnExpr"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
 					else if(fn:matches($key, "formLabelIncludeMode[0-9]")) then
 						map:put($defaultViewMap, "columnIncludeMode"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))

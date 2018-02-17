@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('CrudCtrl', function ($scope, $http, $sce, $interval, crudService) {
+  .controller('CrudCtrl', function ($window,$scope, $http, $sce, $interval, crudService) {
 
       $scope.PAGE_SIZE = 10;
 
@@ -13,7 +13,7 @@ angular.module('demoApp')
       $scope.results = [];
       $scope.mode = "Queries";
       $scope.totalCount = 0;
-      $scope.removeError = "";
+      $scope.genericError = "";
       $scope.$watch('currentPage', function(page){
           $scope.load()
       });
@@ -24,15 +24,15 @@ angular.module('demoApp')
               crudService.removeQueryView($scope.mode, name)
                   .success(function (data, status) {
                       if (status == 200) {
-                          $scope.removeError = "";
+                          $scope.genericError = "";
                           $scope.load()
                       }
                   }).error(function (err) {
                   $scope.load()
-                  $scope.removeError = "Error during removing " + $scope.mode + ". An error occurred. check the log.";
+                  $scope.genericError = "Error during removing " + $scope.mode + ". An error occurred. check the log.";
               });
           } else {
-              $scope.removeError = ""
+              $scope.genericError = ""
           }
       }
 

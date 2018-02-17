@@ -10,9 +10,9 @@
       <li><a href="#" ng-click="switchMode('Queries')" >Queries</a></li>
       <li><a href="#" ng-click="switchMode('Views')" >Views</a></li>
     </ul>
-     <div ng-show="loadError != '' || removeError != ''"  class="col-md-12">
+     <div ng-show="loadError != '' || genericError != ''"  class="col-md-12">
               <div class="form-group has-error">
-                <p class="help-block">{{ loadError }}{{ removeError }}</p>
+                <p class="help-block">{{ loadError }}{{ genericError }}</p>
               </div>
             </div>
 </span>
@@ -48,7 +48,7 @@
                       <td><span>{{result['docType']}}</span></td>
                       <td>
                                                   <div>
-                                                      <button value="Remove" ng-click="" class="btn btn-primary">Edit...</button>
+                                                      <a href="/wizard/query/{{result['name']}}"><button value="Edit" class="btn btn-primary">Edit...</button></a>
                                                       &nbsp;
                                                       <button value="Remove" ng-click="removeQueryView(result['name'],$event)" class="btn btn-primary">Remove...</button>
                                                   </div>
@@ -57,8 +57,7 @@
                   </tbody>
                 </table>
               </div>
-<table class="search-results-stats">
-    <tr><td><a href="/wizard/query" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>&nbsp;<a href="/wizard/view" align="right"><button ng-click="" class="btn btn-primary">Create new view...</button></a></td></tr></table>
+ <a href="/wizard/query/" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>&nbsp;<a href="/wizard/view/" align="right"><button ng-click="" class="btn btn-primary">Create new view...</button></a>
 </div>
 </div>
 </div>

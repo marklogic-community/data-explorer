@@ -19,8 +19,9 @@
         })
     };
 
+
       service.removeQueryView = function(mode,name) {
-          return $http.get('/api/crud/removeQueriesViews', {
+          return $http.get('/api/crud/removeQueryView', {
               params: {
                   mode : mode,
                   name : name

@@ -7,6 +7,7 @@ angular.module('demoApp')
     $scope.wizardForm;
     $scope.wizardResults = '';
     $scope.queryView =  $stateParams.queryView;
+    $scope.loadName = $stateParams.name;
     $scope.uploadButtonActive = false;
     $scope.message = "";
     console.log($scope.queryView);
@@ -41,6 +42,29 @@ angular.module('demoApp')
     $scope.showNamespaces = false;
     $scope.filename = '';
     $scope.fileType = 0;
+
+    if ($scope.loadName != undefined && $scope.loadName.length > 0 ) {
+        wizardService.getQueryView( $scope.queryView, $scope.loadName )
+            .success(function (data, status) {
+                if (status == 200) {
+                    console.log("GOT BACK")
+                    console.log(data)
+                    $scope.wizardForm={type:data.type}
+                    $scope.wizardForm.rootElement=data.rootElement
+                    $scope.formInput.queryViewName=data.queryViewName
+                    $scope.formInput.selectedDatabase=data.database
+                    $scope.displayOrder = data.displayOrder
+                    $scope.wizardForm.namespaces=data.namespaces
+                    $scope.wizardForm.fields=data.fields
+                    for(var index = 0; index < $scope.wizardForm.fields; index++){
+                        $scope.wizardForm.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
+                    }
+                    $scope.step = 2
+                }
+            }).error(function (err) {
+                console.log(err)
+        });
+    }
 
     $scope.toggleNamespaces = function() {
     	$scope.showNamespaces = !$scope.showNamespaces;
@@ -355,7 +379,15 @@ angular.module('demoApp')
         data.prefix = $scope.wizardForm.prefix;
         data.rootElement = $scope.wizardForm.rootElement;
         data.displayOrder = $scope.displayOrder;
-
+        data.namespaceCount = $scope.wizardForm.namespaces.length;
+        if ( $scope.wizardForm.namespaces.length > 0 ) {
+            var counter = 1;
+            for (var i = 1; i <= $scope.wizardForm.namespaces.length; i++) {
+                data['namespaceAbbrv' + counter] = $scope.wizardForm.namespaces[i-1].abbrv;
+                data['namespaceUri' + counter] = $scope.wizardForm.namespaces[i-1].uri;
+                counter += 1;
+            }
+        }
         data.database = $scope.formInput.selectedDatabase;
         data.fileType =  $scope.fileType;
         if ($scope.wizardForm.type.toLowerCase() === 'query'){
@@ -363,13 +395,11 @@ angular.module('demoApp')
 
             var counter = 1;
             for (var i = 1; i <= $scope.wizardForm.fields.length; i++){
-            	if($scope.wizardForm.fields[i-1].include){
             		data['formLabel'+counter] = $scope.wizardForm.fields[i-1].title;
             		data['formLabelHidden'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
             		data['formLabelDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
             		data['formLabelIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
             		counter += 1;
-            	}
             }
         }
         else
@@ -378,13 +408,11 @@ angular.module('demoApp')
 
             var counter = 1;
             for (var i = 1; i <= $scope.wizardForm.fields.length; i++){
-            	if($scope.wizardForm.fields[i-1].include){
 	                data['columnName'+counter] = $scope.wizardForm.fields[i-1].title;
 	                data['columnExpr'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
             		data['columnDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
 	        		data['columnIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
 	        		counter += 1;
-            	}
             }
         }
         console.log('sending...');

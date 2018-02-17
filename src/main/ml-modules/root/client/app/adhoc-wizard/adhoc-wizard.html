@@ -1,8 +1,7 @@
 <div ng-include="'components/navbar/navbar.html'"></div>
-
 <div class="container">
   <div ng-hide="step != 1" class="row">
-    <h1>Step 1 - Pick a Document Type</h1>
+    <h1>Pick a Document Type</h1>
     <div class="wizard-step-detail">
       Select a document type to use that will help define a query and/or view.
     </div>
@@ -24,7 +23,7 @@
               <label class="btn btn-default">
                 Browse<input type="file" onchange="angular.element(this).scope().changeFile(this.files)" hidden>
               </label>
-              <span style="margin-left:10px" ng-bind="filename"></span>
+              <label class="control-label" style="margin-left:10px" ng-bind="filename"></label>
               Or &nbsp;
               <span class="dropdown">
                 <button class="btn btn-default dropdown-toggle" type="button">Browse MarkLogic
@@ -75,7 +74,6 @@
 
       </form>
     </div>
-  </div>
 
   <div class="modal fade" id="selectDocument" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -155,9 +153,8 @@
 	  </div>
   </div>
 </div>
-
   <div ng-hide="step != 2" class="row">
-	<h1>Step 2 - Choose Relevant Fields</h1>
+	<h1>Choose Relevant Fields</h1>
 	<form class="form-horizontal">
 	  
 		<fieldset>

@@ -14,8 +14,9 @@ declare variable $endpoints:DEFAULT             as xs:string := "/client/index.h
 
 declare variable $endpoints:API-AUTH                as xs:string := "/server/endpoints/api-auth.xqy";
 declare variable $endpoints:API-DEAUTH              as xs:string := "/server/endpoints/api-auth-deauth.xqy";
-declare variable $endpoints:API-CRUD-LIST-QUERIES-VIEW as xs:string := "/server/endpoints/api-crud-list-queries-views.xqy";
-declare variable $endpoints:API-CRUD-REMOVE-QUERIES-VIEW as xs:string := "/server/endpoints/api-crud-remove-queries-views.xqy";
+declare variable $endpoints:API-CRUD-GET-QUERY-VIEW as xs:string := "/server/endpoints/api-crud-get-query-view.xqy";
+declare variable $endpoints:API-CRUD-LIST-QUERIES-VIEW as xs:string := "/server/endpoints/api-crud-list-query-view.xqy";
+declare variable $endpoints:API-CRUD-REMOVE-QUERY-VIEW as xs:string := "/server/endpoints/api-crud-remove-queries-views.xqy";
 declare variable $endpoints:API-USERS-PASS      as xs:string := "/server/endpoints/api-users-pass.xqy";
 declare variable $endpoints:API-DETAIL          as xs:string := "/server/endpoints/api-detail.xqy";
 declare variable $endpoints:API-GET-XML-DOC     as xs:string := "/server/endpoints/api-get-xml-doc.xqy";
@@ -69,7 +70,12 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
         <request uri="^/api/detail/*/*" endpoint="{$endpoints:API-DETAIL}">
             <http method="GET"/>
         </request>
-        <request uri="^/api/crud/removeQueriesViews$" endpoint="{$endpoints:API-CRUD-REMOVE-QUERIES-VIEW}">
+        <request uri="^/api/crud/removeQueryView$" endpoint="{$endpoints:API-CRUD-REMOVE-QUERY-VIEW}">
+            <param name="mode"/>
+            <param name="name"/>
+            <http method="GET"/>
+        </request>
+        <request uri="^/api/crud/getQueryView$" endpoint="{$endpoints:API-CRUD-GET-QUERY-VIEW}">
             <param name="mode"/>
             <param name="name"/>
             <http method="GET"/>
@@ -147,6 +153,9 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="database"/>   
             <param name="displayOrder"/>
             <param name="submit"/>
+            <param name="namespaceCount"/>
+            {endpoints:numbered-params("namespaceAbbrv", (1 to 250))}
+            {endpoints:numbered-params("namespaceUri", (1 to 250))}
             {endpoints:numbered-params("formLabelDataType", (1 to 250))}
             {endpoints:numbered-params("formLabel", (1 to 250))}
             {endpoints:numbered-params("formLabelHidden", (1 to 250))}

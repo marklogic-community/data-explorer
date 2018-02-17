@@ -10,7 +10,11 @@ declare function local:get-queries-views() {
     let $_ := if ( $offset < 1 ) then fn:error(xs:QName("ERROR"),"$offset="||$offset||" may not be smaller than 1") else ()
     let $_ := if ( $pageSize < 1 ) then fn:error(xs:QName("ERROR"),"$pageSize="||$pageSize||" may not be smaller than 1") else ()
     let $_ := if ( $mode != 'Queries' and $mode != 'Views' ) then fn:error(xs:QName("ERROR"),"$mode="||$mode||" should be 'Queries' or 'Views") else ()
-    let $docs := if ( $mode = 'Views' ) then /view else /formQuery
+    (: For queries we only select the query which has a default view. This is needed in case of edit. :)
+    let $docs := if ( $mode = 'Views' ) then
+                       /view
+                 else
+                       /formQuery[fn:not(fn:empty(fn:doc(fn:substring-before(fn:base-uri(.),"forms-queries")||'views/'||./queryName/fn:string()||'-Default-View.xml')))]
     let $total := fn:count($docs)
     let $json :=   json:object()=>map:with("result-count",$total)
                       =>map:with("rows",array-node {

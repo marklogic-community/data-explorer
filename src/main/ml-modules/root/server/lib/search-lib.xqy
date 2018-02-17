@@ -202,7 +202,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
           <current-page>{$page}</current-page>
           <page-count>{search-lib:page-count($search-response)}</page-count>
           <display-order>{$display-order}</display-order>
-          <result-headers><header>URI</header>{for $c in $view/columns/column return <header>{$c/@name/string()}</header>}</result-headers>
+          <result-headers><header>URI</header>{for $c in $view/columns/column[@mode!='none'] return <header>{$c/@name/string()}</header>}</result-headers>
           <results>{$results}</results>
         </output>
     else
@@ -220,7 +220,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
         declare variable $view external;
         declare variable $doc external;
 
-        for $column in $view/columns/column
+        for $column in $view/columns/column[@mode!='none']
         let $expr := $column/fn:string(@expr)
         let $name := xs:string($column/@name)
         let $expr :=
@@ -241,7 +241,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
       for $match in $result/search:snippet/search:match return
       let $trunc-uri := fn:substring-after($match/@path, fn:concat("fn:doc(&quot;", $result/@uri, "&quot;)/"))
       let $column-expr := fn:replace($trunc-uri, "\*", $view/documentType/@prefix)
-      let $column := $view/columns/column[@expr = $column-expr]/@name
+      let $column := $view/columns/column[@expr = $column-expr and @mode!='none']/@name
       return
       <match>
         <path>{ $trunc-uri }</path>
