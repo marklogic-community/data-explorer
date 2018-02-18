@@ -54,10 +54,13 @@ angular.module('demoApp')
                     $scope.formInput.queryViewName=data.queryViewName
                     $scope.formInput.selectedDatabase=data.database
                     $scope.displayOrder = data.displayOrder
+                    $scope.wizardForm.possibleRoots=data.possibleRoots
                     $scope.wizardForm.namespaces=data.namespaces
                     $scope.wizardForm.fields=data.fields
-                    for(var index = 0; index < $scope.wizardForm.fields; index++){
+                    for(var index = 0; index < $scope.wizardForm.fields.length; index++){
+                        console.log(createTitle(data.fields[index].elementName));
                         $scope.wizardForm.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
+                        $scope.wizardForm.fields[index].include = $scope.wizardForm.fields[index].includeMode != 'none'
                     }
                     $scope.step = 2
                 }
@@ -380,6 +383,16 @@ angular.module('demoApp')
         data.rootElement = $scope.wizardForm.rootElement;
         data.displayOrder = $scope.displayOrder;
         data.namespaceCount = $scope.wizardForm.namespaces.length;
+        data.possibleRootsCount = $scope.wizardForm.possibleRoots.length + 1;
+        if ( $scope.wizardForm.possibleRoots.length > 0 ) {
+            var counter = 1;
+            data['possibleRoot' + counter] = $scope.wizardForm.rootElement;
+            counter += 1;
+            for (var i = 1; i <= $scope.wizardForm.possibleRoots.length; i++) {
+                data['possibleRoot' + counter] = $scope.wizardForm.possibleRoots[i];
+                counter += 1;
+            }
+        }
         if ( $scope.wizardForm.namespaces.length > 0 ) {
             var counter = 1;
             for (var i = 1; i <= $scope.wizardForm.namespaces.length; i++) {

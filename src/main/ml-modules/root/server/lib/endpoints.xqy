@@ -154,6 +154,8 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="displayOrder"/>
             <param name="submit"/>
             <param name="namespaceCount"/>
+            <param name="possibleRootsCount"/>
+            {endpoints:numbered-params("possibleRoot", (1 to 250))}
             {endpoints:numbered-params("namespaceAbbrv", (1 to 250))}
             {endpoints:numbered-params("namespaceUri", (1 to 250))}
             {endpoints:numbered-params("formLabelDataType", (1 to 250))}

@@ -17,12 +17,15 @@ declare function local:get-query-view() {
     =>map:with("queryViewName",if ($mode = 'query') then $doc/queryName/fn:string() else $doc/viewName/fn:string())
     =>map:with("database",$doc/database/fn:string())
     =>map:with("displayOrder",$view//displayOrder/fn:string())
-    =>map:with("rootElement",$doc/documentType/fn:string())
+    =>map:with("rootElement",$view//rootElement/fn:string())
     =>map:with("namespaces",array-node{
         for $ns in $view//namespace
         return json:object()
         =>map:with("abbrv",$ns/abbr/fn:string())
         =>map:with("uri",$ns/uri/fn:string())})
+    =>map:with("possibleRoots",array-node{
+        for $pr in $view//possibleRoot/fn:string()
+          return $pr})
     =>map:with("fields",array-node{
         for $column in $view//columns/column
         return json:object()

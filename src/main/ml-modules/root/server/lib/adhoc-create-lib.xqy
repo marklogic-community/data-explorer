@@ -193,6 +193,7 @@ declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map, $di
 			let $view :=
 				<view>
 				  <viewName>{ $view-name }</viewName>
+				  <rootElement>{$root-element}</rootElement>
 				  <database>{$database}</database>
 				  {
 					element documentType{
@@ -204,6 +205,16 @@ declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map, $di
 						$root-element
 					}
 				  }
+				  <possibleRoots>
+					  {
+						  let $cnt := map:get($adhoc-fields, "possibleRootsCount")
+						  return if ( fn:empty($cnt)) then () else (
+							  for $i in (1 to xs:integer($cnt))
+							  let $pr := map:get($adhoc-fields, "possibleRoot" || $i)
+							  return <possibleRoot>{$pr}</possibleRoot>
+						  )
+					  }
+				  </possibleRoots>
 				  <namespaces>
 					  {
 						  let $cnt := map:get($adhoc-fields, "namespaceCount")
