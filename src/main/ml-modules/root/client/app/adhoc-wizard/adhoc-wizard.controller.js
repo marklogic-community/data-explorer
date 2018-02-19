@@ -49,7 +49,7 @@ angular.module('demoApp')
                 if (status == 200) {
                     console.log("GOT BACK")
                     console.log(data)
-                    $scope.wizardForm={type:data.type}
+                    $scope.wizardForm={type:data.type,prefix:data.prefix}
                     $scope.wizardForm.rootElement=data.rootElement
                     $scope.formInput.queryViewName=data.queryViewName
                     $scope.formInput.selectedDatabase=data.database
@@ -434,7 +434,7 @@ angular.module('demoApp')
             params:data
         }).success(function(data, status, headers, config) {
             $scope.wizardResults = data;
-            $window.location.href = '/crud';
+            //$window.location.href = '/crud';
         }).error(function(data, status){
             if (status == 500){
               $scope.wizardResults = "Server Error, please make changes and try again";

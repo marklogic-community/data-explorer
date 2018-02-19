@@ -11,17 +11,17 @@ angular.module('demoApp')
 
       $scope.startOffset = 1;
       $scope.results = [];
-      $scope.mode = "Queries";
+      $scope.views = [];
       $scope.totalCount = 0;
       $scope.genericError = "";
+
       $scope.$watch('currentPage', function(page){
           $scope.load()
       });
 
-      $scope.removeQueryView=function(name,ev) {
-          var t = $scope.mode == "Queries" ? "query" : "view"
-          if (confirm('Do you want to remove ' + t + '' + name + '?')) {
-              crudService.removeQueryView($scope.mode, name)
+      $scope.removeQuery=function(name,ev) {
+          if (confirm('Do you want to remove query '+ name + '?')) {
+              crudService.removeQuery(name)
                   .success(function (data, status) {
                       if (status == 200) {
                           $scope.genericError = "";
@@ -36,18 +36,10 @@ angular.module('demoApp')
           }
       }
 
-
-
-      $scope.switchMode=function(mode){
-          $scope.currentPage = 1;
-          $scope.mode = mode;
-          $scope.load()
-      }
-
       $scope.load=function() {
           $scope.loadError = '';
           var offset = (($scope.currentPage-1) * $scope.PAGE_SIZE)+1
-          crudService.listQueriesViews($scope.mode,offset,$scope.PAGE_SIZE)
+          crudService.listQueries(offset,$scope.PAGE_SIZE)
               .success(function(data, status) {
                   if (status == 200) {
                       $scope.totalCount = data['result-count']
@@ -59,6 +51,7 @@ angular.module('demoApp')
                   $scope.loadError = "An server error occurred. Check the log.";
           });
       }
-      $scope.switchMode("Queries");
+
+      $scope.load()
     }
   );

@@ -17,7 +17,8 @@ declare function local:get-query-view() {
     =>map:with("queryViewName",if ($mode = 'query') then $doc/queryName/fn:string() else $doc/viewName/fn:string())
     =>map:with("database",$doc/database/fn:string())
     =>map:with("displayOrder",$view//displayOrder/fn:string())
-    =>map:with("rootElement",$view//rootElement/fn:string())
+    =>map:with("rootElement",$view//documentType/fn:string())
+    =>map:with("prefix",$view//documentType/@prefix)
     =>map:with("namespaces",array-node{
         for $ns in $view//namespace
         return json:object()
@@ -31,7 +32,9 @@ declare function local:get-query-view() {
         return json:object()
         =>map:with("elementName",functx:substring-after-last($column//@expr,"/"))
         =>map:with("title",$column//@name)
-        =>map:with("includeMode",$column//@mode)})
+        =>map:with("includeMode",$column//@mode)
+        =>map:with("dataType",$column//@dataType)
+        =>map:with("xpathNormal",$column//@expr)})
     return xdmp:to-json($json)
 };
 

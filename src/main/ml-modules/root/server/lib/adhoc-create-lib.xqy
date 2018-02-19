@@ -96,51 +96,102 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $querytext := map:get($adhoc-fields, "queryText")
 	let $database := map:get($adhoc-fields, "database")
 	let $file-type := map:get($adhoc-fields, "fileType")
-
+	let $display-order := map:get($adhoc-fields, "displayOrder")
 	let $uri :=
 		(: For the filename, only use the local name of the last item in the XPath :)
-		let $clean-element := fn:replace( fn:tokenize($root-element, "/")[fn:last()], "^.+?:", "")
+		let $clean-element := fn:replace(fn:tokenize($root-element, "/")[fn:last()], "^.+?:", "")
 		return fn:string-join(
-			(
-				"", "adhoc", 
-				if($prefix) then $prefix else (),
-				$clean-element, 
-				"forms-queries", 
-				lib-adhoc-create:file-name($query-name)
-			), "/"
+				(
+					"", "adhoc",
+					if ($prefix) then $prefix else (),
+					$clean-element,
+					"forms-queries",
+					lib-adhoc-create:file-name($query-name)
+				), "/"
 		)
 
 	let $form-query :=
 		<formQuery>
-		  <queryName>{ $query-name }</queryName>
-		  <database>{$database}</database>
+			<queryName>{$query-name}</queryName>
+			<prefix>{$prefix}</prefix>
+			<database>{$database}</database>
+			<possibleRoots>
+				{
+					let $cnt := map:get($adhoc-fields, "possibleRootsCount")
+					return if ( fn:empty($cnt)) then () else (
+						for $i in (1 to xs:integer($cnt))
+						let $pr := map:get($adhoc-fields, "possibleRoot" || $i)
+						return <possibleRoot>{$pr}</possibleRoot>
+					)
+				}
+			</possibleRoots>
+			<namespaces>
+				{
+					let $cnt := map:get($adhoc-fields, "namespaceCount")
+					return if ( fn:empty($cnt)) then () else (
+						for $i in (1 to xs:integer($cnt))
+						let $abbrv := map:get($adhoc-fields, "namespaceAbbrv" || $i)
+						let $uri := map:get($adhoc-fields, "namespaceUri" || $i)
+						return <namespace><abbr>{$abbrv}</abbr><uri>{$uri}</uri></namespace>
+					)
+				}
+			</namespaces>
 			{
 				element documentType{
-					if($prefix) then
+					if ($prefix) then
 						attribute prefix{
 							$prefix
 						}
-					else(),
+					else (),
 					$root-element
 				}
 			}
-		  {
-		  	let $counter := 1
-		  	for $i in (1 to 250)
-		  	let $label := map:get($adhoc-fields, fn:concat("formLabel", $i))
-			let $datatype := map:get($adhoc-fields,fn:concat("formLabelDataType",$i))
-		  	let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
-		  	return
-		  		if (fn:exists($label) and ($mode eq "both" or $mode eq "query")) then
-						let $field-path := map:get($adhoc-fields, fn:concat("formLabelHidden", $i))
-		  		  let $_ := map:put($form-fields-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelHidden", $i)))
-		        let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
-		        let $_ := xdmp:set($counter, $counter + 1)
-		  		  return
-		  			<formLabel expr="{ $field-path }" mode="{ $mode }"><label>{ $label }</label><dataType>{ $datatype }</dataType></formLabel>
-		  		else
-		  			()
-		  }
+			<formLabels>
+			{
+				let $counter := 1
+				for $i in (1 to 250)
+					let $dataType := map:get($adhoc-fields, fn:concat("formLabelDataType", $i))
+					let $field-path := map:get($adhoc-fields, fn:concat("formLabelHidden", $i))
+					return
+						if (fn:exists($field-path)) then
+							let $_ := map:put($form-fields-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelHidden", $i)))
+							let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
+							let $_ := xdmp:set($counter, $counter + 1)
+							return
+								<formLabel id="{$i}" dataType="{$dataType}" evaluateAs="XPath"  expr="{$field-path}" exec_expr="{lib-adhoc:transform-xpath-with-spaces($field-path)}"/>
+						else
+							()
+			}
+			</formLabels>
+			<searchFields>
+				{
+					let $counter := 1
+					for $i in (1 to 250)
+						let $label := map:get($adhoc-fields, fn:concat("formLabel", $i))
+						let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
+						return
+							if (fn:exists($label) and ($mode = "query" or $mode = "both"))  then
+								<searchField id="{$i}" label="{$label}"/>
+							else ()
+				}
+			</searchFields>
+			<views>
+				<view>
+				      <name>DefaultView</name>
+					  <displayOrder>{$display-order}</displayOrder>
+				      <resultFields>
+						  {
+							  for $i in (1 to 250)
+								  let $label := map:get($adhoc-fields, fn:concat("formLabel", $i))
+								  let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
+								  return
+									  if (fn:exists($label) and ($mode = "view" or $mode = "both"))  then
+										  <resultField id="{$i}" label="{$label}"/>
+									  else ()
+						  }
+					  </resultFields>
+				</view>
+			</views>
 		  <code>{if($querytext) then $querytext else lib-adhoc-create:create-edit-form-code($file-type,$adhoc-fields)}</code>
 		</formQuery>
   let $_ := xu:document-insert($uri, $form-query)
@@ -165,122 +216,4 @@ declare function lib-adhoc-create:create-edit-form-code($file-type as xs:string,
     		fn:string-join($evqs, fn:concat(",", fn:codepoints-to-string(10)))
       )
     )
-};
-
-declare function lib-adhoc-create:create-edit-view($adhoc-fields as map:map, $display-order as xs:string)
-	as empty-sequence()
-{
-	let $prefix := map:get($adhoc-fields, "prefix")
-	let $root-element := map:get($adhoc-fields, "rootElement")
-	let $view-name := map:get($adhoc-fields, "viewName")
-	let $database := map:get($adhoc-fields, "database")
-	return
-		if ($root-element and $view-name) then
-			let $uri :=
-				(: For the filename, only use the local name of the last item in the XPath :)
-				let $clean-element := fn:replace( fn:tokenize($root-element, "/")[fn:last()], "^.+?:", "")
-				let $clean-element := if ($clean-element) then $clean-element else ()
-				return fn:string-join(
-					(
-						"", "adhoc", 
-						if($prefix) then $prefix else (),
-						$clean-element, 
-						"views", 
-						lib-adhoc-create:file-name($view-name)
-					), "/"
-				)
-
-			let $view :=
-				<view>
-				  <viewName>{ $view-name }</viewName>
-				  <rootElement>{$root-element}</rootElement>
-				  <database>{$database}</database>
-				  {
-					element documentType{
-						if($prefix) then
-							attribute prefix{
-								$prefix
-							}
-						else(),
-						$root-element
-					}
-				  }
-				  <possibleRoots>
-					  {
-						  let $cnt := map:get($adhoc-fields, "possibleRootsCount")
-						  return if ( fn:empty($cnt)) then () else (
-							  for $i in (1 to xs:integer($cnt))
-							  let $pr := map:get($adhoc-fields, "possibleRoot" || $i)
-							  return <possibleRoot>{$pr}</possibleRoot>
-						  )
-					  }
-				  </possibleRoots>
-				  <namespaces>
-					  {
-						  let $cnt := map:get($adhoc-fields, "namespaceCount")
-						  return if ( fn:empty($cnt)) then () else (
-						  	for $i in (1 to xs:integer($cnt))
-						     let $abbrv := map:get($adhoc-fields, "namespaceAbbrv" || $i)
-						     let $uri := map:get($adhoc-fields, "namespaceUri" || $i)
-							 return <namespace><abbr>{$abbrv}</abbr><uri>{$uri}</uri></namespace>
-						 )
-					  }
-				  </namespaces>
-				  <displayOrder>{$display-order}</displayOrder>
-				  <columns>
-				  {
-				  	for $i in (1 to 15)
-				  	let $name := map:get($adhoc-fields, "columnName" || $i)
-				  	let $expr := map:get($adhoc-fields, "columnExpr" || $i)
-				  	let $mode := map:get($adhoc-fields, "columnIncludeMode" || $i)
-				  	return
-				  		if ( fn:exists($expr) ) then
-				  			<column name="{ $name }" mode="{$mode}" evaluateAs="XPath" expr="{ lib-adhoc:transform-xpath-with-spaces($expr) }" />
-				  		else
-				  			()
-				  }
-					</columns>
-				</view>
-
-		  return xu:document-insert($uri, $view)
-
-		else
-			fn:error((), fn:concat(("A required param is missing"," prefix",$prefix," rootElement",$root-element, " viewName",$view-name," database",$database)))
-};
-
-declare function lib-adhoc-create:check-view-exists($adhoc-fields as map:map) as xs:boolean{
-	let $prefix := map:get($adhoc-fields, "prefix")
-	let $root-element := map:get($adhoc-fields, "rootElement")
-	let $query-name := map:get($adhoc-fields, "queryName")
-	let $querytext := map:get($adhoc-fields, "queryText")
-	let $database := map:get($adhoc-fields, "database")
-	return
-	xu:eval(
-		'
-		declare variable $query-name external;
-		declare variable $root-element external;
-		declare variable $prefix external;
-
-		xdmp:estimate(
-			cts:search(fn:doc()/view,
-		      cts:and-query((
-		        cts:element-value-query(xs:QName("viewName"),$query-name||"-Default-View"),
-		        cts:element-value-query(xs:QName("documentType"),$root-element),
-		        cts:element-attribute-value-query(xs:QName("documentType"), xs:QName("prefix"),$prefix)
-		      ))
-		    )
-		)
-		'
-		,
-		(
-			xs:QName("query-name"), $query-name,
-			xs:QName("root-element"), $root-element,
-			xs:QName("prefix"),($prefix,"")[1]
-		)
-		,
-		<options xmlns="xdmp:eval">
-		  <database>{xdmp:database($database)}</database>
-		</options>
-	) ge 1
-
 };

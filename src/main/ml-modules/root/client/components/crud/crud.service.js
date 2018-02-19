@@ -9,10 +9,9 @@
   function CrudService($http, Auth) {
     var service = {};
 
-    service.listQueriesViews = function(mode,startOffset,pageSize) {
-        return $http.get('/api/crud/listQueriesViews', {
+    service.listQueries = function(startOffset,pageSize) {
+        return $http.get('/api/crud/listQueries', {
             params: {
-                mode : mode,
                 startOffset : startOffset,
                 pageSize : pageSize
             }
@@ -20,10 +19,9 @@
     };
 
 
-      service.removeQueryView = function(mode,name) {
-          return $http.get('/api/crud/removeQueryView', {
+      service.removeQuery = function(name) {
+          return $http.get('/api/crud/removeQuery', {
               params: {
-                  mode : mode,
                   name : name
               }
           })

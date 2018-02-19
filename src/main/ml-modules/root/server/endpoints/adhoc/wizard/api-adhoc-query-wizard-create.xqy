@@ -13,30 +13,9 @@ let $create-form := map:get($cfg:getRequestFieldsMap, "queryText")
 let $display-order := map:get($cfg:getRequestFieldsMap, "displayOrder")
 let $_ := 
 	if(map:contains($cfg:getRequestFieldsMap, "queryName")) then 
-		let $_ := lib-adhoc-create:create-edit-form-query($cfg:getRequestFieldsMap)
-		return 
-			if(fn:not(lib-adhoc-create:check-view-exists($cfg:getRequestFieldsMap))) then
-			(
-				let $defaultViewMap := map:map()
-				let $_ := map:put($defaultViewMap, "viewName", map:get($cfg:getRequestFieldsMap,"queryName")||"-Default-View")
-				let $_ := 
-					for $key in map:keys($cfg:getRequestFieldsMap)
-					return
-						if(fn:matches($key,"namespaceAbbrv[0-9]")) then
-							map:put($defaultViewMap, "namespaceAbbrv"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
-					else if(fn:matches($key,"namespaceUri[0-9]")) then
-								map:put($defaultViewMap, "namespaceUri"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
-					else if(fn:matches($key,"formLabelHidden[0-9]")) then
-						map:put($defaultViewMap, "columnExpr"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
-					else if(fn:matches($key, "formLabelIncludeMode[0-9]")) then
-						map:put($defaultViewMap, "columnIncludeMode"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
-					else if (fn:matches($key,"formLabel[0-9]")) then
-						map:put($defaultViewMap, "columnName"||fn:tokenize($key,"[A-z]")[fn:last()], map:get($cfg:getRequestFieldsMap, $key))
-					else(map:put($defaultViewMap, $key, map:get($cfg:getRequestFieldsMap, $key)))
-				return lib-adhoc-create:create-edit-view($defaultViewMap, $display-order) 
-			)
-			else()
-  	else lib-adhoc-create:create-edit-view($cfg:getRequestFieldsMap, $display-order)
+		lib-adhoc-create:create-edit-form-query($cfg:getRequestFieldsMap)
+	else
+		()
 let $message :=
     <div>
       <p>Created new query: { map:get($cfg:getRequestFieldsMap, "queryName") }</p>

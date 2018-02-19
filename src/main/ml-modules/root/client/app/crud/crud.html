@@ -2,23 +2,13 @@
 <div class="container-fluid">
   <div class="row">
   <div class="col-md-12">
-  <span><strong>Show:</strong></span>
-<span class="dropdown">
-    <button class="btn btn-default dropdown-toggle" type="button">{{mode}}
-    <span class="caret"></span></button>
-    <ul class="dropdown-menu">
-      <li><a href="#" ng-click="switchMode('Queries')" >Queries</a></li>
-      <li><a href="#" ng-click="switchMode('Views')" >Views</a></li>
-    </ul>
+    <legend>List of queries</legend>
      <div ng-show="loadError != '' || genericError != ''"  class="col-md-12">
-              <div class="form-group has-error">
-                <p class="help-block">{{ loadError }}{{ genericError }}</p>
-              </div>
-            </div>
-</span>
+              <div class="form-group has-error"><p class="help-block">{{ loadError }}{{ genericError }}</p></div>
+     </div>
       <div ng-show="results.length === 0"  class="col-md-12">
           <div class="form-group has-error">
-              <p class="help-block">No {{mode}} found.</p>
+              <p class="help-block">No queries found.</p>
           </div>
       </div>
       <div ng-show="results.length > 0">
@@ -48,16 +38,20 @@
                       <td><span>{{result['docType']}}</span></td>
                       <td>
                                                   <div>
-                                                      <a href="/wizard/query/{{result['name']}}"><button value="Edit" class="btn btn-primary">Edit...</button></a>
+                                                      <a href="/wizard/{{mode==='Queries'?'query':'view'}}/{{result['name']}}"><button value="Edit" class="btn btn-primary">Edit...</button></a>
                                                       &nbsp;
-                                                      <button value="Remove" ng-click="removeQueryView(result['name'],$event)" class="btn btn-primary">Remove...</button>
+                                                      <button value="Remove" ng-click="removeQuery(result['name'],$event)" class="btn btn-primary">Remove...</button>
                                                   </div>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
- <a href="/wizard/query/" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>&nbsp;<a href="/wizard/view/" align="right"><button ng-click="" class="btn btn-primary">Create new view...</button></a>
-</div>
+      <p/><a href="/wizard/query/" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>
+      <p/><legend>List of related views</legend>
+      <div ng-show="views.length ==0"  class="col-md-12">
+          <div class="form-group has-error"><p class="help-block">Select first a query or no view found.</p></div>
+      </div>
+  </div>
 </div>
 </div>
