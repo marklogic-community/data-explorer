@@ -19,10 +19,11 @@
     };
 
 
-      service.removeQuery = function(name) {
+      service.removeQuery = function(name,docType) {
           return $http.get('/api/crud/removeQuery', {
               params: {
-                  name : name
+                  name : name,
+                  docType : docType
               }
           })
       };

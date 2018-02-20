@@ -72,11 +72,13 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
         </request>
         <request uri="^/api/crud/removeQuery$" endpoint="{$endpoints:API-CRUD-REMOVE-QUERY-VIEW}">
             <param name="name"/>
+            <param name="docType"/>
             <http method="GET"/>
         </request>
         <request uri="^/api/crud/getQueryView$" endpoint="{$endpoints:API-CRUD-GET-QUERY-VIEW}">
-            <param name="mode"/>
-            <param name="name"/>
+            <param name="queryName"/>
+            <param name="docType"/>
+            <param name="viewName"/>
             <http method="GET"/>
         </request>
         <request uri="^/api/crud/listQueries$" endpoint="{$endpoints:API-CRUD-LIST-QUERIES-VIEW}">

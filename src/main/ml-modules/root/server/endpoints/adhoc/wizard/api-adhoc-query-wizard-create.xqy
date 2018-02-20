@@ -9,18 +9,10 @@ import module namespace  check-user-lib = "http://www.marklogic.com/data-explore
 
 
 let $_ := xdmp:log("START: /server/endpoints/adhoc/wizard/api-adhoc-query-wizard-create.xqy","debug")
-let $create-form := map:get($cfg:getRequestFieldsMap, "queryText")
-let $display-order := map:get($cfg:getRequestFieldsMap, "displayOrder")
-let $_ := 
-	if(map:contains($cfg:getRequestFieldsMap, "queryName")) then 
+let $ret :=
+	if(map:contains($cfg:getRequestFieldsMap, "queryName") and map:contains($cfg:getRequestFieldsMap, "rootElement")) then
 		lib-adhoc-create:create-edit-form-query($cfg:getRequestFieldsMap)
 	else
-		()
-let $message :=
-    <div>
-      <p>Created new query: { map:get($cfg:getRequestFieldsMap, "queryName") }</p>
-      <div><a href="/adhoc">Return to Search</a></div>
-    </div>
+        xdmp:unquote('{"status":"dataError"}')
 let $_ := xdmp:log("FROM: /server/endpoints/adhoc/wizard/api-adhoc-query-wizard-create.xqy","debug")
-
-return $message
+return $ret

@@ -5,8 +5,10 @@ import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
 
 declare function local:remove-query() {
     let $name := map:get($cfg:getRequestFieldsMap, "name")
+    let $docType := map:get($cfg:getRequestFieldsMap, "docType")
     let $_ := if ( fn:empty($name) or $name = '' ) then fn:error(xs:QName("ERROR"),"Name may not be empty.") else ()
-    let $docs := /formQuery[queryName=$name]
+    let $_ := if ( fn:empty($docType) or $docType = '' ) then fn:error(xs:QName("ERROR"),"DocType may not be empty.") else ()
+    let $docs := /formQuery[queryName=$name and documentType=$docType]
     let $_ := $docs ! xdmp:document-delete(fn:base-uri(.))
     return ()
 };

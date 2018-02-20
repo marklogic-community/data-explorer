@@ -38,16 +38,16 @@
                       <td><span>{{result['docType']}}</span></td>
                       <td>
                                                   <div>
-                                                      <a href="/wizard/{{mode==='Queries'?'query':'view'}}/{{result['name']}}"><button value="Edit" class="btn btn-primary">Edit...</button></a>
+                                                      <a href="/wizard/query/{{result['name'] | tohex }}/{{result['docType'] | tohex}}/"><button value="Edit" class="btn btn-primary">Edit...</button></a>
                                                       &nbsp;
-                                                      <button value="Remove" ng-click="removeQuery(result['name'],$event)" class="btn btn-primary">Remove...</button>
+                                                      <button value="Remove" ng-click="removeQuery(result['name'],result['docType'],$event)" class="btn btn-primary">Remove...</button>
                                                   </div>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-      <p/><a href="/wizard/query/" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>
+      <p/><a href="/wizard/query///" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>
       <p/><legend>List of related views</legend>
       <div ng-show="views.length ==0"  class="col-md-12">
           <div class="form-group has-error"><p class="help-block">Select first a query or no view found.</p></div>

@@ -4,37 +4,66 @@ import module namespace  check-user-lib = "http://www.marklogic.com/data-explore
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
 declare function local:get-query-view() {
-    let $mode := map:get($cfg:getRequestFieldsMap, "mode")
-    let $name := map:get($cfg:getRequestFieldsMap, "name")
-    let $_ := if ( fn:empty($name )) then fn:error(xs:QName("ERROR"),"$name may not be empty") else ()
-    let $_ := if ( $mode != 'query' and $mode != 'view' ) then fn:error(xs:QName("ERROR"),"$mode="||$mode||" should be 'query' or 'view") else ()
-    let $doc := if ( $mode = 'query') then /formQuery[queryName=$name] else /view[viewName=$name]
-    let $_ := if ( fn:empty($doc) ) then fn:error("Could not find "||$mode||" with name '"||$name||"'") else ()
-    let $view := if ( $mode = 'query' ) then fn:doc(fn:substring-before(fn:base-uri($doc),"forms-queries")||'views/'||$doc/queryName/fn:string()||'-Default-View.xml') else $doc
-    let $_ := if ( fn:empty($doc)) then fn:error("Could not find default view for query "||$name) else ()
+    let $queryName := map:get($cfg:getRequestFieldsMap, "queryName")
+    let $docType := map:get($cfg:getRequestFieldsMap, "docType")
+    let $viewName := map:get($cfg:getRequestFieldsMap, "viewName")
+    let $_ := if ( fn:empty($queryName )) then fn:error(xs:QName("ERROR"),"$queryName may not be empty") else ()
+    let $_ := if ( fn:empty($docType )) then fn:error(xs:QName("ERROR"),"$docType may not be empty") else ()
+    let $queryDoc := /formQuery[queryName=$queryName and documentType=$docType]
+    let $_ := if ( fn:empty($queryDoc)) then
+        fn:error(xs:QName("ERROR"),"Query '"||$queryName||"' and DocType '"||$docType||"' not found.") else ()
+    let $queryMode := fn:string-length(fn:normalize-space($viewName)) = 0
+    let $viewName := if ($queryMode) then
+                        "DefaultView"
+                     else
+                        $viewName
+    let $view := $queryDoc/views/view[name=$viewName]
+    let $_ := if ( fn:empty($view)) then
+                  fn:error(xs:QName("ERROR"),"View '"||$viewName||"' not found.")
+              else ()
     let $json :=   json:object()
-    =>map:with("type",if ($mode = 'query') then 'Query' else 'View')
-    =>map:with("queryViewName",if ($mode = 'query') then $doc/queryName/fn:string() else $doc/viewName/fn:string())
-    =>map:with("database",$doc/database/fn:string())
-    =>map:with("displayOrder",$view//displayOrder/fn:string())
-    =>map:with("rootElement",$view//documentType/fn:string())
-    =>map:with("prefix",$view//documentType/@prefix)
+    =>map:with("type",if ($queryMode) then 'Query' else 'View')
+    =>map:with("queryViewName",if ($queryMode) then
+                                  $queryDoc/queryName/fn:string()
+                                else
+                                 $view/name/fn:string())
+    =>map:with("database",$queryDoc/database/fn:string())
+    =>map:with("displayOrder",$view/displayOrder/fn:string())
+    =>map:with("rootElement",$queryDoc/documentType/fn:string())
+    =>map:with("prefix",$queryDoc/documentType/@prefix)
     =>map:with("namespaces",array-node{
-        for $ns in $view//namespace
+        for $ns in $queryDoc/namespaces/namespace
         return json:object()
         =>map:with("abbrv",$ns/abbr/fn:string())
         =>map:with("uri",$ns/uri/fn:string())})
     =>map:with("possibleRoots",array-node{
-        for $pr in $view//possibleRoot/fn:string()
+        for $pr in $queryDoc/possibleRoots/possibleRoot/fn:string()
           return $pr})
     =>map:with("fields",array-node{
-        for $column in $view//columns/column
-        return json:object()
-        =>map:with("elementName",functx:substring-after-last($column//@expr,"/"))
-        =>map:with("title",$column//@name)
-        =>map:with("includeMode",$column//@mode)
-        =>map:with("dataType",$column//@dataType)
-        =>map:with("xpathNormal",$column//@expr)})
+        for $field in $queryDoc/formLabels/formLabel
+            let $id := $field/@id
+            let $search-entry := $queryDoc/searchFields/searchField[@id=$id]
+            let $result-entry := $view/resultFields/resultField[@id=$id]
+            let $mode := if ( (fn:not(fn:empty($search-entry)) and fn:not(fn:empty($result-entry))) ) then
+                     "both"
+            else if ( (fn:not(fn:empty($search-entry)))) then
+                    "query"
+                else if ( (fn:not(fn:empty($result-entry)))) then
+                        "view"
+                    else
+                        "none"
+            let $label := switch ($mode)
+                            case "query" return $search-entry/@label
+                            case "both" return $search-entry/@label
+                            case "view" return $result-entry/@label
+                            case "none" return ""
+                            default return fn:error(xs:QName("ERROR"),"Error mode='"||$mode||"' unknown.")
+            return json:object()
+            =>map:with("elementName",functx:substring-after-last($field/@expr,"/"))
+            =>map:with("title",$label)
+            =>map:with("includeMode",$mode)
+            =>map:with("dataType",$field/@dataType)
+            =>map:with("xpathNormal",$field/@expr)})
     return xdmp:to-json($json)
 };
 

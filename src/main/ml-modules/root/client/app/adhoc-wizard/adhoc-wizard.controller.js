@@ -7,9 +7,12 @@ angular.module('demoApp')
     $scope.wizardForm;
     $scope.wizardResults = '';
     $scope.queryView =  $stateParams.queryView;
-    $scope.loadName = $stateParams.name;
+    $scope.loadQueryName = fromHex($stateParams.queryName);
+    $scope.loadDocType = fromHex($stateParams.docType);
+    $scope.loadViewName = fromHex($stateParams.viewName);
     $scope.uploadButtonActive = false;
     $scope.message = "";
+    console.log("TEST2");
     console.log($scope.queryView);
     $scope.message = "Choose a file and mode and press submit.";
     $scope.messageClass = "form-group";
@@ -43,8 +46,12 @@ angular.module('demoApp')
     $scope.filename = '';
     $scope.fileType = 0;
 
-    if ($scope.loadName != undefined && $scope.loadName.length > 0 ) {
-        wizardService.getQueryView( $scope.queryView, $scope.loadName )
+    console.log($scope.loadQueryName)
+    console.log($scope.loadDocType)
+      console.log($scope.loadViewName)
+    if ($scope.loadQueryName != undefined && $scope.loadQueryName.length > 0 &&
+        $scope.loadDocType != undefined && $scope.loadDocType.length > 0 ) {
+        wizardService.getQueryView(  $scope.loadQueryName, $scope.loadDocType,$scope.loadViewName)
             .success(function (data, status) {
                 if (status == 200) {
                     console.log("GOT BACK")
@@ -121,7 +128,7 @@ angular.module('demoApp')
             if (status == 200){
                 $scope.step = 1; 
                 $scope.wizardForm = {databases:data};
-            		$("#selectDocument").modal();                 
+            		$("#selectDocument").modal();
             }
         }).error(function(err){
            console.log(err);
@@ -289,6 +296,15 @@ angular.module('demoApp')
         }
     };
 
+    function fromHex(item) {
+        var hexes = item.match(/.{1,4}/g) || [];
+        var back = "";
+        for(var j = 0; j<hexes.length; j++) {
+            back += String.fromCharCode(parseInt(hexes[j], 16));
+        }
+        return back;
+    }
+
     function prepareStep2(data) {
         $scope.step = 2; 
         $scope.wizardForm = data;
@@ -433,12 +449,15 @@ angular.module('demoApp')
         $http.get('/api/wizard/create',{
             params:data
         }).success(function(data, status, headers, config) {
-            $scope.wizardResults = data;
-            //$window.location.href = '/crud';
-        }).error(function(data, status){
-            if (status == 500){
-              $scope.wizardResults = "Server Error, please make changes and try again";
+            if ( data.status === 'exists') {
+               alert("A query with this query name and document type already exists.");
+            } else if ( data.status == 'dataError') {
+               alert("A data error occurred.");
+            } else if ( data.status == 'saved') {
+                $window.location.href = '/crud';
             }
+        }).error(function(data, status){
+              alert("Server Error, please make changes and try again");
         });
     };
     
