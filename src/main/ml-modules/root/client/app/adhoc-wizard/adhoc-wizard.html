@@ -62,12 +62,12 @@
         <div class="col-md-12" ng-if="(docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive)">
           <div class="form-group">
             <input type="submit" value="Create" ng-click="selectDocumentType()" class="btn btn-primary"/>
-			 <a href="/wizard/query" align="right"><button ng-click="back()" class="btn btn-primary">Back...</button>
+			<button ng-click="back()" class="btn btn-primary">Back...</button>
 		  </div>
         </div>
 		  <div class="col-md-12" ng-if="!((docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive))">
 			  <div class="form-group">
-				  <a href="/wizard/query" align="right"><button ng-click="back()" class="btn btn-primary">Back...</button>
+				  <a href="/wizard/query///" align="right"/><button ng-click="back()" class="btn btn-primary">Back...</button>
 			  </div>
 			  </div>
 		  </div>
