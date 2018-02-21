@@ -3,18 +3,21 @@ xquery version "1.0-ml";
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
+import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
+
 declare function local:get-query-view() {
     let $queryName := map:get($cfg:getRequestFieldsMap, "queryName")
     let $docType := map:get($cfg:getRequestFieldsMap, "docType")
     let $viewName := map:get($cfg:getRequestFieldsMap, "viewName")
+    let $insertView := map:get($cfg:getRequestFieldsMap, "insertView") = "true"
     let $_ := if ( fn:empty($queryName )) then fn:error(xs:QName("ERROR"),"$queryName may not be empty") else ()
     let $_ := if ( fn:empty($docType )) then fn:error(xs:QName("ERROR"),"$docType may not be empty") else ()
     let $queryDoc := /formQuery[queryName=$queryName and documentType=$docType]
     let $_ := if ( fn:empty($queryDoc)) then
         fn:error(xs:QName("ERROR"),"Query '"||$queryName||"' and DocType '"||$docType||"' not found.") else ()
-    let $queryMode := fn:string-length(fn:normalize-space($viewName)) = 0
-    let $viewName := if ($queryMode) then
-                        "DefaultView"
+    let $queryMode := fn:string-length(fn:normalize-space($viewName)) = 0 and fn:not($insertView)
+    let $viewName := if (fn:string-length(fn:normalize-space($viewName)) = 0) then
+                        $const:DEFAULT-VIEW-NAME
                      else
                         $viewName
     let $view := $queryDoc/views/view[name=$viewName]
@@ -23,10 +26,8 @@ declare function local:get-query-view() {
               else ()
     let $json :=   json:object()
     =>map:with("type",if ($queryMode) then 'Query' else 'View')
-    =>map:with("queryViewName",if ($queryMode) then
-                                  $queryDoc/queryName/fn:string()
-                                else
-                                 $view/name/fn:string())
+    =>map:with("queryName", $queryDoc/queryName/fn:string())
+    =>map:with("viewName",$view/name/fn:string())
     =>map:with("database",$queryDoc/database/fn:string())
     =>map:with("displayOrder",$view/displayOrder/fn:string())
     =>map:with("rootElement",$queryDoc/documentType/fn:string())
@@ -44,7 +45,10 @@ declare function local:get-query-view() {
             let $id := $field/@id
             let $search-entry := $queryDoc/searchFields/searchField[@id=$id]
             let $result-entry := $view/resultFields/resultField[@id=$id]
-            let $mode := if ( (fn:not(fn:empty($search-entry)) and fn:not(fn:empty($result-entry))) ) then
+            let $mode :=
+            if ( $insertView ) then
+                  "none"
+            else if ( (fn:not(fn:empty($search-entry)) and fn:not(fn:empty($result-entry))) ) then
                      "both"
             else if ( (fn:not(fn:empty($search-entry)))) then
                     "query"
@@ -67,6 +71,6 @@ declare function local:get-query-view() {
     return xdmp:to-json($json)
 };
 
-if (check-user-lib:is-logged-in() and (check-user-lib:is-search-user() or check-user-lib:is-wizard-user()))
+if (check-user-lib:is-logged-in() and (check-user-lib:is-wizard-user()))
 then (local:get-query-view())
 else (xdmp:set-response-code(401, "User is not authorized."))

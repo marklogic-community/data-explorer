@@ -61,20 +61,18 @@
 
         <div class="col-md-12" ng-if="(docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive)">
           <div class="form-group">
-            <input type="submit" value="Create" ng-click="selectDocumentType()" class="btn btn-primary"/>
+            <input type="submit" value="Select fields..." ng-click="selectDocumentType()" class="btn btn-primary"/>
 			<button ng-click="back()" class="btn btn-primary">Back...</button>
 		  </div>
         </div>
 		  <div class="col-md-12" ng-if="!((docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive))">
 			  <div class="form-group">
-				  <a href="/wizard/query///" align="right"/><button ng-click="back()" class="btn btn-primary">Back...</button>
-			  </div>
+				   <button ng-click="back()" class="btn btn-primary">Back...</button>
 			  </div>
 		  </div>
-
       </form>
     </div>
-
+  </div>
   <div class="modal fade" id="selectDocument" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
 	  <div class="modal-content">
@@ -158,17 +156,17 @@
 	<form class="form-horizontal">
 	  
 		<fieldset>
-		  	<legend>Edit Adhoc {{wizardForm.type}}</legend>
+		  	<legend>{{wizardTitle}}</legend>
 		      	<div class="form-group">
-		      		<label for="queryName" class="col-sm-2 control-label">{{wizardForm.type}} Name</label>
+		      		<label for="queryName" class="col-sm-2 control-label">Query name</label>
 		      		<div class="col-sm-10">
-		      			<input id="queryName" type="text" class="form-control" required ng-model="formInput.queryViewName" size="20"/>
+		      			<input id="queryName" ng-disabled="editMode" type="text" class="form-control" required ng-model="formInput.queryName" size="20"/>
 		      		</div>
 		      	</div>
 		      	<div class="form-group">
 		      		<label for="rootElement" class="col-sm-2 control-label">Root Element</label>
 		      		<div class="col-sm-10">
-			        	<select id="rootElement" ng-model="wizardForm.rootElement" name="rootElement" ng-options="rootElement as rootElement for rootElement in wizardForm.possibleRoots" class="form-control">
+			        	<select id="rootElement" ng-disabled="editMode" ng-model="wizardForm.rootElement" name="rootElement" ng-options="rootElement as rootElement for rootElement in wizardForm.possibleRoots" class="form-control">
 			            	<option value="">--Choose root element</option>
 			        	</select>
 		      		</div>
@@ -176,7 +174,7 @@
 		      	<div class="form-group">
 		      		<label for="database" class="col-sm-2 control-label">Database</label>
 		      		<div class="col-sm-10">
-			        	<select id="database" ng-model="formInput.selectedDatabase" name="database" ng-options="database as database for database in availableDatabases" class="form-control" required>
+			        	<select id="database" ng-disabled="queryView == 'view'" ng-model="formInput.selectedDatabase" name="database" ng-options="database as database for database in availableDatabases" class="form-control" required>
 			            	<option value="">--Choose Database</option>
 			        	</select>
 		      		</div>
@@ -185,8 +183,14 @@
        	<fieldset>
        		<legend>
 		        <span ng-hide="wizardForm.type !== 'query'">Form</span>
-		        <span ng-hide="wizardForm.type == 'query'">Query search fields and default view</span>
+		        <span ng-hide="wizardForm.type == 'query'">{{viewTitle}}</span>
        		</legend>
+			<div class="form-group" ng-hide="queryView == 'query'">
+				<label for="viewName" class="col-sm-2 control-label">View name</label>
+				<div class="col-sm-10">
+					<input id="viewName" type="text" class="form-control" required ng-model="formInput.viewName" size="20"/>
+				</div>
+			</div>
 			<div>
 	        	<div ng-if="wizardForm.type == 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it is available to search on, displayed in results, both, or none. You may also choose the column sort order.</div>
 	        	<div ng-if="wizardForm.type != 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it displayed in results or not. You may also choose column sort order</div>
@@ -249,7 +253,7 @@
 	        </div>
 			<div class="form-group">
 				<div class="col-sm-12">
-					<button type="submit" ng-click="submitWizard()" ng-disabled="!validForm()" class="btn btn-primary">Submit</button>
+					<button type="submit" ng-click="submitWizard()" ng-disabled="!validForm()" class="btn btn-primary">{{buttonText}}</button>
 				</div>
 			</div>
 

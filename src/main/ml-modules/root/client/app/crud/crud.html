@@ -40,6 +40,8 @@
                                                   <div>
                                                       <a href="/wizard/query/{{result['name'] | tohex }}/{{result['docType'] | tohex}}/"><button value="Edit" class="btn btn-primary">Edit...</button></a>
                                                       &nbsp;
+                                                      <button value="Show views.." ng-click="showViews(result['name'],result['docType'],$event)" class="btn btn-primary">Show views...</button></a>
+                                                      &nbsp;
                                                       <button value="Remove" ng-click="removeQuery(result['name'],result['docType'],$event)" class="btn btn-primary">Remove...</button>
                                                   </div>
                       </td>
@@ -47,11 +49,14 @@
                   </tbody>
                 </table>
               </div>
-      <p/><a href="/wizard/query///" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>
-      <p/><legend>List of related views</legend>
+      <a href="/wizard/query///" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>
+      <p/>
+      <div ng-show="displayViews" >
+      </p><legend>List of related views of query {{selectedQueryName}}</legend>
       <div ng-show="views.length ==0"  class="col-md-12">
-          <div class="form-group has-error"><p class="help-block">Select first a query or no view found.</p></div>
+          <div class="form-group has-error"><p class="help-block">No views found. Click 'create view' to create a view.</p></div>
       </div>
+      <a href="/wizard/view/{{selectedQueryName | tohex}}/{{selectedDocType | tohex}}/" align="right"><button ng-click="" class="btn btn-primary">Create new view...</button></a>
   </div>
 </div>
 </div>

@@ -15,7 +15,8 @@ declare variable $endpoints:DEFAULT             as xs:string := "/client/index.h
 declare variable $endpoints:API-AUTH                as xs:string := "/server/endpoints/api-auth.xqy";
 declare variable $endpoints:API-DEAUTH              as xs:string := "/server/endpoints/api-auth-deauth.xqy";
 declare variable $endpoints:API-CRUD-GET-QUERY-VIEW as xs:string := "/server/endpoints/api-crud-get-query-view.xqy";
-declare variable $endpoints:API-CRUD-LIST-QUERIES-VIEW as xs:string := "/server/endpoints/api-crud-list-queries.xqy";
+declare variable $endpoints:API-CRUD-LIST-QUERIES as xs:string := "/server/endpoints/api-crud-list-queries.xqy";
+declare variable $endpoints:API-CRUD-LIST-VIEWS as xs:string := "/server/endpoints/api-crud-list-views.xqy";
 declare variable $endpoints:API-CRUD-REMOVE-QUERY-VIEW as xs:string := "/server/endpoints/api-crud-remove-query.xqy";
 declare variable $endpoints:API-USERS-PASS      as xs:string := "/server/endpoints/api-users-pass.xqy";
 declare variable $endpoints:API-DETAIL          as xs:string := "/server/endpoints/api-detail.xqy";
@@ -79,9 +80,17 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="queryName"/>
             <param name="docType"/>
             <param name="viewName"/>
+            <param name="insertView"/>
             <http method="GET"/>
         </request>
-        <request uri="^/api/crud/listQueries$" endpoint="{$endpoints:API-CRUD-LIST-QUERIES-VIEW}">
+        <request uri="^/api/crud/listViews$" endpoint="{$endpoints:API-CRUD-LIST-VIEWS}">
+            <param name="startOffset"/>
+            <param name="pageSize"/>
+            <param name="docType"/>
+            <param name="queryName"/>
+            <http method="GET"/>
+        </request>
+        <request uri="^/api/crud/listQueries$" endpoint="{$endpoints:API-CRUD-LIST-QUERIES}">
             <param name="startOffset"/>
             <param name="pageSize"/>
             <http method="GET"/>
@@ -150,7 +159,8 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="queryName"/>
             <param name="viewName"/>
             <param name="queryText"/>
-            <param name="database"/>   
+            <param name="database"/>
+            <param name="overwrite"/>
             <param name="displayOrder"/>
             <param name="submit"/>
             <param name="namespaceCount"/>

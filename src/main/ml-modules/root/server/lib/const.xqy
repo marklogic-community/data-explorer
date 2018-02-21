@@ -3,6 +3,8 @@ xquery version "1.0-ml";
 
 module namespace const = "http://www.marklogic.com/data-explore/lib/const";
 
+declare variable $const:DEFAULT-VIEW-NAME := "__INTERNAL__DEFAULT_VIEW__";
+
 declare variable $const:FILE_TYPE_XML as xs:string := "0";
 declare variable $const:FILE_TYPE_JSON as xs:string := "1";
 

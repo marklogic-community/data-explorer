@@ -5,6 +5,7 @@ import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
+import module namespace mem = "http://xqdev.com/in-mem-update" at "/MarkLogic/appservices/utils/in-mem-update.xqy";
 
 declare  namespace sec="http://marklogic.com/xdmp/security";
 
@@ -90,14 +91,17 @@ declare function lib-adhoc-create:file-name($query-name as xs:string)
 declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:map)
 	as document-node()
 {
+	let $overwrite := map:get($adhoc-fields, "overwrite") = "OVERWRITE"
 	let $prefix := map:get($adhoc-fields, "prefix")
 	let $root-element := map:get($adhoc-fields, "rootElement")
 	let $query-name := map:get($adhoc-fields, "queryName")
 	let $querytext := map:get($adhoc-fields, "queryText")
+	let $view-name :=  map:get($adhoc-fields, "viewName")
+	let $view-name := if (fn:empty($view-name)) then $const:DEFAULT-VIEW-NAME else $view-name
 	let $database := map:get($adhoc-fields, "database")
 	let $file-type := map:get($adhoc-fields, "fileType")
 	let $display-order := map:get($adhoc-fields, "displayOrder")
-	return if (fn:not(fn:empty(//formQuery[queryName=$query-name and documentType=$root-element]))) then
+	return if (fn:not($overwrite) and fn:not(fn:empty(//formQuery[queryName=$query-name and documentType=$root-element]))) then
 					xdmp:unquote('{"status":"exists"}')
 	else (
 			let $uri :=
@@ -112,6 +116,31 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 							lib-adhoc-create:file-name($query-name)
 						), "/"
 				)
+            let $add-view := <view>
+				<name>{$view-name}</name>
+				<displayOrder>{$display-order}</displayOrder>
+				<resultFields>
+					{
+						for $i in (1 to 250)
+						let $label := map:get($adhoc-fields, fn:concat("formLabel", $i))
+						let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
+						return
+							if (fn:exists($label) and ($mode = "view" or $mode = "both"))  then
+								<resultField id="{$i}" label="{$label}"/>
+							else ()
+					}
+				</resultFields>
+			</view>
+			let $existing-views := fn:doc($uri)//views
+
+			let $new :=  if ( fn:empty($existing-views)) then
+							<views>{$add-view}</views>
+							else if ( $add-view/name/fn:string() = $existing-views/view/name/fn:string() ) then
+								let $node := $existing-views/view[name=$add-view/name/fn:string()]
+								return mem:node-replace($node,$add-view)//views
+							else
+								let $node := $existing-views
+								return mem:node-insert-child($node,$add-view)//views
 
 			let $form-query :=
 				<formQuery>
@@ -178,23 +207,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 									else ()
 						}
 					</searchFields>
-					<views>
-						<view>
-							  <name>DefaultView</name>
-							  <displayOrder>{$display-order}</displayOrder>
-							  <resultFields>
-								  {
-									  for $i in (1 to 250)
-										  let $label := map:get($adhoc-fields, fn:concat("formLabel", $i))
-										  let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
-										  return
-											  if (fn:exists($label) and ($mode = "view" or $mode = "both"))  then
-												  <resultField id="{$i}" label="{$label}"/>
-											  else ()
-								  }
-							  </resultFields>
-						</view>
-					</views>
+					{$new}
 				  <code>{if($querytext) then $querytext else lib-adhoc-create:create-edit-form-code($file-type,$adhoc-fields)}</code>
 				</formQuery>
 		  let $_ := xu:document-insert($uri, $form-query)

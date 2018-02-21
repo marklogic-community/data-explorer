@@ -19,16 +19,25 @@ angular.module('demoApp')
       $scope.pageCount = 1;
       $scope.currentPage = 1;
 
+      $scope.displayViews = false;
+      $scope.views = [];
 
       $scope.startOffset = 1;
       $scope.results = [];
-      $scope.views = [];
       $scope.totalCount = 0;
       $scope.genericError = "";
+      $scope.selectedQueryName = ""
+      $scope.selectedDocType = ""
 
       $scope.$watch('currentPage', function(page){
           $scope.load()
       });
+
+      $scope.showViews=function(queryName,docType,event) {
+         $scope.displayViews = true;
+         $scope.selectedQueryName = queryName
+         $scope.selectedDocType = docType
+      }
 
       $scope.removeQuery=function(name,docType,ev) {
           if (confirm('Do you want to remove query '+ name + '?')) {

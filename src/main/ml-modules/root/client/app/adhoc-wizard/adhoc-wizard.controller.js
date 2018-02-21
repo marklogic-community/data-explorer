@@ -7,13 +7,20 @@ angular.module('demoApp')
     $scope.wizardForm;
     $scope.wizardResults = '';
     $scope.queryView =  $stateParams.queryView;
-    $scope.loadQueryName = fromHex($stateParams.queryName);
+    console.log("WHAT")
+    console.log($scope.queryView)
+    $scope.wizardTitle = $scope.queryView == "query" ? "Edit Query" : "Edit view for Query"
+    $scope.viewTitle = $scope.queryView == "query" ? "Query search fields and default view" : "View information"
+        $scope.loadQueryName = fromHex($stateParams.queryName);
     $scope.loadDocType = fromHex($stateParams.docType);
     $scope.loadViewName = fromHex($stateParams.viewName);
+    $scope.editMode = $scope.loadQueryName != undefined && $scope.loadQueryName.length > 0 &&
+                         $scope.loadDocType != undefined && $scope.loadDocType.length > 0;
+    $scope.insertView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length == 0
+    $scope.insertQuery = $scope.queryView == "query" && $scope.editMode == false
+    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Insert" : "Update";
     $scope.uploadButtonActive = false;
     $scope.message = "";
-    console.log("TEST2");
-    console.log($scope.queryView);
     $scope.message = "Choose a file and mode and press submit.";
     $scope.messageClass = "form-group";
     $scope.searchTypeCollectionName="collectionName";
@@ -29,7 +36,7 @@ angular.module('demoApp')
     	
     $scope.formInput = {};
     $scope.formInput.selectedDatabase = '';
-    $scope.formInput.queryViewName = '';
+    $scope.formInput.queryName = '';
     $scope.formInput.startingDocType = '';
     $scope.displayOrder = 'alphabetical';
 
@@ -45,20 +52,18 @@ angular.module('demoApp')
     $scope.showNamespaces = false;
     $scope.filename = '';
     $scope.fileType = 0;
-
-    console.log($scope.loadQueryName)
-    console.log($scope.loadDocType)
-      console.log($scope.loadViewName)
-    if ($scope.loadQueryName != undefined && $scope.loadQueryName.length > 0 &&
-        $scope.loadDocType != undefined && $scope.loadDocType.length > 0 ) {
-        wizardService.getQueryView(  $scope.loadQueryName, $scope.loadDocType,$scope.loadViewName)
+    if ( $scope.editMode ) {
+        wizardService.getQueryView($scope.loadQueryName, $scope.loadDocType,$scope.loadViewName,$scope.insertView )
             .success(function (data, status) {
                 if (status == 200) {
-                    console.log("GOT BACK")
-                    console.log(data)
+                    console.log("TYPE")
+                    console.log(data.type)
                     $scope.wizardForm={type:data.type,prefix:data.prefix}
                     $scope.wizardForm.rootElement=data.rootElement
-                    $scope.formInput.queryViewName=data.queryViewName
+                    $scope.formInput.queryName=data.queryName
+                    if ( !$scope.insertView ) {
+                        $scope.formInput.viewName = data.viewName
+                    }
                     $scope.formInput.selectedDatabase=data.database
                     $scope.displayOrder = data.displayOrder
                     $scope.wizardForm.possibleRoots=data.possibleRoots
@@ -343,6 +348,7 @@ angular.module('demoApp')
               $scope.message = "This file-type is not supported. Choose a different file";
               $scope.uploadButtonActive = false;
         } else {
+            console.log("UPLOAD")
             $http.post('/api/wizard/upload', $scope.wizardUploadFormData, {
                 withCredentials: true,
                 headers: {'Content-Type': undefined },
@@ -361,7 +367,10 @@ angular.module('demoApp')
 
     
     $scope.validForm = function() {
-    	if($scope.formInput.queryViewName == ''){
+        if($scope.queryView == 'view' && ( $scope.formInput.viewName == '' || $scope.formInput.viewName == undefined )){
+            return false
+        }
+    	if($scope.formInput.queryName == ''){
     		return false;
     	}
     	if($scope.wizardForm.rootElement == ''){
@@ -393,7 +402,8 @@ angular.module('demoApp')
     };
 
     $scope.submitWizard = function(){
-        var data = {};
+        var data = {}
+        data.overwrite = $scope.editMode ? "OVERWRITE" : "INSERT"
         data.queryText = '';
         data.prefix = $scope.wizardForm.prefix;
         data.rootElement = $scope.wizardForm.rootElement;
@@ -419,30 +429,19 @@ angular.module('demoApp')
         }
         data.database = $scope.formInput.selectedDatabase;
         data.fileType =  $scope.fileType;
+        data.queryName = $scope.formInput.queryName;
         if ($scope.wizardForm.type.toLowerCase() === 'query'){
-            data.queryName = $scope.formInput.queryViewName;
-
-            var counter = 1;
-            for (var i = 1; i <= $scope.wizardForm.fields.length; i++){
-            		data['formLabel'+counter] = $scope.wizardForm.fields[i-1].title;
-            		data['formLabelHidden'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
-            		data['formLabelDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
-            		data['formLabelIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
-            		counter += 1;
-            }
+            data.viewName = '';
+        } else {
+            data.viewName = $scope.formInput.viewName;
         }
-        else
-        {
-            data.viewName = $scope.formInput.queryViewName;
-
-            var counter = 1;
-            for (var i = 1; i <= $scope.wizardForm.fields.length; i++){
-	                data['columnName'+counter] = $scope.wizardForm.fields[i-1].title;
-	                data['columnExpr'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
-            		data['columnDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
-	        		data['columnIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
-	        		counter += 1;
-            }
+        var counter = 1;
+        for (var i = 1; i <= $scope.wizardForm.fields.length; i++){
+                data['formLabel'+counter] = $scope.wizardForm.fields[i-1].title;
+                data['formLabelHidden'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
+                data['formLabelDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
+                data['formLabelIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
+                counter += 1;
         }
         console.log('sending...');
         console.dir(data);
@@ -454,7 +453,8 @@ angular.module('demoApp')
             } else if ( data.status == 'dataError') {
                alert("A data error occurred.");
             } else if ( data.status == 'saved') {
-                $window.location.href = '/crud';
+                // TODO Uncomment
+                //$window.location.href = '/crud';
             }
         }).error(function(data, status){
               alert("Server Error, please make changes and try again");
