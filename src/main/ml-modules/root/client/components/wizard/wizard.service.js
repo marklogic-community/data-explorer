@@ -9,7 +9,7 @@
   function WizardService($http, Auth) {
     var service = {};
 
-      service.getQueryView = function(name,docType,view) {
+       service.getQueryView = function(name,docType,view) {
           return $http.get('/api/crud/getQueryView', {
               params: {
                   queryName : name,
