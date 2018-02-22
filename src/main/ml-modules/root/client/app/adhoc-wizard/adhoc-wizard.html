@@ -188,7 +188,7 @@
 			<div class="form-group" ng-hide="queryView == 'query'">
 				<label for="viewName" class="col-sm-2 control-label">View name</label>
 				<div class="col-sm-10">
-					<input id="viewName" type="text" class="form-control" required ng-model="formInput.viewName" size="20"/>
+					<input id="viewName" ng-disabled="updateView" type="text" class="form-control" required ng-model="formInput.viewName" size="20"/>
 				</div>
 			</div>
 			<div>
@@ -253,7 +253,7 @@
 	        </div>
 			<div class="form-group">
 				<div class="col-sm-12">
-					<button type="submit" ng-click="submitWizard()" ng-disabled="!validForm()" class="btn btn-primary">{{buttonText}}</button>
+					<button type="submit" ng-click="submitWizard()" ng-disabled="!validForm()" class="btn btn-primary">{{buttonText}}</button>&nbsp;<a href="/crud"><button type="submit"  class="btn btn-primary">Back...</button></a>
 				</div>
 			</div>
 

@@ -1,8 +1,8 @@
 xquery version "1.0-ml";
 
 module namespace cfg = "http://www.marklogic.com/data-explore/lib/config";
-import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
-
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
+import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 
 (: START OF PROPERTIES YOU CAN MODIFY :)
 declare variable $cfg:app-title := "Data-Explorer";
@@ -92,14 +92,7 @@ declare variable $PROLOG :=
 (: returns all of the localnames of the document types that have form-query objects :)
 declare function cfg:get-document-types($db as xs:string) as xs:string*
 {
-  let $names :=
-    let $form-queries :=
-      cfg:search-config("formQuery", cts:element-value-query(xs:QName("database"), $db))
-    for $fq in $form-queries
-    return $fq/fn:string(documentType)
-
-  let $names := fn:distinct-values($names)
-
+  let $names := fn:distinct-values(/formQuery[@version=$const:SUPPORTED-VERSION and database=$db]/documentType/fn:string())
   for $name in $names
   order by $name
   return $name
@@ -120,19 +113,8 @@ declare function cfg:getNamespaceUri($prefix as xs:string?) as xs:string?
 declare function cfg:get-query-names($document-type as xs:string, $database as xs:string)
   as xs:string*
 {
-  let $names :=
-    let $form-queries :=
-      cfg:search-config("formQuery",
-    cts:and-query((
-            cts:element-value-query(xs:QName("documentType"), $document-type),
-            cts:element-value-query(xs:QName("database"), $database)
-    ))
-      )
-    for $fq in $form-queries
-    return $fq/fn:string(queryName)
-
+  let $names := fn:distinct-values(/formQuery[@version=$const:SUPPORTED-VERSION and documentType=$document-type and database=$database]/queryName/fn:string())
   let $names := fn:distinct-values($names)
-
   for $name in $names
   order by $name
   return $name
@@ -143,46 +125,25 @@ declare function cfg:get-form-query(
   $query-name as xs:string)
   as element(formQuery)?
 {
-  cfg:search-config("formQuery",
-    cts:and-query((
-      cts:element-value-query(xs:QName("documentType"), $document-type),
-      cts:element-value-query(xs:QName("queryName"), $query-name)
-    ))
-  )
+  /formQuery[@version=$const:SUPPORTED-VERSION and documentType=$document-type and queryName=$query-name]
 };
 
 declare function cfg:get-view-names($document-type as xs:string, $database as xs:string)
   as xs:string*
 {
-  let $names :=
-    let $views :=
-      cfg:search-config("view",
-    cts:and-query((
-            cts:element-value-query(xs:QName("documentType"), $document-type),
-            cts:element-value-query(xs:QName("database"), $database)
-    ))
-      )
-    for $view in $views
-    return $view/fn:string(viewName)
-
-  let $names := fn:distinct-values($names)
-
+  let $names := fn:distinct-values(/formQuery[@version=$const:SUPPORTED-VERSION and documentType=$document-type and database=$database]/views/view/name/fn:string())
   for $name in $names
   order by $name
   return $name
 };
 
 declare function cfg:get-view(
+  $query-name as xs:string,
   $document-type as xs:string,
   $view-name as xs:string)
   as element(view)?
 {
-  cfg:search-config("view",
-    cts:and-query((
-      cts:element-value-query(xs:QName("documentType"), $document-type),
-      cts:element-value-query(xs:QName("viewName"), $view-name)
-    ))
-  )
+  /formQuery[@version=$const:SUPPORTED-VERSION and queryName=$query-name and documentType=$document-type]/views/view[name=$view-name]
 };
 
 

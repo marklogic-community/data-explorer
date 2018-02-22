@@ -101,7 +101,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $database := map:get($adhoc-fields, "database")
 	let $file-type := map:get($adhoc-fields, "fileType")
 	let $display-order := map:get($adhoc-fields, "displayOrder")
-	return if (fn:not($overwrite) and fn:not(fn:empty(//formQuery[queryName=$query-name and documentType=$root-element]))) then
+	return if (fn:not($overwrite) and fn:not(fn:empty(//formQuery[@version=$const:SUPPORTED-VERSION and queryName=$query-name and documentType=$root-element]))) then
 					xdmp:unquote('{"status":"exists"}')
 	else (
 			let $uri :=
@@ -143,7 +143,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 								return mem:node-insert-child($node,$add-view)//views
 
 			let $form-query :=
-				<formQuery>
+				<formQuery version="{$const:SUPPORTED-VERSION}">
 					<queryName>{$query-name}</queryName>
 					<prefix>{$prefix}</prefix>
 					<database>{$database}</database>

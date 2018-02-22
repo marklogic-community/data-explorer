@@ -17,7 +17,8 @@ declare variable $endpoints:API-DEAUTH              as xs:string := "/server/end
 declare variable $endpoints:API-CRUD-GET-QUERY-VIEW as xs:string := "/server/endpoints/api-crud-get-query-view.xqy";
 declare variable $endpoints:API-CRUD-LIST-QUERIES as xs:string := "/server/endpoints/api-crud-list-queries.xqy";
 declare variable $endpoints:API-CRUD-LIST-VIEWS as xs:string := "/server/endpoints/api-crud-list-views.xqy";
-declare variable $endpoints:API-CRUD-REMOVE-QUERY-VIEW as xs:string := "/server/endpoints/api-crud-remove-query.xqy";
+declare variable $endpoints:API-CRUD-REMOVE-QUERY as xs:string := "/server/endpoints/api-crud-remove-query.xqy";
+declare variable $endpoints:API-CRUD-REMOVE-VIEW as xs:string := "/server/endpoints/api-crud-remove-view.xqy";
 declare variable $endpoints:API-USERS-PASS      as xs:string := "/server/endpoints/api-users-pass.xqy";
 declare variable $endpoints:API-DETAIL          as xs:string := "/server/endpoints/api-detail.xqy";
 declare variable $endpoints:API-GET-XML-DOC     as xs:string := "/server/endpoints/api-get-xml-doc.xqy";
@@ -71,9 +72,15 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
         <request uri="^/api/detail/*/*" endpoint="{$endpoints:API-DETAIL}">
             <http method="GET"/>
         </request>
-        <request uri="^/api/crud/removeQuery$" endpoint="{$endpoints:API-CRUD-REMOVE-QUERY-VIEW}">
-            <param name="name"/>
+        <request uri="^/api/crud/removeQuery$" endpoint="{$endpoints:API-CRUD-REMOVE-QUERY}">
+            <param name="queryName"/>
             <param name="docType"/>
+            <http method="GET"/>
+        </request>
+        <request uri="^/api/crud/removeView$" endpoint="{$endpoints:API-CRUD-REMOVE-VIEW}">
+            <param name="queryName"/>
+            <param name="docType"/>
+            <param name="viewName"/>
             <http method="GET"/>
         </request>
         <request uri="^/api/crud/getQueryView$" endpoint="{$endpoints:API-CRUD-GET-QUERY-VIEW}">

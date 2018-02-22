@@ -59,16 +59,19 @@ declare function lib-adhoc:get-view-names($database as xs:string, $docType as xs
 	return $names
 };
 
-declare function lib-adhoc:get-query-form-items($doc-type as xs:string, $query as xs:string) as node()* {
-  let $form-query-doc := cfg:get-form-query($doc-type, $query)
+declare function lib-adhoc:get-query-form-items($form-query-doc as element(formQuery)) as node()* {
   let $database := $form-query-doc/database/fn:string()
 
-  return for $option in $form-query-doc/formLabel
-    let $form-field := fn:tokenize($option/@expr, "/")[fn:last()]
+  return for $option in $form-query-doc/searchFields/searchField
+    let $dict := $form-query-doc/formLabels/formLabel[@id=$option/@id]
+    let $form-field := fn:tokenize($dict/@expr, "/")[fn:last()]
     let $range-index := riu:get-index($database, $form-field)
+    let $dataType := fn:string($dict/@dataType)
+    let $label := fn:string($option/@label)
     return 
     <formLabel>
-    { $option/* }
+        <dataType>{$dataType}</dataType>
+        <label>{$label}</label>
     {
       if (fn:empty($range-index)) then () else (
         <rangeIndex>{ $form-field }</rangeIndex>,

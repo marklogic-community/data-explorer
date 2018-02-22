@@ -12,7 +12,7 @@ declare function local:get-query-view() {
     let $insertView := map:get($cfg:getRequestFieldsMap, "insertView") = "true"
     let $_ := if ( fn:empty($queryName )) then fn:error(xs:QName("ERROR"),"$queryName may not be empty") else ()
     let $_ := if ( fn:empty($docType )) then fn:error(xs:QName("ERROR"),"$docType may not be empty") else ()
-    let $queryDoc := /formQuery[queryName=$queryName and documentType=$docType]
+    let $queryDoc := /formQuery[@version=$const:SUPPORTED-VERSION and queryName=$queryName and documentType=$docType]
     let $_ := if ( fn:empty($queryDoc)) then
         fn:error(xs:QName("ERROR"),"Query '"||$queryName||"' and DocType '"||$docType||"' not found.") else ()
     let $queryMode := fn:string-length(fn:normalize-space($viewName)) = 0 and fn:not($insertView)

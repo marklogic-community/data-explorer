@@ -3,28 +3,28 @@
   <div class="row">
   <div class="col-md-12">
     <legend>List of queries</legend>
-     <div ng-show="loadError != '' || genericError != ''"  class="col-md-12">
-              <div class="form-group has-error"><p class="help-block">{{ loadError }}{{ genericError }}</p></div>
+     <div ng-show="queryLoadError != '' || queryGenericError != ''" class="col-md-12">
+              <div class="form-group has-error"><p class="help-block">{{ queryLoadError }}{{ queryGenericError }}</p></div>
      </div>
-      <div ng-show="results.length === 0"  class="col-md-12">
+      <div ng-show="queryResults.length === 0"  class="col-md-12">
           <div class="form-group has-error">
               <p class="help-block">No queries found.</p>
           </div>
       </div>
-      <div ng-show="results.length > 0">
+      <div ng-show="queryResults.length > 0">
   <div>
     <table class="search-results-stats">
-      <tr><td><strong>Total Results:</strong></td><td>{{totalCount | number}}
+      <tr><td><strong>Total Results:</strong></td><td>{{queryTotalCount | number}}
       </td></tr>
       <tr><td><strong>Page:</strong></td>
-      <td>{{currentPage}} of {{pageCount | number}}
+      <td>{{queryCurrentPage}} of {{queryPageCount | number}}
       </td>
       </tr>
     </table>
-    <pagination total-items="totalCount" ng-model="currentPage" items-per-page="PAGE_SIZE" max-size="5" class="pagination-sm" boundary-links="true" ng-click="search()"></pagination>
+    <pagination total-items="queryTotalCount" ng-model="queryCurrentPage" items-per-page="PAGE_SIZE" max-size="5" class="pagination-sm" boundary-links="true"></pagination>
   </div>
     </div>
-              <div ng-show="loadError == '' && results.length > 0" style="overflow-x:auto">
+              <div ng-show="queryLoadError == '' && queryResults.length > 0" style="overflow-x:auto">
                 <table class="table table-bordered">
               	  <thead>
               	    <tr>
@@ -32,7 +32,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr ng-repeat="result in results">
+                    <tr ng-repeat="result in queryResults">
                       <td><span>{{result['name']}}</span></td>
                       <td><span>{{result['database']}}</span></td>
                       <td><span>{{result['docType']}}</span></td>
@@ -52,10 +52,48 @@
       <a href="/wizard/query///" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>
       <p/>
       <div ng-show="displayViews" >
-      </p><legend>List of related views of query {{selectedQueryName}}</legend>
-      <div ng-show="views.length ==0"  class="col-md-12">
+      </p><legend>List of related non default views of query '{{selectedQueryName}}'</legend>
+      <div ng-show="viewLoadError != '' || viewGenericError != ''" class="col-md-12">
+          <div class="form-group has-error"><p class="help-block">{{ viewLoadError }}{{ viewGenericError }}</p></div>
+      </div>
+      <div ng-show="viewResults.length ==0 && viewLoadError == ''"  class="col-md-12">
           <div class="form-group has-error"><p class="help-block">No views found. Click 'create view' to create a view.</p></div>
       </div>
+          <div ng-show="viewResults.length > 0">
+              <div>
+                  <table class="search-results-stats">
+                      <tr><td><strong>Total Results:</strong></td><td>{{viewTotalCount | number}}
+                      </td></tr>
+                      <tr><td><strong>Page:</strong></td>
+                          <td>{{viewCurrentPage}} of {{viewPageCount | number}}
+                          </td>
+                      </tr>
+                  </table>
+                  <pagination total-items="viewTotalCount" ng-model="viewCurrentPage" items-per-page="PAGE_SIZE" max-size="5" class="pagination-sm" boundary-links="true"></pagination>
+              </div>
+          </div>
+          <div ng-show="viewLoadError == '' && viewResults.length > 0" style="overflow-x:auto">
+              <table class="table table-bordered">
+                  <thead>
+                  <tr>
+                      <th>Name</th><th>Edit</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr ng-repeat="result in viewResults">
+                      <td><span>{{result['viewName']}}</span></td>
+                      <td>
+                          <div>
+                              <a href="/wizard/view/{{selectedQueryName | tohex }}/{{selectedDocType | tohex}}/{{result['viewName'] | tohex}}"><button value="Edit" class="btn btn-primary">Edit...</button></a>
+                              &nbsp;
+                              <button value="Remove" ng-click="removeView(selectedQueryName,selectedDocType,result['viewName'],$event)" class="btn btn-primary">Remove...</button>
+                          </div>
+                      </td>
+                  </tr>
+                  </tbody>
+              </table>
+          </div>
+
       <a href="/wizard/view/{{selectedQueryName | tohex}}/{{selectedDocType | tohex}}/" align="right"><button ng-click="" class="btn btn-primary">Create new view...</button></a>
   </div>
 </div>

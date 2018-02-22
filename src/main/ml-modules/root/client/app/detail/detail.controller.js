@@ -17,7 +17,6 @@ angular.module('demoApp')
     $scope.details = Detail.get({database:$scope.database,uri:$scope.uri},function(details){
       $scope.doc = details;
       if ( $scope.doc.mimetype == "application/json") {
-        console.log($scope.doc.data);
         $scope.prettyData = vkbeautify.json($scope.doc.data)
         $scope.tabheading = "JSON View";
       } else {

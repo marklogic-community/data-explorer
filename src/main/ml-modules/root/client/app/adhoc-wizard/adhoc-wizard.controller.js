@@ -3,12 +3,9 @@
 angular.module('demoApp')
   .controller('AdhocWizardCtrl', function ($window,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
 
-    $scope.step = 1;
     $scope.wizardForm;
     $scope.wizardResults = '';
     $scope.queryView =  $stateParams.queryView;
-    console.log("WHAT")
-    console.log($scope.queryView)
     $scope.wizardTitle = $scope.queryView == "query" ? "Edit Query" : "Edit view for Query"
     $scope.viewTitle = $scope.queryView == "query" ? "Query search fields and default view" : "View information"
         $scope.loadQueryName = fromHex($stateParams.queryName);
@@ -17,8 +14,14 @@ angular.module('demoApp')
     $scope.editMode = $scope.loadQueryName != undefined && $scope.loadQueryName.length > 0 &&
                          $scope.loadDocType != undefined && $scope.loadDocType.length > 0;
     $scope.insertView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length == 0
+    $scope.updateView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length > 0
     $scope.insertQuery = $scope.queryView == "query" && $scope.editMode == false
-    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Insert" : "Update";
+    if ( $scope.editMode ) {
+        $scope.step = 2;
+    } else {
+        $scope.step = 1;
+    }
+    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Insert..." : "Update...";
     $scope.uploadButtonActive = false;
     $scope.message = "";
     $scope.message = "Choose a file and mode and press submit.";
@@ -56,8 +59,6 @@ angular.module('demoApp')
         wizardService.getQueryView($scope.loadQueryName, $scope.loadDocType,$scope.loadViewName,$scope.insertView )
             .success(function (data, status) {
                 if (status == 200) {
-                    console.log("TYPE")
-                    console.log(data.type)
                     $scope.wizardForm={type:data.type,prefix:data.prefix}
                     $scope.wizardForm.rootElement=data.rootElement
                     $scope.formInput.queryName=data.queryName
@@ -70,7 +71,6 @@ angular.module('demoApp')
                     $scope.wizardForm.namespaces=data.namespaces
                     $scope.wizardForm.fields=data.fields
                     for(var index = 0; index < $scope.wizardForm.fields.length; index++){
-                        console.log(createTitle(data.fields[index].elementName));
                         $scope.wizardForm.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
                         $scope.wizardForm.fields[index].include = $scope.wizardForm.fields[index].includeMode != 'none'
                     }
@@ -453,8 +453,7 @@ angular.module('demoApp')
             } else if ( data.status == 'dataError') {
                alert("A data error occurred.");
             } else if ( data.status == 'saved') {
-                // TODO Uncomment
-                //$window.location.href = '/crud';
+               $window.location.href = '/crud';
             }
         }).error(function(data, status){
               alert("Server Error, please make changes and try again");

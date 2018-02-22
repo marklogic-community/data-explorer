@@ -12,8 +12,10 @@ declare function local:get-views() {
     let $_ := if ( fn:empty($queryName )) then fn:error(xs:QName("ERROR"),"$queryName may not be empty") else ()
     let $_ := if ( fn:empty($docType )) then fn:error(xs:QName("ERROR"),"$docType may not be empty") else ()
     (: Filter out the default view name :)
-    let $viewNames := fn:filter(function($v) { $v != $const:DEFAULT-VIEW-NAME},/formQuery/views/view/name)
+    let $viewNames := fn:filter(function($v) { $v != $const:DEFAULT-VIEW-NAME},//formQuery[queryName=$queryName and documentType=$docType]/views/view/name/fn:string())
+    let $total-count := fn:count($viewNames)
     let $json :=   json:object()
+                    =>map:with("result-count",$total-count)
                     =>map:with("views",array-node {
                         for $viewName in $viewNames[$offset to (-1 + $offset + $pageSize)]
                         return json:object()

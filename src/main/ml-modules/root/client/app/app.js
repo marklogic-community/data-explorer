@@ -58,11 +58,11 @@ angular.module('demoApp', [
     'textFields',
     'message',
     'searchText',
-    'currentPage'
+    'queryCurrentPage'
   ];
 
   this.setPage = function(page) {
-    _formState.currentPage = page;
+    _formState.queryCurrentPage = page;
   };
 
   this.save = function($scope) {
@@ -88,7 +88,7 @@ angular.module('demoApp', [
     for(var i = 0; i < _savedFields.length; i++) {
       $scope[_savedFields[i]] = typeof _formState[_savedFields[i]] !== undefined ? _formState[_savedFields[i]] : '';
     }
-    $scope.currentPage = _formState.currentPage ? _formState.currentPage : 1;
+    $scope.queryCurrentPage = _formState.queryCurrentPage ? _formState.queryCurrentPage : 1;
     $scope.inputField = {};
     _formState.inputField = _formState.inputField || {};
     for(var i = 1; i <= 15; i++) {

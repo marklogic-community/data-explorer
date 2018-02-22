@@ -18,7 +18,7 @@ factory('$click', function() {
     // Restore the saved state
     AdhocState.restore($scope);
     // Keep the page number in sync
-    $scope.$watch('currentPage', function(page){
+    $scope.$watch('queryCurrentPage', function(page){
       AdhocState.setPage(page);
     });  
 
@@ -165,7 +165,7 @@ factory('$click', function() {
     $scope.clickSearch = function(form) {
       AdhocState.save($scope);
       if (form.$valid) {
-        $scope.currentPage = 1;
+        $scope.queryCurrentPage = 1;
         $scope.search(false);
       }
     };
@@ -212,7 +212,7 @@ factory('$click', function() {
         return;
       }
       if(!pageNumber){
-      	pageNumber= $scope.currentPage
+      	pageNumber= $scope.queryCurrentPage
       }
       if(!exportCsv){
     	$scope.message = 'Searching....';
@@ -285,6 +285,10 @@ factory('$click', function() {
     		    downloadFile();
     	  }
     	  else{
+          if ( data == undefined || data.results == undefined || data.results.length == 0) {
+              $scope.message = 'No documents found';
+              return
+          }
           // Convert simple http urls into links
           data.results.forEach(function(result, resultRow) {
             data['results-header'].forEach(function(column) {
@@ -311,7 +315,7 @@ factory('$click', function() {
             data['results-header'] = cols;
           }
     	    $scope.results = data;
-    	    $scope.currentPage = $scope.results['current-page'];
+    	    $scope.queryCurrentPage = $scope.results['current-page'];
     	  }
         
       }).error(function(data, status) {
