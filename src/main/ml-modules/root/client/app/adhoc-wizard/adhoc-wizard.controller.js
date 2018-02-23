@@ -38,6 +38,8 @@ angular.module('demoApp')
     $scope.noResultsMessage="";
     	
     $scope.formInput = {};
+    $scope.formInput.bookmarkCheck=false;
+    $scope.formInput.bookmarkLabel="";
     $scope.formInput.selectedDatabase = '';
     $scope.formInput.queryName = '';
     $scope.formInput.startingDocType = '';
@@ -62,6 +64,13 @@ angular.module('demoApp')
                     $scope.wizardForm={type:data.type,prefix:data.prefix}
                     $scope.wizardForm.rootElement=data.rootElement
                     $scope.formInput.queryName=data.queryName
+                    if ( data.bookmarkLabel != undefined && data.bookmarkLabel.length>0) {
+                        $scope.formInput.bookmarkCheck=true;
+                        $scope.formInput.bookmarkLabel=data.bookmarkLabel;
+                    } else {
+                        $scope.formInput.bookmarkCheck=false;
+                        $scope.formInput.bookmarkLabel="";
+                    }
                     if ( !$scope.insertView ) {
                         $scope.formInput.viewName = data.viewName
                     }
@@ -367,6 +376,9 @@ angular.module('demoApp')
 
     
     $scope.validForm = function() {
+        if ( $scope.formInput.bookmarkCheck &&  $scope.formInput.bookmarkLabel == '' ||  $scope.formInput.bookmarkLabel == undefined) {
+            return false;
+        }
         if($scope.queryView == 'view' && ( $scope.formInput.viewName == '' || $scope.formInput.viewName == undefined )){
             return false
         }
@@ -403,6 +415,7 @@ angular.module('demoApp')
 
     $scope.submitWizard = function(){
         var data = {}
+        data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
         data.overwrite = $scope.editMode ? "OVERWRITE" : "INSERT"
         data.queryText = '';
         data.prefix = $scope.wizardForm.prefix;

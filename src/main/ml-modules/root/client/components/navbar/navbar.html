@@ -1,5 +1,6 @@
 <div class="navbar navbar-default navbar-static-top" ng-controller="NavbarCtrl">
-  <div class="container">
+  <div class="container" style="width:90%">
+
     <div class="navbar-header">
       <button class="navbar-toggle" type="button" ng-click="isCollapsed = !isCollapsed">
         <span class="sr-only">Toggle navigation</span>
@@ -17,15 +18,25 @@
         <li ng-show="isWizardUser() || isSearchUser()" ng-repeat="item in dataExplorerMenu" ng-class="{active: isActive(item.link)}">
             <a ng-href="{{item.link}}">{{item.title}}</a>
         </li>
-        <li ng-show="isWizardUser()" >
+        <li ng-show="isWizardUser()" ng-class="{active: isActive('/crud')}">
           <a href="/crud">Edit config...</a>
         </li>
+        <li class="dropdown" >
+          <a href="#" ng-controller="NavbarCtrl" dropdown-toggle="" class="dropdown-toggle" data-toggle="dropdown">Bookmarks<span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" role="menu">
+            <li>
+              <a href="#">Work in progress by Jos</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
       </ul>
 
-      <ul class="nav navbar navbar-right" style="margin-bottom:0px !important;">
+      <ul class="nav navbar-nav" style="float:right; margin-bottom:0px !important;">
         <li ng-hide="isLoggedIn()" ng-class="{active: isActive('/login')}"><a href="/login">Login</a></li>
         <li ng-show="isLoggedIn()" class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ getCurrentUser().name }} <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ getCurrentUser().name }} <span class="caret"/></a>
           <ul class="dropdown-menu" role="menu">
             <li ng-class="{active: isActive('/settings')}"><a href="/settings">Reset Password</a></li>
             <li class="divider"></li>

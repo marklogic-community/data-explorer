@@ -28,6 +28,7 @@ declare function local:get-query-view() {
     =>map:with("type",if ($queryMode) then 'Query' else 'View')
     =>map:with("queryName", $queryDoc/queryName/fn:string())
     =>map:with("viewName",$view/name/fn:string())
+    =>map:with("bookmarkLabel",$view/bookmarkLabel/fn:string())
     =>map:with("database",$queryDoc/database/fn:string())
     =>map:with("displayOrder",$view/displayOrder/fn:string())
     =>map:with("rootElement",$queryDoc/documentType/fn:string())

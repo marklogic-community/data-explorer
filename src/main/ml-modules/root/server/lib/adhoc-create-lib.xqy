@@ -96,6 +96,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $root-element := map:get($adhoc-fields, "rootElement")
 	let $query-name := map:get($adhoc-fields, "queryName")
 	let $querytext := map:get($adhoc-fields, "queryText")
+	let $bookmark-label := map:get($adhoc-fields,"bookmarkLabel")
 	let $view-name :=  map:get($adhoc-fields, "viewName")
 	let $view-name := if (fn:empty($view-name)) then $const:DEFAULT-VIEW-NAME else $view-name
 	let $database := map:get($adhoc-fields, "database")
@@ -118,6 +119,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 				)
             let $add-view := <view>
 				<name>{$view-name}</name>
+			    <bookmarkLabel>{$bookmark-label}</bookmarkLabel>
 				<displayOrder>{$display-order}</displayOrder>
 				<resultFields>
 					{
