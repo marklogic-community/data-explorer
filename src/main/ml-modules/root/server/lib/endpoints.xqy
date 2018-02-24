@@ -16,6 +16,7 @@ declare variable $endpoints:API-AUTH                as xs:string := "/server/end
 declare variable $endpoints:API-DEAUTH              as xs:string := "/server/endpoints/api-auth-deauth.xqy";
 declare variable $endpoints:API-CRUD-GET-QUERY-VIEW as xs:string := "/server/endpoints/api-crud-get-query-view.xqy";
 declare variable $endpoints:API-CRUD-LIST-QUERIES as xs:string := "/server/endpoints/api-crud-list-queries.xqy";
+declare variable $endpoints:API-LIST-BOOKMARKS as xs:string := "/server/endpoints/api-list-bookmarks.xqy";
 declare variable $endpoints:API-CRUD-LIST-VIEWS as xs:string := "/server/endpoints/api-crud-list-views.xqy";
 declare variable $endpoints:API-CRUD-REMOVE-QUERY as xs:string := "/server/endpoints/api-crud-remove-query.xqy";
 declare variable $endpoints:API-CRUD-REMOVE-VIEW as xs:string := "/server/endpoints/api-crud-remove-view.xqy";
@@ -88,6 +89,9 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="docType"/>
             <param name="viewName"/>
             <param name="insertView"/>
+            <http method="GET"/>
+        </request>
+        <request uri="^/api/listBookmarks$" endpoint="{$endpoints:API-LIST-BOOKMARKS}">
             <http method="GET"/>
         </request>
         <request uri="^/api/crud/listViews$" endpoint="{$endpoints:API-CRUD-LIST-VIEWS}">

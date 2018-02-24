@@ -1,15 +1,53 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('NavbarCtrl', function($rootScope, $location, Auth, $cookieStore) {
+  .controller('NavbarCtrl', function($rootScope, $location, Auth, $cookieStore,$http,$state) {
+    $rootScope.bookmarks=[]
+
     $rootScope.menu = [{
       'title': 'Home',
       'link': '/'
     }]
     $rootScope.dataExplorerMenu = [{
       'title': 'Search...',
-      'link': '/adhoc'
+      'link': '/adhoc////'
     }];
+
+
+    $rootScope.openBookmark=function(database,queryName,docType,viewName) {
+        $state.go('adhoc', {
+            "database":$rootScope.tohex(database),
+            "queryName":$rootScope.tohex(queryName),
+            "docType" : $rootScope.tohex(docType),
+            "viewName" : $rootScope.tohex(viewName)
+        });
+    }
+
+    $rootScope.tohex = function(item) {
+        var r = "";
+        for (var i=0; i<item.length; i++) {
+            var hex = item.charCodeAt(i).toString(16);
+            r += ("000"+hex).slice(-4);
+        }
+        return r
+    }
+
+    $rootScope.loadBookMarks=function() {
+        $rootScope.bookmarks=[]
+
+        if ($rootScope.isWizardUser || $rootScope.isSearchUser) {
+            $http.get('/api/listBookmarks', {
+                params: {
+                }
+            }).success(function (data, status) {
+                  if (status == 200) {
+                      $rootScope.bookmarks=data.bookmarks
+                  }
+              }).error(function (err) {
+                  console.log(err)
+              });
+        }
+     }
 
     $rootScope.isCollapsed = true;
 
@@ -28,6 +66,7 @@ angular.module('demoApp')
         $rootScope.isWizardUser = Auth.isWizardUser;
         $rootScope.isSearchUser = Auth.isSearchUser;
         $rootScope.getCurrentUser = Auth.getCurrentUser;
+        $rootScope.loadBookMarks()
       }
     });
 

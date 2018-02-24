@@ -10,8 +10,12 @@ factory('$click', function() {
 	    }
 	  };
 	})	
-  .controller('AdhocCtrl', function($scope, $http, $sce, Auth, User, AdhocState,$window,$timeout,$click) {
+  .controller('AdhocCtrl', function($scope, $http, $sce, Auth, User, AdhocState,$window,$timeout,$click,$stateParams) {
     var ctrl = this;
+      $scope.loadDatabase = fromHex($stateParams.database);
+      $scope.loadDocType= fromHex($stateParams.docType);
+      $scope.loadQueryName = fromHex($stateParams.queryName);
+      $scope.loadViewName = fromHex($stateParams.viewName);
 
     // Determine if we arrived here from a back button click
     var displayLastResults = AdhocState.getDisplayLastResults();
@@ -71,6 +75,9 @@ factory('$click', function() {
     $http.get('/api/adhoc').success(function(data, status, headers, config) {
       if (status == 200 && Array.isArray(data)) {
         $scope.databases = data;
+        if ( $scope.loadDatabase != undefined) {
+            $scope.selectedDatabase = $scope.loadDatabase;
+        }
       }
       if (status == 401) {
         $scope.message = "Login failure. Please log in.";
@@ -90,7 +97,9 @@ factory('$click', function() {
           $http.get('/api/adhoc/' + newValue).success(function(data, status, headers, config) {
             if (status == 200) {
               $scope.doctypes = data;
-              if ($scope.doctypes.length > 0) {
+              if ($scope.loadDocType != undefined) {
+                  $scope.selectedDocType = $scope.loadDocType
+              } else if ($scope.doctypes.length > 0) {
                 $scope.selectedDocType = $scope.doctypes[0];
               }
             }
@@ -115,13 +124,18 @@ factory('$click', function() {
             if (status == 200) {
               $scope.queries = data.queries;
               $scope.views = data.views;
-              if ($scope.queries && $scope.queries.length > 0) {
-                $scope.selectedQuery = $scope.queries[0].query;
-              }
-              if ($scope.views && $scope.views.length > 0) {
-                $scope.selectedView = $scope.views[0];
-              }
-
+              if ( $scope.loadQueryName != undefined && $scope.loadViewName != undefined ) {
+                  $scope.selectedQuery = $scope.loadQueryName
+                  $scope.selectedView = $scope.loadViewName
+                  $scope.search(false);
+              } else {
+                      if ($scope.queries && $scope.queries.length > 0) {
+                        $scope.selectedQuery = $scope.queries[0].query;
+                      }
+                      if ($scope.views && $scope.views.length > 0) {
+                        $scope.selectedView = $scope.views[0];
+                      }
+                }
             }
             if (status == 401) {
               $scope.message = "Login failure. Please log in.";
@@ -335,3 +349,12 @@ factory('$click', function() {
     }
 
   });
+
+function fromHex(item) {
+    var hexes = item.match(/.{1,4}/g) || [];
+    var back = "";
+    for(var j = 0; j<hexes.length; j++) {
+        back += String.fromCharCode(parseInt(hexes[j], 16));
+    }
+    return back;
+}

@@ -18,17 +18,17 @@
         <li ng-show="isWizardUser() || isSearchUser()" ng-repeat="item in dataExplorerMenu" ng-class="{active: isActive(item.link)}">
             <a ng-href="{{item.link}}">{{item.title}}</a>
         </li>
-        <li ng-show="isWizardUser()" ng-class="{active: isActive('/crud')}">
-          <a href="/crud">Edit config...</a>
-        </li>
-        <li class="dropdown" >
-          <a href="#" ng-controller="NavbarCtrl" dropdown-toggle="" class="dropdown-toggle" data-toggle="dropdown">Bookmarks<span class="caret"></span>
+        <li class="dropdown" ng-hide="bookmarks.length == 0">
+          <a href="#" ng-controller="NavbarCtrl" dropdown-toggle="" class="dropdown-toggle" data-toggle="dropdown">Query Bookmarks<span class="caret"></span>
           </a>
           <ul class="dropdown-menu" role="menu">
-            <li>
-              <a href="#">Work in progress by Jos</a>
+            <li ng-repeat="item in bookmarks">
+              <a ng-click="openBookmark(item.database,item.queryName,item.docType,item.viewName)">{{item.bookmarkLabel}}...</a>
             </li>
           </ul>
+        </li>
+        <li ng-show="isWizardUser()" ng-class="{active: isActive('/crud')}">
+          <a href="/crud">Edit config...</a>
         </li>
       </ul>
       </ul>
