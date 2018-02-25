@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('AdhocWizardCtrl', function ($window,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
+  .controller('AdhocWizardCtrl', function ($state,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
 
     $scope.wizardForm;
     $scope.wizardResults = '';
@@ -410,7 +410,7 @@ angular.module('demoApp')
     };
     
     $scope.back = function() {
-        $window.location.href = '/crud';
+        $state.go('crud', {});
     };
 
     $scope.submitWizard = function(){
@@ -466,7 +466,7 @@ angular.module('demoApp')
             } else if ( data.status == 'dataError') {
                alert("A data error occurred.");
             } else if ( data.status == 'saved') {
-               $window.location.href = '/crud';
+               $scope.back();
             }
         }).error(function(data, status){
               alert("Server Error, please make changes and try again");
