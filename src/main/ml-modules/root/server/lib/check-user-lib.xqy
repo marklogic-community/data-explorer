@@ -36,7 +36,7 @@ declare function check-user-lib:is-wizard-user() as xs:boolean
 declare function check-user-lib:is-search-user() as xs:boolean {
     let $user-roles := check-user-lib:get-roles()
     return
-    ($user-roles = $cfg:search-role)
+    ($user-roles = $cfg:search-role) or check-user-lib:is-admin()
 };
 
 (: This function is used only in reset password - api-users-pass.xqy - can be removed if reset password is not an option :)

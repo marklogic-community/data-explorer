@@ -12,14 +12,15 @@ declare function local:get-queries() {
     (: For queries we only select the query which has a default view. This is needed in case of edit. :)
     let $docs :=  /formQuery[@version=$const:SUPPORTED-VERSION]
     let $total := fn:count($docs)
-    let $json :=   json:object()=>map:with("result-count",$total)
-                      =>map:with("rows",array-node {
+    let $json :=   json:object()
+    let $_ := map:put($json,"result-count",$total)
+    let $_ := map:put($json,"rows",array-node {
         for $i in $docs[$offset to (-1 + $offset + $pageSize)]
-        let $json := json:object()
-        =>map:with("name", $i/queryName/fn:string())
-        =>map:with("database", $i/database/fn:string())
-        =>map:with("docType", $i/documentType/fn:string())
-        return $json
+        let $j := json:object()
+        let $_ := map:put($j,"name", $i/queryName/fn:string())
+        let $_ := map:put($j,"database", $i/database/fn:string())
+        let $_ := map:put($j,"docType", $i/documentType/fn:string())
+        return $j
     })
     return xdmp:to-json($json)
 };

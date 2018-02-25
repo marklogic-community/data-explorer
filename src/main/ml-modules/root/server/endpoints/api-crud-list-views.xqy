@@ -15,11 +15,12 @@ declare function local:get-views() {
     let $viewNames := fn:filter(function($v) { $v != $const:DEFAULT-VIEW-NAME},//formQuery[queryName=$queryName and documentType=$docType]/views/view/name/fn:string())
     let $total-count := fn:count($viewNames)
     let $json :=   json:object()
-                    =>map:with("result-count",$total-count)
-                    =>map:with("views",array-node {
+    let $_ := map:put($json,"result-count",$total-count)
+    let $_ := map:put($json,"views",array-node {
                         for $viewName in $viewNames[$offset to (-1 + $offset + $pageSize)]
-                        return json:object()
-                        =>map:with("viewName", $viewName)
+                        let $j := json:object()
+                        let $_ := map:put($j,"viewName", $viewName)
+                        return $j
                     })
     return xdmp:to-json($json)
 };

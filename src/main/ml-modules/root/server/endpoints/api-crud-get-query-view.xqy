@@ -25,23 +25,24 @@ declare function local:get-query-view() {
                   fn:error(xs:QName("ERROR"),"View '"||$viewName||"' not found.")
               else ()
     let $json :=   json:object()
-    =>map:with("type",if ($queryMode) then 'Query' else 'View')
-    =>map:with("queryName", $queryDoc/queryName/fn:string())
-    =>map:with("viewName",$view/name/fn:string())
-    =>map:with("bookmarkLabel",$view/bookmarkLabel/fn:string())
-    =>map:with("database",$queryDoc/database/fn:string())
-    =>map:with("displayOrder",$view/displayOrder/fn:string())
-    =>map:with("rootElement",$queryDoc/documentType/fn:string())
-    =>map:with("prefix",$queryDoc/documentType/@prefix)
-    =>map:with("namespaces",array-node{
+    let $_ := map:put($json,"type",if ($queryMode) then 'Query' else 'View')
+    let $_ := map:put($json,"queryName", $queryDoc/queryName/fn:string())
+    let $_ := map:put($json,"viewName",$view/name/fn:string())
+    let $_ := map:put($json,"bookmarkLabel",$view/bookmarkLabel/fn:string())
+    let $_ := map:put($json,"database",$queryDoc/database/fn:string())
+    let $_ := map:put($json,"displayOrder",$view/displayOrder/fn:string())
+    let $_ := map:put($json,"rootElement",$queryDoc/documentType/fn:string())
+    let $_ := map:put($json,"prefix",$queryDoc/documentType/@prefix)
+    let $_ := map:put($json,"namespaces",array-node{
         for $ns in $queryDoc/namespaces/namespace
-        return json:object()
-        =>map:with("abbrv",$ns/abbr/fn:string())
-        =>map:with("uri",$ns/uri/fn:string())})
-    =>map:with("possibleRoots",array-node{
+        let $j := json:object()
+        let $_ := map:put($j,"abbrv",$ns/abbr/fn:string())
+        let $_ := map:put($j,"uri",$ns/uri/fn:string())
+        return $j})
+    let $_ := map:put($json,"possibleRoots",array-node{
         for $pr in $queryDoc/possibleRoots/possibleRoot/fn:string()
           return $pr})
-    =>map:with("fields",array-node{
+    let $_ := map:put($json,"fields",array-node{
         for $field in $queryDoc/formLabels/formLabel
             let $id := $field/@id
             let $search-entry := $queryDoc/searchFields/searchField[@id=$id]
@@ -63,12 +64,13 @@ declare function local:get-query-view() {
                             case "view" return $result-entry/@label
                             case "none" return ""
                             default return fn:error(xs:QName("ERROR"),"Error mode='"||$mode||"' unknown.")
-            return json:object()
-            =>map:with("elementName",functx:substring-after-last($field/@expr,"/"))
-            =>map:with("title",$label)
-            =>map:with("includeMode",$mode)
-            =>map:with("dataType",$field/@dataType)
-            =>map:with("xpathNormal",$field/@expr)})
+            let $j := json:object()
+            let $_ := map:put($j,"elementName",functx:substring-after-last($field/@expr,"/"))
+            let $_ := map:put($j,"title",$label)
+            let $_ := map:put($j,"includeMode",$mode)
+            let $_ := map:put($j,"dataType",$field/@dataType)
+            let $_ := map:put($j,"xpathNormal",$field/@expr)
+            return $j })
     return xdmp:to-json($json)
 };
 
