@@ -18,7 +18,7 @@
         <li ng-show="isWizardUser() || isSearchUser()" ng-repeat="item in dataExplorerMenu" ng-class="{active: isActive(item.link)}">
             <a ng-href="{{item.link}}">{{item.title}}</a>
         </li>
-        <li class="dropdown" ng-hide="bookmarks.length == 0">
+        <li class="dropdown" ng-hide="!isSearchUser() || bookmarks.length == 0">
           <a href="#" ng-controller="NavbarCtrl" dropdown-toggle="" class="dropdown-toggle" data-toggle="dropdown">Query Bookmarks<span class="caret"></span>
           </a>
           <ul class="dropdown-menu" role="menu">

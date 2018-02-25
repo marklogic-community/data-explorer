@@ -1,10 +1,9 @@
 xquery version "1.0-ml";
- 
-import module "http://marklogic.com/xdmp/security" at "/MarkLogic/security.xqy";
 
 import module namespace cd = "http://marklogic.com/data-explore/lib/check-database-lib" at "/server/lib/check-database-lib.xqy" ;
 import module namespace check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json" at "/server/lib/to-json-lib.xqy";
+import module namespace admin = "http://marklogic.com/xdmp/admin"  at "/MarkLogic/admin.xqy";
 
 (: /api/users/me/ :)
 declare function local:get-user(){
@@ -19,7 +18,7 @@ declare function local:get-user(){
             fn:false()
         else
             let $role := 
-                if (check-user-lib:is-wizard-user()) then
+                if (check-user-lib:is-admin() or check-user-lib:is-wizard-user()) then
                     "wizard-user"
                 else if (check-user-lib:is-search-user()) then
                     "search-user"
