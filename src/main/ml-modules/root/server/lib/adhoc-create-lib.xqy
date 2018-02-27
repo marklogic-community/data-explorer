@@ -6,16 +6,17 @@ import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" 
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
 import module namespace mem = "http://xqdev.com/in-mem-update" at "/MarkLogic/appservices/utils/in-mem-update.xqy";
+import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
 
 declare  namespace sec="http://marklogic.com/xdmp/security";
 
 
-declare variable $form-fields-map :=
+declare private variable $form-fields-map :=
 	let $form-map := map:map()
 	return $form-map
 ;
 
-declare variable $data-types-map :=
+declare private variable $data-types-map :=
 let $dt-map := map:map()
 return $dt-map
 ;
@@ -41,21 +42,36 @@ declare function lib-adhoc-create:create-params($i){
 };
 
 declare function lib-adhoc-create:create-ewq($file-type as xs:string,$data-type as xs:string,$i, $xpath as xs:string) {
+	let $tokens := fn:filter(function($item) { fn:string-length($item) > 0 }, fn:tokenize($xpath,'/'))
+	let $count := fn:count($tokens)
+	let $qryFunction := if ( $file-type = $const:FILE_TYPE_XML) then
+							"cts:element-query"
+	                    else
+							"cts:json-property-scope-query"
+	let $elQueries :=
+		for $el in $tokens[1 to -1+$count]
+           let $name := if ( $file-type = $const:FILE_TYPE_XML) then
+		                       fn:concat('xs:QName("',$el,'")')
+		                else
+		                       fn:concat('"',$el,'"')
+		   return fn:concat($qryFunction,"(",$name,",")
+		let $closing := functx:repeat-string(")",fn:count($elQueries))
+	let $latest-query := lib-adhoc-create:create-ewq-lastest($file-type,$data-type,$i,$xpath)
+	return fn:concat('if ($param', $i, ') then ',fn:string-join($elQueries,""),$latest-query,$closing,'else ()')
+};
+
+declare function lib-adhoc-create:create-ewq-lastest($file-type as xs:string,$data-type as xs:string,$i, $xpath as xs:string) {
  let $elementname := lib-adhoc-create:get-elementname($file-type,$xpath, "last")
  return
 	  if ( $file-type = $const:FILE_TYPE_XML) then
- 			fn:concat('if ($param', $i, ') then cts:element-word-query(xs:QName("', $elementname, '"), $param', $i, ')
-            else ()')
+ 			      fn:concat('cts:element-word-query(xs:QName("', $elementname, '"), $param', $i, ')')
 	  else   if ( $file-type = $const:FILE_TYPE_JSON) then
 	      if ( $data-type = $const:DATA_TYPE_TEXT ) then
-		    fn:concat('if ($param', $i, ') then cts:json-property-word-query("', $elementname, '", fn:string($param', $i, '))
-               else ()')
+		          fn:concat('cts:json-property-word-query("', $elementname, '", fn:string($param', $i, '))')
 		  else if ( $data-type = $const:DATA_TYPE_NUMBER ) then
-			  fn:concat('if ($param', $i, ') then cts:json-property-value-query("', $elementname, '", xs:decimal($param', $i, '))
-               else ()')
+				  fn:concat('cts:json-property-value-query("', $elementname, '", xs:decimal($param', $i, '))')
 		  else if ( $data-type = $const:DATA_TYPE_BOOLEAN ) then
-				  fn:concat('if ($param', $i, ') then cts:json-property-value-query("', $elementname, '", xs:boolean($param', $i, '))
-               else ()')
+				  fn:concat('cts:json-property-value-query("', $elementname, '", xs:boolean($param', $i, '))')
 		  else
 				  ()
 	  else
@@ -65,11 +81,10 @@ declare function lib-adhoc-create:create-eq($file-type as xs:string,$xpath as xs
  let $elementname := lib-adhoc-create:get-elementname($file-type,$xpath, "root")
  return
 	 if ( $file-type = $const:FILE_TYPE_XML ) then
-		 fn:concat('cts:element-query(
-  		    xs:QName("', $elementname, '"), cts:and-query((',  $params, ',if ($word) then
+		 fn:concat('cts:and-query((',  $params, ',if ($word) then
   			    cts:word-query($word, "case-insensitive")
  			   else
-      		())))')
+      		()))')
 	 else if ( $file-type = $const:FILE_TYPE_JSON ) then
 		 fn:concat('cts:and-query((',  $params, ',if ($word) then
   			    cts:json-property-word-query($word, "case-insensitive")
@@ -149,6 +164,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 					<queryName>{$query-name}</queryName>
 					<prefix>{$prefix}</prefix>
 					<database>{$database}</database>
+				    <fileType>{$file-type}</fileType>
 					<possibleRoots>
 						{
 							let $cnt := map:get($adhoc-fields, "possibleRootsCount")
@@ -182,17 +198,12 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 					}
 					<formLabels>
 					{
-						let $counter := 1
 						for $i in (1 to 250)
 							let $dataType := map:get($adhoc-fields, fn:concat("formLabelDataType", $i))
 							let $field-path := map:get($adhoc-fields, fn:concat("formLabelHidden", $i))
 							return
 								if (fn:exists($field-path)) then
-									let $_ := map:put($form-fields-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelHidden", $i)))
-									let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
-									let $_ := xdmp:set($counter, $counter + 1)
-									return
-										<formLabel id="{$i}" dataType="{$dataType}" evaluateAs="XPath"  expr="{$field-path}" exec_expr="{lib-adhoc:transform-xpath-with-spaces($field-path)}"/>
+                                    <formLabel id="{$i}" dataType="{$dataType}" evaluateAs="XPath"  expr="{$field-path}" exec_expr="{lib-adhoc:transform-xpath-with-spaces($field-path)}"/>
 								else
 									()
 					}
@@ -205,7 +216,11 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 								let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
 								return
 									if (fn:exists($label) and ($mode = "query" or $mode = "both"))  then
-										<searchField id="{$i}" label="{$label}"/>
+										let $_ := map:put($form-fields-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelHidden", $i)))
+										let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
+										let $_ := xdmp:set($counter, $counter + 1)
+										return
+											<searchField id="{$i}" label="{$label}"/>
 									else ()
 						}
 					</searchFields>

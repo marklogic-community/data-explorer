@@ -2,6 +2,7 @@ xquery version "1.0-ml";
 
 module namespace search-lib = "http://marklogic.com/data-explore/lib/search-lib";
 
+import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 import module namespace functx = "http://www.functx.com"
   at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
 import module namespace search = "http://marklogic.com/appservices/search"
@@ -89,6 +90,12 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
   let $qry-doc := cfg:get-form-query($doc-type,$query-name)
   let $view := cfg:get-view($query-name,$doc-type, $view-name)
 
+  let $file-type := $qry-doc//fileType/fn:string()
+  let $document-format := if ($file-type = $const:FILE_TYPE_XML) then
+                              "format-xml"
+                            else if ( $file-type = $const:FILE_TYPE_JSON) then
+                              "format-json"
+                              else ()
   (: Get the order to display the columns in. Could be 
    : alphabetical or document-order. If not stored in view,
    : default to document-order :)
@@ -100,6 +107,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
       (
         xdmp:log(text{ "db: ", $db }),
         xdmp:log(text{ "doc-type: ", $doc-type }),
+        xdmp:log(text{ "additional-query: ", $additional-query}),
         xdmp:log(text{ "view-name: ", $view-name }),
         xdmp:log(text{ "view: ", xdmp:describe($view, (), ()) })
       )
@@ -114,12 +122,19 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
         $additional-query
       }
       </additional-query>
+      {
+        if ( fn:empty($document-format)) then
+          ()
+        else (
+          <search-option>{$document-format}</search-option>
+        )
+      }
       <return-results>true</return-results>
       <return-facets>true</return-facets>
       <return-query>true</return-query>
-      <search-option>unfiltered</search-option>
-      <transform-results 
-          apply="custom-snippet" 
+      <search-option>filtered</search-option>
+      <transform-results
+          apply="custom-snippet"
           ns="http://marklogic.com/data-explore/lib/search-lib"
           at="/server/lib/search-lib.xqy">
         <per-match-tokens>30</per-match-tokens>
@@ -182,7 +197,8 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
           ()
       }
     </options>
-
+  let $_ := xdmp:log(("START SEARCH OPTIONS:", $options,"END SEARCH OPTIONS"))
+  let $_ := xdmp:log(("$final-search: ",fn:string-join($final-search,"<join>")))
   let $search-response := search-lib:get-results($useDB, $final-search, $options, $page, $page-size)
 
   return
@@ -240,7 +256,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
     then  
       for $match in $result/search:snippet/search:match return
       let $trunc-uri := fn:substring-after($match/@path, fn:concat("fn:doc(&quot;", $result/@uri, "&quot;)/"))
-      let $column-expr := fn:replace($trunc-uri, "\*", $query-doc/documentType/@prefix)
+      let $column-expr := if (fn:empty($query-doc/documentType/@prefix)) then $trunc-uri else fn:replace($trunc-uri, "\*", $query-doc/documentType/@prefix)
       let $id := fn:string($query-doc/formLabels/formLabel[@expr=$column-expr]/@id)
       let $column := $view/resultFields/resultField[@id=$id]
       return
