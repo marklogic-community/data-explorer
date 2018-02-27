@@ -4,12 +4,13 @@ import module "http://marklogic.com/xdmp/security" at "/MarkLogic/security.xqy";
 
 import module namespace cd = "http://marklogic.com/data-explore/lib/check-database-lib" at "/server/lib/check-database-lib.xqy" ;
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 declare function local:login(){
     cd:check-database(),
     let $user-id := xdmp:get-request-field("userid")  
     let $password := xdmp:get-request-field("password")
-    let $_ := xdmp:log("FERRET: api-auth:login to ferret as " || $user-id)
+    let $_ := ll:trace("FERRET: api-auth:login to ferret as " || $user-id)
     return
         if (check-user-lib:is-logged-in()) then
             (xdmp:set-response-code(200,"Success"),$user-id)
@@ -21,6 +22,6 @@ declare function local:login(){
                 else
                     (xdmp:set-response-code(401,"Failure"),"")
 };
-let $_ := xdmp:log("FROM: /server/endpoints/api-auth.xqy","debug")
+let $_ := ll:trace("FROM: /server/endpoints/api-auth.xqy")
 return
 local:login()

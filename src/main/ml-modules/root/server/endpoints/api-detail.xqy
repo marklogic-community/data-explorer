@@ -4,6 +4,7 @@ import module namespace detail-lib = "http://www.marklogic.com/data-explore/lib/
 import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json" at "/server/lib/to-json-lib.xqy";
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"  at "/server/lib/config.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 (: Expected output 
 
@@ -121,9 +122,7 @@ declare function local:get-json($uri as xs:string, $db as xs:string){
         </output>
 
     let $json := to-json:xml-obj-to-json($xml)
-    let $_ := if ($cfg:D) then
-                        xdmp:log(("Returning Detail JSON:",$json))
-              else ()
+    let $_ :=  ll:trace-details(("Returning Detail JSON:",$json))
 	return $json
 };
 
@@ -142,7 +141,7 @@ declare function local:get-details(){
         else
         	(xdmp:set-response-code(400,"URI Parameter count too low"))
 };
-let $_ := xdmp:log("FROM: /server/endpoints/api-detail.xqy","debug")
+let $_ := ll:trace("FROM: /server/endpoints/api-detail.xqy")
 return 
        if (check-user-lib:is-logged-in() and (check-user-lib:is-search-user() or check-user-lib:is-wizard-user())) then
           (local:get-details())

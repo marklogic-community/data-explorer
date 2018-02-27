@@ -4,14 +4,15 @@ import module namespace cd = "http://marklogic.com/data-explore/lib/check-databa
 import module namespace check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json" at "/server/lib/to-json-lib.xqy";
 import module namespace admin = "http://marklogic.com/xdmp/admin"  at "/MarkLogic/admin.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 (: /api/users/me/ :)
 declare function local:get-user(){
     cd:check-database(),
-    let $_ := xdmp:log("ferret: api-users:get-user ")
+    let $_ := ll:trace("api-users:get-user ")
 
     let $user-id := xdmp:get-request-field("id")
-    let $_ := xdmp:log("ferret: api-users:get-user " || $user-id)
+    let $_ := ll:trace("api-users:get-user " || $user-id)
 
     return 
         if (fn:not(check-user-lib:is-logged-in())) then
@@ -32,7 +33,7 @@ declare function local:get-user(){
                     </user>
                 )
 };
-let $_ := xdmp:log("FROM: /server/endpoints/api-users.xqy","debug")
+let $_ := ll:trace("FROM: /server/endpoints/api-users.xqy")
 let $response :=
        if (check-user-lib:is-logged-in()) then
           (local:get-user())

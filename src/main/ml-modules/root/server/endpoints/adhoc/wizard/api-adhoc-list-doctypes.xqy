@@ -4,6 +4,7 @@ import module namespace json = "http://marklogic.com/xdmp/json" at "/MarkLogic/j
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 
 declare function local:process() {
@@ -28,7 +29,8 @@ declare function local:process() {
     )
   }
   catch($exception) {
-    if ($exception/*:code eq "XDMP-NOSUCHDB")
+    let $_ := ll:trace($exception)
+    return if ($exception/*:code eq "XDMP-NOSUCHDB")
     then xdmp:set-response-code(400, "Specified database is incorrect or does not exist.")
     else $exception
   }

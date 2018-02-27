@@ -13,7 +13,8 @@ import module namespace detail-lib = "http://www.marklogic.com/data-explore/lib/
   at "/server/lib/detail-lib.xqy";
 import module namespace admin = "http://marklogic.com/xdmp/admin" 
       at "/MarkLogic/admin.xqy";
-import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 
 declare namespace db="http://marklogic.com/xdmp/database";
@@ -102,17 +103,13 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
   let $display-order := $qry-doc//displayOrder/text()
   let $display-order := if (fn:empty($display-order)) then "document-order" else $display-order
 
-  let $log :=
-    if ($cfg:D) then
-      (
-        xdmp:log(text{ "db: ", $db }),
-        xdmp:log(text{ "doc-type: ", $doc-type }),
-        xdmp:log(text{ "additional-query: ", $additional-query}),
-        xdmp:log(text{ "view-name: ", $view-name }),
-        xdmp:log(text{ "view: ", xdmp:describe($view, (), ()) })
+  let $log := (
+        ll:trace(text{ "db: ", $db }),
+        ll:trace(text{ "doc-type: ", $doc-type }),
+        ll:trace(text{ "additional-query: ", $additional-query}),
+        ll:trace(text{ "view-name: ", $view-name }),
+        ll:trace(text{ "view: ", xdmp:describe($view, (), ()) })
       )
-    else
-      ()
 
   let $options :=
 
@@ -197,8 +194,6 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
           ()
       }
     </options>
-  let $_ := xdmp:log(("START SEARCH OPTIONS:", $options,"END SEARCH OPTIONS"))
-  let $_ := xdmp:log(("$final-search: ",fn:string-join($final-search,"<join>")))
   let $search-response := search-lib:get-results($useDB, $final-search, $options, $page, $page-size)
 
   return

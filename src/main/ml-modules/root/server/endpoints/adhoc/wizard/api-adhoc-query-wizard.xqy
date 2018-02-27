@@ -10,6 +10,7 @@ import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" 
 import module namespace check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace wl = "http://marklogic.com/data-explore/lib/wizard-lib" at "/server/lib/wizard-lib.xqy";
 import module namespace nsl = "http://marklogic.com/data-explore/lib/namespaces-lib" at "/server/lib/namespaces-lib.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 
 declare function local:get-structure($is-json as xs:boolean,$doc) {
@@ -132,16 +133,16 @@ try {
 	      <namespaces>{ to-json:seq-to-array-json($namespaces) }</namespaces>
 	      <fields>{ $fields }</fields>
 	  </data>
-    let $_ := xdmp:log( "FROM: /server/endpoints/adhoc/wizard/api-adhoc-query-wizard.xqy", "debug")
+    let $_ := ll:trace( "FROM: /server/endpoints/adhoc/wizard/api-adhoc-query-wizard.xqy")
     
     let $json := to-json:xml-obj-to-json($xml)
-    let $_ := xdmp:log($json,"debug")
+    let $_ := ll:trace(("Returning jSON ",$json))
     return $json
   else
     xdmp:set-response-code(401, "User is not authorized.")
     
 } catch ($e) {
-  xdmp:log(
-    ("Error processing uploaded sample doc...", xdmp:quote($e)), "error"),
+  ll:trace(
+    ("Error processing uploaded sample doc...", xdmp:quote($e))),
   xdmp:rethrow()
 }

@@ -1,5 +1,6 @@
 xquery version "1.0-ml";
 import module namespace detail-lib = "http://www.marklogic.com/data-explore/lib/detail-lib" at "/server/lib/detail-lib.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 declare function local:get-xml(){
     let $path := xdmp:get-original-url()
@@ -17,6 +18,6 @@ declare function local:get-xml(){
         else
         	(xdmp:set-response-code(400,"URI Parameter count too low"))
 };
-let $_ := xdmp:log("FROM: /server/endpoints/api-get-xml-doc.xqy","debug")
+let $_ := ll:trace("FROM: /server/endpoints/api-get-xml-doc.xqy")
 return
 local:get-xml()

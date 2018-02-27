@@ -3,6 +3,7 @@ xquery version "1.0-ml";
 module namespace cfg = "http://www.marklogic.com/data-explore/lib/config";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 (: START OF PROPERTIES YOU CAN MODIFY :)
 declare variable $cfg:app-title := "Data-Explorer";
@@ -17,9 +18,6 @@ declare variable $cfg:create-user := fn:false();
 declare variable $cfg:tokenize := ",";
 declare variable $cfg:pagesize := 10;
 declare variable $cfg:max-export-records := 1000;
-
-(: does some debug logging when true :)
-declare variable $D := fn:true();
 
 declare variable $cfg:NS-IGNORE-LIST := ("http://www.w3.org/XML/1998/namespace");
 
@@ -51,10 +49,7 @@ declare variable $cfg:getRequestFieldsMap :=
     return
      if (xdmp:get-request-field($field)) then
      (
-       if ( $cfg:D ) then
-          xdmp:log(fn:concat("RequestField '",$field,"' = '",xdmp:get-request-field($field),"'"))
-       else
-          ()
+       ll:trace(fn:concat("RequestField '",$field,"' = '",xdmp:get-request-field($field),"'"))
        ,
        map:put($map, $field, xdmp:get-request-field($field))
      )

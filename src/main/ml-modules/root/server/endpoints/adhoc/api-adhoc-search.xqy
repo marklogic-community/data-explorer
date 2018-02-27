@@ -7,6 +7,7 @@ import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
 import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json" at "/server/lib/to-json-lib.xqy";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 
 declare function local:xdmpEval($xquery as xs:string, $vars as item()*, $db as xs:string)
@@ -37,7 +38,7 @@ declare function local:get-code-from-form-query(
   as xs:string
 {
   let $code := cfg:get-form-query($doc-type, $query-name)/fn:string(code)
-  let $log := if ($cfg:D) then xdmp:log(text{ "get-code-from-form-query, $code = ", $code }) else ()
+  let $_ := ll:trace-details(text{ "get-code-from-form-query, $code = ", $code })
   return
     (: prevent XQuery injection attacks :)
     if (fn:contains($code, ";")) then
@@ -66,7 +67,7 @@ declare function local:get-result()
   (: transaction-mode "query" causes XDMP-UPDATEFUNCTIONFROMQUERY on any update :)
   let $code-with-prolog :=
     $cfg:PROLOG||  local:get-code-from-form-query($doc-type, $query-name)
-  let $log := if ($cfg:D) then xdmp:log(text{ "local:get-result, $code-with-prolog = ", $code-with-prolog }) else ()
+  let $_ := ll:trace-details(text{ "local:get-result, $code-with-prolog = ", $code-with-prolog })
 
   let $excludeDeleted :=
     if ( map:get( $cfg:getRequestFieldsMap, "go" ) = "1") then
@@ -87,7 +88,7 @@ declare function local:get-result()
       $database
     )
 
-  let $log := if ($cfg:D) then xdmp:log(text{ "local:get-result, $user-q = ", $user-q }) else ()
+  let $_ := ll:trace-details(text{ "local:get-result, $user-q = ", $user-q })
 
   let $additional-query := cts:and-query(($user-q))(:should add deleted versions and excluded verisons - removed for now :)
 
@@ -111,29 +112,21 @@ declare function local:get-result()
       (:map:put($searchParams, "facets", local:build-facets($doc-type)):)
     )
 
-  let $log :=
-    if ($cfg:D) then
-    (
-      xdmp:log(text{ "$searchParams" })
+  let $_ := ll:trace-details((text{ "$searchParams" }
       ,
       for $key in map:keys($searchParams)
       let $val := map:get($searchParams, $key)
       return
-        xdmp:log(text{ $key, " = ",
+        text{ $key, " = ",
           if ($val instance of element()*) then
             xdmp:describe($val, (), ())
           else
             fn:string($val)
-        })
-    )
-    else
-      ()
+        }
+    ))
 
   let $ret := search-lib:search($searchParams,$database,($export-csv eq "true"))
-  let $_ := if ( $cfg:D ) then
-              xdmp:log(("Returned from search-lib",$ret))
-            else
-              ()
+  let $_ := ll:trace-details(("Returned from search-lib",$ret))
   return $ret
 };
 
@@ -202,17 +195,14 @@ declare function local:get-json(){
           <results>{$results-json}</results>
         </output>
       let $json := to-json:xml-obj-to-json($output)
-      let $_ := if ( $cfg:D ) then
-                    xdmp:log(("Search result JSON",$json))
-                else
-                    ()
+      let $_ := ll:trace-details(("Search result JSON",$json))
       return $json
   };
   
 declare function local:get-csv(){
 
   let $result := local:get-result()
-  let $_:=xdmp:log($result)
+  let $_:=ll:trace-details($result)
   let $result-csv:= 
     if (xs:string($result/result-count) = "0") then
       'No Results'
@@ -231,7 +221,7 @@ declare function local:get-csv(){
      
    return $result-csv     
   };
-let $_ := xdmp:log("FROM: /server/endpoints/adhoc/api-adhoc-search.xqy","debug")
+let $_ := ll:trace("FROM: /server/endpoints/adhoc/api-adhoc-search.xqy")
 let $export-csv := map:get($cfg:getRequestFieldsMap, "exportCsv")
  
 return

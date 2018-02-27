@@ -5,7 +5,8 @@ module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace json = "http://marklogic.com/xdmp/json" at "/MarkLogic/json/json.xqy";
 import module namespace riu = "http://marklogic.com/data-explore/lib/range-index-utils" at "/server/lib/range-index-utils.xqy";
-import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 declare namespace db = "http://marklogic.com/xdmp/database";
 declare namespace qry = "http://marklogic.com/cts/query";
@@ -27,7 +28,7 @@ declare function lib-adhoc:transform-xpath-with-spaces($xpath as xs:string) {
 declare function lib-adhoc:get-databases() as xs:string*{
 	for $db in fn:distinct-values(
 				for $server in xdmp:servers()
-				return try { xdmp:database-name(xdmp:server-database($server)) } catch($e) {()}
+				return try { xdmp:database-name(xdmp:server-database($server)) } catch($e) {ll:trace($e)}
 			   )
   	where fn:not($db = ($cfg:ignoreDbs))
   	order by $db ascending
@@ -35,27 +36,24 @@ declare function lib-adhoc:get-databases() as xs:string*{
 };
 
 declare function lib-adhoc:get-doctypes($database as xs:string) as xs:string*{
-
-	let $log := if ($cfg:D) then xdmp:log(text{ "database ", $database }) else ()
+	let $_ := ll:trace(text{ "database ", $database })
 	let $names := cfg:get-document-types($database)
-	let $log := if ($cfg:D) then xdmp:log(text{ "get-doctypes ", fn:string-join($names, ",") }) else ()
+	let $_ := ll:trace(text{ "get-doctypes ", fn:string-join($names, ",") })
 	return
 	  $names
 };
 
 declare function lib-adhoc:get-query-names($database as xs:string, $docType as xs:string) as xs:string*{
-	let $log := if ($cfg:D) then xdmp:log(text{ "get-query-names docType := [ ", $docType, "]    $database :=  [",$database,"]" }) else ()
-
+	let $_ := ll:trace(text{ "get-query-names docType := [ ", $docType, "]    $database :=  [",$database,"]" })
 	let $names := cfg:get-query-names($docType,$database)
-	let $log := if ($cfg:D) then xdmp:log(text{ "get-query-names ", fn:string-join($names, ",") }) else ()
+	let $_ := ll:trace(text{ "get-query-names ", fn:string-join($names, ",") })
 	return $names
 };
 
 declare function lib-adhoc:get-view-names($database as xs:string, $docType as xs:string) as xs:string*{
-	let $log := if ($cfg:D) then xdmp:log(text{ "get-view-names docType := [ ", $docType, "]    $database :=  [",$database,"]" }) else ()
-
+	let $_ := ll:trace(text{ "get-view-names docType := [ ", $docType, "]    $database :=  [",$database,"]" })
 	let $names := cfg:get-view-names($docType,$database)
-	let $log := if ($cfg:D) then xdmp:log(text{ "get-view-names ", fn:string-join($names, ",") }) else ()
+	let $_ := ll:trace(text{ "get-view-names ", fn:string-join($names, ",") })
 	return $names
 };
 

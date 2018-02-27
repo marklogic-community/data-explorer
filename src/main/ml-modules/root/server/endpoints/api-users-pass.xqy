@@ -4,7 +4,8 @@ import module "http://marklogic.com/xdmp/security" at "/MarkLogic/security.xqy";
 
 import module namespace cd = "http://marklogic.com/data-explore/lib/check-database-lib" at "/server/lib/check-database-lib.xqy" ;
 import module namespace check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
-import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 
 
 declare function local:update-password(){
@@ -31,7 +32,7 @@ declare function local:update-password(){
                     )
                return xdmp:set-response-code(200, 'Successfully Changed Password')
            } catch ($e) {
-                (xdmp:log($e),
+                (ll:trace($e),
                 xdmp:set-response-code(500,'Password Update Failed'))
            }
         else (
@@ -53,7 +54,7 @@ declare function local:isPasswordsMatch($password, $password2) as xs:boolean {
 
 };
 
-let $_ := xdmp:log("FROM: /server/endpoints/api-users-pass.xqy","debug")
+let $_ := ll:trace("FROM: /server/endpoints/api-users-pass.xqy")
 return
 local:update-password()
 
