@@ -107,7 +107,6 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	as document-node()
 {
 	let $overwrite := map:get($adhoc-fields, "overwrite") = "OVERWRITE"
-	let $prefix := map:get($adhoc-fields, "prefix")
 	let $root-element := map:get($adhoc-fields, "rootElement")
 	let $query-name := map:get($adhoc-fields, "queryName")
 	let $querytext := map:get($adhoc-fields, "queryText")
@@ -121,13 +120,10 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 					xdmp:unquote('{"status":"exists"}')
 	else (
 			let $uri :=
-				(: For the filename, only use the local name of the last item in the XPath :)
-				let $clean-element := fn:replace(fn:tokenize($root-element, "/")[fn:last()], "^.+?:", "")
+				let $clean-element := fn:replace($root-element, ":", "")
 				return fn:string-join(
 						(
-							"", "adhoc",
-							if ($prefix) then $prefix else (),
-							$clean-element,
+							"", "adhoc"||$clean-element,
 							"forms-queries",
 							lib-adhoc-create:file-name($query-name)
 						), "/"
@@ -162,7 +158,6 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 			let $form-query :=
 				<formQuery version="{$const:SUPPORTED-VERSION}">
 					<queryName>{$query-name}</queryName>
-					<prefix>{$prefix}</prefix>
 					<database>{$database}</database>
 				    <fileType>{$file-type}</fileType>
 					<possibleRoots>
@@ -186,16 +181,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 							)
 						}
 					</namespaces>
-					{
-						element documentType{
-							if ($prefix) then
-								attribute prefix{
-									$prefix
-								}
-							else (),
-							$root-element
-						}
-					}
+					<documentType>{$root-element}</documentType>
 					<formLabels>
 					{
 						for $i in (1 to 250)

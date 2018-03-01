@@ -16,7 +16,7 @@ factory('$click', function() {
       $scope.loadDocType= fromHex($stateParams.docType);
       $scope.loadQueryName = fromHex($stateParams.queryName);
       $scope.loadViewName = fromHex($stateParams.viewName);
-
+      $scope.initialSearchDone = false;
     // Determine if we arrived here from a back button click
     var displayLastResults = AdhocState.getDisplayLastResults();
     // Restore the saved state
@@ -124,10 +124,11 @@ factory('$click', function() {
             if (status == 200) {
               $scope.queries = data.queries;
               $scope.views = data.views;
-              if ( $scope.loadQueryName != undefined && $scope.loadViewName != undefined ) {
+              if ( $scope.initialSearchDone == false && $scope.loadQueryName != undefined && $scope.loadViewName != undefined ) {
                   $scope.selectedQuery = $scope.loadQueryName
                   $scope.selectedView = $scope.loadViewName
                   $scope.search(false);
+                  $scope.initialSearchDone = true
               } else {
                       if ($scope.queries && $scope.queries.length > 0) {
                         $scope.selectedQuery = $scope.queries[0].query;

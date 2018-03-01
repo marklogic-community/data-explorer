@@ -15,7 +15,14 @@ declare function local:process() {
     let $doc-types := for $qname in $qnames
       let $local-name := fn:local-name-from-QName($qname)
       let $ns := fn:namespace-uri-from-QName($qname)
-      let $doc-type := fn:concat("/", if (fn:string-length($ns) le 0) then () else "*:", $local-name) 
+      let $prefix := fn:prefix-from-QName($qname)
+      let $prefix := if ( fn:empty($prefix) and fn:string-length(fn:normalize-space($ns))>0) then
+                           "xmlns"
+                     else $prefix
+      let $ns-info := if ( fn:string-length(fn:normalize-space($ns))>0 ) then
+                        " - "||$prefix||":"||$ns
+                      else ()
+      let $doc-type := fn:concat("/", if (fn:string-length($prefix) le 0) then () else $prefix||":", $local-name,$ns-info)
       return object-node {
         "localName": $local-name,
         "ns": $ns,

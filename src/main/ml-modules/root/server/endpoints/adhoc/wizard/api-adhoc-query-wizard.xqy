@@ -9,8 +9,8 @@ import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
 import module namespace check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace wl = "http://marklogic.com/data-explore/lib/wizard-lib" at "/server/lib/wizard-lib.xqy";
-import module namespace nsl = "http://marklogic.com/data-explore/lib/namespaces-lib" at "/server/lib/namespaces-lib.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
+import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 
 
 declare function local:get-structure($is-json as xs:boolean,$doc) {
@@ -18,26 +18,28 @@ declare function local:get-structure($is-json as xs:boolean,$doc) {
       ("/",local:get-children-nodes-json(fn:true(),(),$doc/node())/path/fn:string())
   else (
       for $d in $doc/child::*
-        return (xdmp:path($d), local:get-structure($is-json,$d)) ! fn:replace(., "\[.*\]", "")
+        return ("/"||nl:get-path($d), local:get-structure($is-json,$d)) ! fn:replace(., "\[.*\]", "")
   )
 };
 
 declare function local:get-children-nodes-xml($path, $node as node()) {
   let $results :=
       for $i in $node/node()
-      let $ns := xs:string(fn:namespace-uri($i))
-      let $root-ns-prefix-check := (cfg:getNamespacePrefix(xs:string(fn:namespace-uri(fn:root($i)))))
-      let $root-ns-prefix := if($root-ns-prefix-check) then $root-ns-prefix-check||":" else ("")
-      let $ns-prefix-check := (cfg:getNamespacePrefix(xs:string(fn:namespace-uri($i))))
-      let $ns-prefix := if($ns-prefix-check) then $ns-prefix-check||":" else ("")
+      let $root-ns-prefix := nl:get-prefix(fn:root($i))
+      let $root-ns-prefix := if (fn:string-length(fn:normalize-space($root-ns-prefix)) > 0) then $root-ns-prefix||":" else()
+      let $ns-prefix := nl:get-prefix($i)
+      let $ns-prefix := if (fn:string-length(fn:normalize-space($ns-prefix)) > 0) then $ns-prefix||":" else()
       let $localname := fn:local-name($i)
       let $rootname := fn:local-name(fn:root($i))
-      let $finalpath := if($path) then fn:concat($path, "/", $ns-prefix, $localname)
-                        else fn:concat($ns-prefix, $localname)
+      let $s := fn:concat($ns-prefix, $localname)
+      let $finalpath := if($path) then
+                            fn:concat($path, "/",$s)
+                        else
+                            $s
       return
         if($i/node()) then
           (if ($i/node() instance of text()) then
-               <child><path>{fn:substring(fn:concat("/", $root-ns-prefix, $rootname, "/", $finalpath), 3)}</path><dataType>text</dataType></child>
+               <child><path>{fn:concat( "/", $finalpath)}</path><dataType>text</dataType></child>
            else (), local:get-children-nodes-xml($finalpath, $i))
            else ()
       return functx:distinct-deep($results)
@@ -101,16 +103,12 @@ try {
     let $type := xdmp:get-request-field("type")
     
     let $type-label := if ($type eq "query") then "Query" else "View"
-    let $query-view-name := if ($type eq "query") then "queryName" else "viewName"
-
-    let $doc-namespaces := functx:namespaces-in-use($uploaded-doc)
-    let $_ := if ( $is-json = fn:false() ) then ( nsl:register-namespaces($doc-namespaces) ) else ()
-    let $namespaces-map := $cfg:NS-MAP
+    let $namespaces-map := nl:get-prefix-namespace-map($uploaded-doc)
     let $namespaces :=
        if ( $is-json = fn:false() ) then (
         for $key in map:keys($namespaces-map)
            return
-             to-json:xml-obj-to-json(<namespace><abbrv>{ map:get($namespaces-map, $key) }</abbrv><uri>{ $key }</uri></namespace>)
+             to-json:xml-obj-to-json(<namespace><abbrv>{ $key }</abbrv><uri>{map:get($namespaces-map, $key)}</uri></namespace>)
         ) else ()
 
     let $fields := local:render-fields($uploaded-doc, $type,$is-json)
@@ -122,13 +120,6 @@ try {
             to-json:seq-to-array-json(to-json:string-sequence-to-json(local:get-structure($is-json,$uploaded-doc)))
           }</possibleRoots>
 	      <rootElement>{if ($is-json) then "/" else fn:replace(xdmp:path($uploaded-doc/node()), "\[.*\]", "")}</rootElement>
-	        {
-	          let $prefix := if($is-json) then () else cfg:getNamespacePrefix(xs:string(fn:namespace-uri($uploaded-doc/node())))
-	          return 
-	          	if ($prefix) then 
-	          		<prefix>{ $prefix }</prefix> 
-	          	else ()
-	        }
 	      <databases>{to-json:seq-to-array-json(to-json:string-sequence-to-json(lib-adhoc:get-databases()))}</databases>
 	      <namespaces>{ to-json:seq-to-array-json($namespaces) }</namespaces>
 	      <fields>{ $fields }</fields>
@@ -136,7 +127,7 @@ try {
     let $_ := ll:trace( "FROM: /server/endpoints/adhoc/wizard/api-adhoc-query-wizard.xqy")
     
     let $json := to-json:xml-obj-to-json($xml)
-    let $_ := ll:trace(("Returning jSON ",$json))
+    let $_ := ll:trace(("Returning JSON ",$json))
     return $json
   else
     xdmp:set-response-code(401, "User is not authorized.")

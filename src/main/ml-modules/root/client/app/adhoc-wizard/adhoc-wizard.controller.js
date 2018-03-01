@@ -21,7 +21,7 @@ angular.module('demoApp')
     } else {
         $scope.step = 1;
     }
-    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Insert..." : "Update...";
+    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Save..." : "Update...";
     $scope.uploadButtonActive = false;
     $scope.message = "";
     $scope.message = "Choose a file and mode and press submit.";
@@ -61,7 +61,7 @@ angular.module('demoApp')
         wizardService.getQueryView($scope.loadQueryName, $scope.loadDocType,$scope.loadViewName,$scope.insertView )
             .success(function (data, status) {
                 if (status == 200) {
-                    $scope.wizardForm={type:data.type,prefix:data.prefix}
+                    $scope.wizardForm={type:data.type}
                     $scope.wizardForm.rootElement=data.rootElement
                     $scope.formInput.queryName=data.queryName
                     if ( data.bookmarkLabel != undefined && data.bookmarkLabel.length>0) {
@@ -114,7 +114,9 @@ angular.module('demoApp')
         if ($scope.step !== 1 || $scope.docTypeMethod !== 'select' || !value) {
             return;
         }
-        wizardService.listDocTypes(value).then(function(docTypes) { 
+        wizardService.listDocTypes(value).then(function(docTypes) {
+            console.log("AVAILABLE doctypes:");
+            console.log(docTypes);
             $scope.availableDocTypes = docTypes || [];
             var error = _.isEmpty(docTypes);
             $scope.message = error ? 
@@ -410,7 +412,11 @@ angular.module('demoApp')
     };
     
     $scope.back = function() {
-        $state.go('crud', {});
+        if ($scope.step == 2) {
+            $scope.step = 1
+        } else {
+            $state.go('crud', {});
+        }
     };
 
     $scope.submitWizard = function(){
@@ -418,7 +424,6 @@ angular.module('demoApp')
         data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
         data.overwrite = $scope.editMode ? "OVERWRITE" : "INSERT"
         data.queryText = '';
-        data.prefix = $scope.wizardForm.prefix;
         data.rootElement = $scope.wizardForm.rootElement;
         data.displayOrder = $scope.displayOrder;
         data.namespaceCount = $scope.wizardForm.namespaces.length;
@@ -456,8 +461,6 @@ angular.module('demoApp')
                 data['formLabelIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
                 counter += 1;
         }
-        console.log('sending...');
-        console.dir(data);
         $http.get('/api/wizard/create',{
             params:data
         }).success(function(data, status, headers, config) {
@@ -466,7 +469,12 @@ angular.module('demoApp')
             } else if ( data.status == 'dataError') {
                alert("A data error occurred.");
             } else if ( data.status == 'saved') {
-               $scope.back();
+                if ( $scope.insertView || $scope.insertQuery ) {
+                    alert("Insert successful");
+                } else {
+                    alert("Update successful");
+                }
+                $state.go('crud', {});
             }
         }).error(function(data, status){
               alert("Server Error, please make changes and try again");

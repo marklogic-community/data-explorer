@@ -133,10 +133,8 @@ angular.module('demoApp')
               .success(function (data, status) {
                   if (status == 200) {
                       $scope.genericQueryError = "";
-                      console.log(data);
                       $scope.viewResults = data.views
                       $scope.viewTotalCount = data['result-count']
-                      console.log($scope.viewTotalCount)
                       $scope.viewPageCount = Math.ceil( $scope.viewTotalCount / $scope.PAGE_SIZE)
                   }
               }).error(function (err) {

@@ -61,8 +61,7 @@
 
         <div class="col-md-12" ng-if="(docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive)">
           <div class="form-group">
-            <input type="submit" value="Select fields..." ng-click="selectDocumentType()" class="btn btn-primary"/>
-			<button ng-click="back()" class="btn btn-primary">Back...</button>
+			  <button ng-click="back()" class="btn btn-primary">Back...</button>&nbsp;<input type="submit" value="Select fields..." ng-click="selectDocumentType()" class="btn btn-primary"/>
 		  </div>
         </div>
 		  <div class="col-md-12" ng-if="!((docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive))">
@@ -164,7 +163,7 @@
 		      		</div>
 		      	</div>
 		      	<div class="form-group">
-		      		<label for="rootElement" class="col-sm-2 control-label">Root Element</label>
+		      		<label for="rootElement" class="col-sm-2 control-label">Type discriminator</label>
 		      		<div class="col-sm-10">
 			        	<select id="rootElement" ng-disabled="editMode" ng-model="wizardForm.rootElement" name="rootElement" ng-options="rootElement as rootElement for rootElement in wizardForm.possibleRoots" class="form-control">
 			            	<option value="">--Choose root element</option>
@@ -260,7 +259,7 @@
 	        </div>
 			<div class="form-group">
 				<div class="col-sm-12">
-					<button type="submit" ng-click="submitWizard()" ng-disabled="!validForm()" class="btn btn-primary">{{buttonText}}</button>&nbsp;<a href="/crud"><button type="submit"  class="btn btn-primary">Back...</button></a>
+					<button type="submit"  ng-click="back()" class="btn btn-primary">Back...</button>&nbsp;<button type="submit" ng-click="submitWizard()" ng-disabled="!validForm()" class="btn btn-primary">{{buttonText}}</button>
 				</div>
 			</div>
 

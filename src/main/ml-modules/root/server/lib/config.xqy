@@ -19,26 +19,6 @@ declare variable $cfg:tokenize := ",";
 declare variable $cfg:pagesize := 10;
 declare variable $cfg:max-export-records := 1000;
 
-declare variable $cfg:NS-IGNORE-LIST := ("http://www.w3.org/XML/1998/namespace");
-
-declare variable $cfg:NS-SERVER-FIELD := "namespaces-conf";
-declare variable $cfg:NS-URI := "/adhoc/namespaces.xml";
-declare variable $cfg:NS-DOC as document-node()? := fn:doc($NS-URI);
-declare variable $cfg:NS-MAP :=
-      let $cached-map := xu:get-server-field($cfg:NS-SERVER-FIELD)
-      return
-        if (fn:exists($cached-map)) then
-          $cached-map
-        else
-          let $db-or-empty-map :=
-            if ($NS-DOC)
-            then (map:map($NS-DOC/namespaces/map:map))
-            else (map:map())
-          let $CACHE := xu:set-server-field($cfg:NS-SERVER-FIELD, $db-or-empty-map)
-          return $db-or-empty-map
-;
-
-
 
 (: END OF PROPERTIES YOU CAN MODIFY :)
 
@@ -59,7 +39,7 @@ declare variable $cfg:getRequestFieldsMap :=
 ;
 
 declare variable $cfg:namespaces :=
-  let $ns-map := $cfg:NS-MAP
+  let $ns-map := ()
   let $text :=
     for $ns-uri in map:keys($ns-map)
     return fn:concat('declare namespace ',map:get($ns-map, $ns-uri),'="',$ns-uri,'";')
@@ -93,15 +73,11 @@ declare function cfg:get-document-types($db as xs:string) as xs:string*
   return $name
 };
 
-declare function cfg:getNamespacePrefix($uri as xs:string?) as xs:string?
-{
-  xs:string(map:get($cfg:NS-MAP,$uri))
-};
-
+(: Range index :)
 declare function cfg:getNamespaceUri($prefix as xs:string?) as xs:string?
 {
-  for $key in map:keys($cfg:NS-MAP)
-  let $val := map:get($cfg:NS-MAP,$key)
+  for $key in map:keys(())
+  let $val := map:get((),$key)
   return if($val = $prefix) then $key  else()
 };
 

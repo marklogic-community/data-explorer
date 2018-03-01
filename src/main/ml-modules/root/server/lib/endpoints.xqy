@@ -164,7 +164,6 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <http method="GET"/>
         </request>
         <request uri="^/api/wizard/create$" endpoint="{$endpoints:API-ADHOC-WIZARD-CREATE}">
-            <param name="prefix"/>
             <param name="rootElement"/>
             <param name="fileType"/>
             <param name="queryName"/>
