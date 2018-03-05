@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('AdhocWizardCtrl', function ($state,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
+  .controller('AdhocWizardFieldSelectionCtrl', function ($state,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
 
     $scope.wizardForm;
     $scope.wizardResults = '';
@@ -97,12 +97,6 @@ angular.module('demoApp')
     $scope.to_trusted = function(html_code) {
         return $sce.trustAsHtml(html_code);
     };
-
-    // $http.get('/api/wizard/upload-form').success(function(data, status, headers, config) {
-    //   if (status == 200){
-    //     $scope.uploadForm = data;
-    //   }
-    // });
 
     $scope.wizardUploadFormData = null;
 
@@ -313,6 +307,8 @@ angular.module('demoApp')
     };
 
     function fromHex(item) {
+        if (!item)
+            return ""
         var hexes = item.match(/.{1,4}/g) || [];
         var back = "";
         for(var j = 0; j<hexes.length; j++) {
@@ -329,6 +325,7 @@ angular.module('demoApp')
             data.fields[index].includeMode = "none";
             data.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
         }
+        $state.go('adhoc-wizard-field-selection', {});
     }
 
     $scope.sample = function() {

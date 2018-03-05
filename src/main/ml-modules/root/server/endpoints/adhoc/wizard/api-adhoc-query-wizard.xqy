@@ -11,7 +11,7 @@ import module namespace check-user-lib = "http://www.marklogic.com/data-explore/
 import module namespace wl = "http://marklogic.com/data-explore/lib/wizard-lib" at "/server/lib/wizard-lib.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
-
+declare option xdmp:mapping "false";
 
 declare function local:get-structure($is-json as xs:boolean,$doc) {
   if ( $is-json ) then

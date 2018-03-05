@@ -8,7 +8,7 @@ import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" 
 import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
 import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 declare private function local:response($profile as node(), $root-element as xs:string, $type as xs:string) as node()* {
   let $response := json:object()
   let $type-label := if ($type eq "query") then "Query" else "View"

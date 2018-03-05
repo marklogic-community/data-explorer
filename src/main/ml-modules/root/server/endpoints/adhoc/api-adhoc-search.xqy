@@ -8,7 +8,7 @@ import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 
 declare function local:xdmpEval($xquery as xs:string, $vars as item()*, $db as xs:string)
 {

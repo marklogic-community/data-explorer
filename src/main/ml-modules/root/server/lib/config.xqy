@@ -5,7 +5,7 @@ import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" 
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
-
+declare option xdmp:mapping "false";
 (: START OF PROPERTIES YOU CAN MODIFY :)
 declare variable $cfg:app-title := "Data-Explorer";
 
@@ -83,15 +83,6 @@ declare function cfg:get-form-query(
   as element(formQuery)?
 {
   /formQuery[@version=$const:SUPPORTED-VERSION and documentType=$document-type and queryName=$query-name]
-};
-
-declare function cfg:get-view-names($document-type as xs:string, $database as xs:string)
-  as xs:string*
-{
-  let $names := fn:distinct-values(/formQuery[@version=$const:SUPPORTED-VERSION and documentType=$document-type and database=$database]/views/view/name/fn:string())
-  for $name in $names
-    order by $name
-    return $name
 };
 
 declare function cfg:get-view(

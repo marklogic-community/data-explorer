@@ -6,18 +6,17 @@ import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/f
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 import module namespace riu = "http://marklogic.com/data-explore/lib/range-index-utils" at "/server/lib/range-index-utils.xqy";
 declare namespace db = "http://marklogic.com/xdmp/database";
-
+declare option xdmp:mapping "false";
 declare function local:get-query-view() {
     let $queryName := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "queryName"))
     let $docType := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "docType"))
-    let $viewName := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "viewName"))
-    let $insertView := map:get($cfg:getRequestFieldsMap, "insertView") = "true"
+    let $viewName := map:get($cfg:getRequestFieldsMap, "viewName")
+    let $viewName := if ( fn:empty($viewName) )  then () else xdmp:url-decode($viewName)
     let $_ := if ( fn:empty($queryName )) then fn:error(xs:QName("ERROR"),"$queryName may not be empty") else ()
     let $_ := if ( fn:empty($docType )) then fn:error(xs:QName("ERROR"),"$docType may not be empty") else ()
-    let $queryDoc := /formQuery[@version=$const:SUPPORTED-VERSION and queryName=$queryName and documentType=$docType]
+    let $queryDoc := cfg:get-form-query($docType,$queryName)
     let $_ := if ( fn:empty($queryDoc)) then
         fn:error(xs:QName("ERROR"),"Query '"||$queryName||"' and DocType '"||$docType||"' not found.") else ()
-    let $queryMode := fn:string-length(fn:normalize-space($viewName)) = 0 and fn:not($insertView)
     let $viewName := if (fn:string-length(fn:normalize-space($viewName)) = 0) then
                         $const:DEFAULT-VIEW-NAME
                      else
@@ -27,7 +26,6 @@ declare function local:get-query-view() {
                   fn:error(xs:QName("ERROR"),"View '"||$viewName||"' not found.")
               else ()
     let $json :=   json:object()
-    let $_ := map:put($json,"type",if ($queryMode) then 'Query' else 'View')
     let $_ := map:put($json,"queryName", $queryDoc/queryName/fn:string())
     let $_ := map:put($json,"viewName",$view/name/fn:string())
     let $_ := map:put($json,"bookmarkLabel",$view/bookmarkLabel/fn:string())
@@ -67,9 +65,7 @@ declare function local:get-query-view() {
             let $search-entry := $queryDoc/searchFields/searchField[@id=$id]
             let $result-entry := $view/resultFields/resultField[@id=$id]
             let $mode :=
-            if ( $insertView ) then
-                  "none"
-            else if ( (fn:not(fn:empty($search-entry)) and fn:not(fn:empty($result-entry))) ) then
+            if ( (fn:not(fn:empty($search-entry)) and fn:not(fn:empty($result-entry))) ) then
                      "both"
             else if ( (fn:not(fn:empty($search-entry)))) then
                     "query"

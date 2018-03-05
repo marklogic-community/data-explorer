@@ -24,6 +24,8 @@ angular.module('demoApp')
     }
 
     $rootScope.tohex = function(item) {
+        if ( !item )
+            return "";
         var r = "";
         for (var i=0; i<item.length; i++) {
             var hex = item.charCodeAt(i).toString(16);

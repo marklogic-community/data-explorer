@@ -5,7 +5,7 @@ import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"  at "/server/lib/config.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 (: Expected output 
 
 	{type:'DocumentType',permissions:[{'role':'test','method':'read'}],collections:['a','b'],text:'<root></root>',

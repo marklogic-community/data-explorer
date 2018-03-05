@@ -3,7 +3,7 @@ xquery version "1.0-ml";
 module namespace slice = "http://marklogic.com/transitive-closure-slice";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 declare variable $MAX-DEPTH := 1;
 
 declare variable $NS-MAP :=

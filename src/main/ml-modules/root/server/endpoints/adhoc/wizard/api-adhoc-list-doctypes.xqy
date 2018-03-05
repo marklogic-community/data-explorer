@@ -6,6 +6,7 @@ import module namespace check-user-lib = "http://www.marklogic.com/data-explore/
 import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
+declare option xdmp:mapping "false";
 
 declare function local:process() {
   try {

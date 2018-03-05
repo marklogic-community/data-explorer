@@ -3,7 +3,7 @@ module namespace to-json = "http://marklogic.com/data-explore/lib/to-json";
 
 import module namespace json = "http://marklogic.com/xdmp/json"
     at "/MarkLogic/json/json.xqy";
-
+declare option xdmp:mapping "false";
 declare function to-json:to-json($xml){
 	let $custom :=
      let $config := json:config("custom")
@@ -42,9 +42,12 @@ declare function to-json:value-to-json($str as xs:string){
                 fn:concat('"',$str,'"')
 };
 
-declare function to-json:xml-obj-to-json($node as node()){
+declare function to-json:xml-obj-to-json($node as node()?){
+    if ( fn:empty($node)) then
+        ""
+    else
     let $nodes := for $n in $node/*
-      return fn:concat('"',xs:string(fn:node-name($n)),'":',to-json:value-to-json($n))
+                    return fn:concat('"',xs:string(fn:node-name($n)),'":',to-json:value-to-json($n))
     return fn:concat("{",fn:string-join($nodes,","),"}")
 };
 

@@ -7,7 +7,7 @@ import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
 import module namespace lib-adhoc-create = "http://marklogic.com/data-explore/lib/adhoc-create-lib" at "/server/lib/adhoc-create-lib.xqy";
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 
 let $_ := ll:trace("START: /server/endpoints/adhoc/wizard/api-adhoc-query-wizard-create.xqy")
 let $ret :=

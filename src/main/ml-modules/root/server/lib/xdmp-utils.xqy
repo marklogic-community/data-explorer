@@ -1,7 +1,7 @@
 xquery version "1.0-ml";
 
 module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils";
-
+declare option xdmp:mapping "false";
 
 declare function xu:eval($xquery as xs:string,
    $vars as item()*) as item()* {

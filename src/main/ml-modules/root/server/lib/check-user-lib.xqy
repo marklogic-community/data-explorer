@@ -7,7 +7,7 @@ import module namespace sec-util = "http://marklogic.com/data-explore/lib/sec-ut
 import module namespace admin = "http://marklogic.com/xdmp/admin" at "/MarkLogic/admin.xqy";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
-
+declare option xdmp:mapping "false";
 declare function check-user-lib:is-admin() {
     let $security-database := admin:database-get-security-database(admin:get-configuration(), xdmp:database())
 

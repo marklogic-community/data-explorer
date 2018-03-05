@@ -2,8 +2,9 @@ xquery version "1.0-ml";
 
 module namespace nl= "http://marklogic.com/data-explore/lib/namespace-lib";
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
+import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
-
+declare option xdmp:mapping "false";
 declare function nl:get-prefix($node as node()) as xs:string? {
     let $node := if ($node instance of document-node() ) then $node/node() else $node
     return if ( $node instance of element() ) then (
@@ -40,7 +41,7 @@ declare function nl:get-namespace-declaration($query-doc as element()) {
 };
 
 declare function nl:get-namespace-declaration($query-name as xs:string,$doc-type as xs:string) {
-    let $query-doc := /formQuery[@version=$const:SUPPORTED-VERSION and queryName=$query-name and documentType=$doc-type]
+    let $query-doc := cfg:get-form-query($doc-type,$query-name)
     return nl:get-namespace-declaration($query-doc)
 };
 

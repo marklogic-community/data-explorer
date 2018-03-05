@@ -10,7 +10,7 @@ import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"
 
 declare namespace db = "http://marklogic.com/xdmp/database";
 declare namespace qry = "http://marklogic.com/cts/query";
-
+declare option xdmp:mapping "false";
 (:
     JSON can have properties with spaces. If you use this attributes with spaces in XPath
     it will not work ("//first//second with space//third"). So we need to transform such XPaths.
@@ -28,7 +28,15 @@ declare function lib-adhoc:transform-xpath-with-spaces($xpath as xs:string) {
 declare function lib-adhoc:get-databases() as xs:string*{
 	for $db in fn:distinct-values(
 				for $server in xdmp:servers()
-				return try { xdmp:database-name(xdmp:server-database($server)) } catch($e) {ll:trace($e)}
+				  return try {
+                      if ( fn:empty($server) or fn:empty(xdmp:server-database($server))) then
+                          ()
+                      else
+                          xdmp:database-name(xdmp:server-database($server))
+                  }
+                  catch($e) {
+                      ll:trace($e)
+                  }
 			   )
   	where fn:not($db = ($cfg:ignoreDbs))
   	order by $db ascending
@@ -43,19 +51,6 @@ declare function lib-adhoc:get-doctypes($database as xs:string) as xs:string*{
 	  $names
 };
 
-declare function lib-adhoc:get-query-names($database as xs:string, $docType as xs:string) as xs:string*{
-	let $_ := ll:trace(text{ "get-query-names docType := [ ", $docType, "]    $database :=  [",$database,"]" })
-	let $names := cfg:get-query-names($docType,$database)
-	let $_ := ll:trace(text{ "get-query-names ", fn:string-join($names, ",") })
-	return $names
-};
-
-declare function lib-adhoc:get-view-names($database as xs:string, $docType as xs:string) as xs:string*{
-	let $_ := ll:trace(text{ "get-view-names docType := [ ", $docType, "]    $database :=  [",$database,"]" })
-	let $names := cfg:get-view-names($docType,$database)
-	let $_ := ll:trace(text{ "get-view-names ", fn:string-join($names, ",") })
-	return $names
-};
 
 declare function lib-adhoc:get-query-form-items($form-query-doc as element(formQuery)) as node()* {
   let $database := $form-query-doc/database/fn:string()

@@ -2,7 +2,7 @@ xquery version "1.0-ml";
 
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
-
+declare option xdmp:mapping "false";
 declare function local:get-bookmarks() {
     let $json :=   json:object()
     let $_ := map:put($json,"bookmarks",array-node {

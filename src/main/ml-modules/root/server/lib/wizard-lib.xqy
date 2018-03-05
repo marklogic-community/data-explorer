@@ -1,7 +1,7 @@
 xquery version "1.0-ml";
 
 module namespace wl = "http://marklogic.com/data-explore/lib/wizard-lib";
-
+declare option xdmp:mapping "false";
 
 (: moved from api-adhoc-query-wizard.xqy :)
 declare function wl:collapse-xpath($is-json as xs:boolean,$xpath as xs:string){

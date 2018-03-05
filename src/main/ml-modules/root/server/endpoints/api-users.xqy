@@ -5,7 +5,7 @@ import module namespace check-user-lib = "http://www.marklogic.com/data-explore/
 import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json" at "/server/lib/to-json-lib.xqy";
 import module namespace admin = "http://marklogic.com/xdmp/admin"  at "/MarkLogic/admin.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 (: /api/users/me/ :)
 declare function local:get-user(){
     cd:check-database(),

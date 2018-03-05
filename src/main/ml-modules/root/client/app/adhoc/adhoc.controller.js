@@ -30,15 +30,13 @@ factory('$click', function() {
       return $http.get('/api/suggest-values', {
         params: {
           docType : encodeURIComponent($scope.selectedDocType),
-          queryName: encodeURIComponent($scope.selectedQueryName),
+          queryName: encodeURIComponent($scope.selectedQuery),
           rangeIndex: encodeURIComponent(field.item.rangeIndex),
           qtext: encodeURIComponent(field.value)
         }
       })
       .then(function(response) {
         if (response.data && response.data.values) {
-          console.log("RETURN from SUGGEST")
-          console.log(response.data);
           return response.data.values;
         }
         else {
@@ -133,8 +131,6 @@ factory('$click', function() {
               }
           }).success(function(
             data, status, headers, config) {
-              console.log("STATUS "+status);
-              console.log(data);
             if (status == 200) {
               $scope.queries = data;
               if ( $scope.loadQueryName  ) {
@@ -159,7 +155,6 @@ factory('$click', function() {
         if (displayLastResults || !newValue ) {
         return;
       }
-        console.log("selectedQUery")
         $http.get('/api/crud/listViews', {
             params: {
                 docType : encodeURIComponent($scope.selectedDocType),
@@ -190,8 +185,7 @@ factory('$click', function() {
         $http.get('/api/crud/getQueryView', {
             params: {
                 docType : encodeURIComponent($scope.selectedDocType),
-                queryName : encodeURIComponent($scope.selectedQuery),
-                insertView : false
+                queryName : encodeURIComponent($scope.selectedQuery)
             }
         }).success(function(
             data, status, headers, config) {

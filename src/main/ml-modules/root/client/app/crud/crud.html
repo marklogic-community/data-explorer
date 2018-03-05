@@ -38,18 +38,18 @@
                       <td><span>{{result['docType']}}</span></td>
                       <td>
                                                   <div>
-                                                      <a href="/wizard/query/{{result['name'] | tohex }}/{{result['docType'] | tohex}}/"><button value="Edit" class="btn btn-primary">Edit...</button></a>
+                                                      <button value="Edit" ng-click="editQuery(result['docType'],result['queryName'])" class="btn btn-primary">Edit...</button>
                                                       &nbsp;
-                                                      <button value="Show views.." ng-click="showViews(result['name'],result['docType'],$event)" class="btn btn-primary">Show views...</button></a>
+                                                      <button value="Show views.." ng-click="showViews(result['queryName'],result['docType'],$event)" class="btn btn-primary">Show views...</button></a>
                                                       &nbsp;
-                                                      <button value="Remove" ng-click="removeQuery(result['name'],result['docType'],$event)" class="btn btn-primary">Remove...</button>
+                                                      <button value="Remove" ng-click="removeQuery(result['queryName'],result['docType'],$event)" class="btn btn-primary">Remove...</button>
                                                   </div>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-      <a href="/wizard/query///" align="right"><button ng-click="" class="btn btn-primary">Create new query...</button></a>
+      <button ng-click="createNewQuery()" class="btn btn-primary">Create new query...</button>
       <p/>
       <div ng-show="displayViews" >
       </p><legend>List of related non default views of query '{{selectedQueryName}}'</legend>

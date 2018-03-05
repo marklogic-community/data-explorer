@@ -5,7 +5,7 @@ import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc
 import module namespace to-json = "http://marklogic.com/data-explore/lib/to-json" at "/server/lib/to-json-lib.xqy";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 declare function local:get-type-discriminators() {
     let $database := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "database"))
     let $_ := if ( fn:empty($database )) then fn:error(xs:QName("ERROR"),"database parameter may not be empty") else ()

@@ -1,6 +1,6 @@
 <div ng-include="'components/navbar/navbar.html'"></div>
 <div class="container">
-  <div ng-hide="step != 1" class="row">
+  <div class="row">
     <h1>Pick a Document Type</h1>
     <div class="wizard-step-detail">
       Select a document type to use that will help define a query and/or view.
@@ -101,7 +101,7 @@
 						      </span>
 						    </div>
 						    <div class="input-group input-group-sm" ng-hide="searchType != searchTypeRootName" >
-							    <select class="form-control" required  ng-model="formInput.searchString" name="rootElement" ng-options="rootElement as rootElement for rootElement in rootElements">
+							    <select class="form-control" required  ng-model="formInput.searchString" name="rootElement" ng-options="re.key as re.value for re in rootElements">
 						            	<option value="">--Choose Root Element</option>
 						        	</select>
 						        	<span class="input-group-btn">
@@ -137,8 +137,7 @@
 					  	<code>{{doc.text}}</code>
 					  	<button type="button" class="btn btn-default btn-sm bottom-left" ng-click="selectDocument()">
 				          <span class="glyphicon glyphicon-ok"></span>Select
-				        </button>   
-					  	
+				        </button>
 					  </div>
 					</div>
 			</div>
@@ -150,122 +149,4 @@
 	  </div>
   </div>
 </div>
-  <div ng-hide="step != 2" class="row">
-	<h1>Choose Relevant Fields</h1>
-	<form class="form-horizontal">
-	  
-		<fieldset>
-		  	<legend>{{wizardTitle}}</legend>
-		      	<div class="form-group">
-		      		<label for="queryName" class="col-sm-2 control-label">Query name</label>
-		      		<div class="col-sm-10">
-		      			<input id="queryName" ng-disabled="editMode" type="text" class="form-control" required ng-model="formInput.queryName" size="20"/>
-		      		</div>
-		      	</div>
-		      	<div class="form-group">
-		      		<label for="rootElement" class="col-sm-2 control-label">Type discriminator</label>
-		      		<div class="col-sm-10">
-			        	<select id="rootElement" ng-disabled="editMode" ng-model="wizardForm.rootElement" name="rootElement" ng-options="rootElement as rootElement for rootElement in wizardForm.possibleRoots" class="form-control">
-			            	<option value="">--Choose root element</option>
-			        	</select>
-		      		</div>
-		      	</div>
-		      	<div class="form-group">
-		      		<label for="database" class="col-sm-2 control-label">Database</label>
-		      		<div class="col-sm-10">
-			        	<select id="database" ng-disabled="queryView == 'view'" ng-model="formInput.selectedDatabase" name="database" ng-options="database as database for database in availableDatabases" class="form-control" required>
-			            	<option value="">--Choose Database</option>
-			        	</select>
-		      		</div>
-		      	</div>
-		</fieldset>
-       	<fieldset>
-       		<legend>
-		        <span ng-hide="wizardForm.type !== 'query'">Form</span>
-		        <span ng-hide="wizardForm.type == 'query'">{{viewTitle}}</span>
-       		</legend>
-			<div class="form-group" ng-hide="queryView == 'query'">
-				<label for="viewName" class="col-sm-2 control-label">View name</label>
-				<div class="col-sm-10">
-					<input id="viewName" ng-disabled="updateView" type="text" class="form-control" required ng-model="formInput.viewName" size="20"/>
-				</div>
-			</div>
-			<div class="form-group">
-				<label for="bookmark" class="col-sm-2 control-label">Menu bookmark</label>
-				<div class="col-sm-10">
-					<table><tr><td style="min-width:50px"><input id="bookmarkcheck" type="checkbox" class="form-control"   ng-model="formInput.bookmarkCheck"/></td><td style="width:100%"><input id="bookmark" ng-disabled="!formInput.bookmarkCheck" type="text" class="form-control"   ng-model="formInput.bookmarkLabel" size="20"/></td>
-					</tr></table>
-				</div>
-			</div>
-			<div>
-	        	<div ng-if="wizardForm.type == 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it is available to search on, displayed in results, both, or none. You may also choose the column sort order.</div>
-	        	<div ng-if="wizardForm.type != 'Query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it displayed in results or not. You may also choose column sort order</div>
-	        	<div><label>Column Order</label></div>
-	        	<div style="padding-left:20px;">
-	        				<span class="radio-inline">
-  								<label style="font-weight:normal">
-    								<input type="radio" ng-model="displayOrder" value="alphabetical">
-    								Alphabetical
-  								</label>
-							</span>
-	        				<span class="radio-inline">
-  								<label style="font-weight:normal">
-    								<input type="radio" ng-model="displayOrder" value="document-order">
-    								Document Order
-  								</label>
-							</span>
-	        	</div>
-				<div ng-show="isNamespaceAware" style="padding-top:5px;padding-bottom:10px">
-					<label>Namespaces ({{wizardForm.namespaces.length}})</label>
-					<span class="glyphicon" style="icon: pointer" ng-class="showNamespaces ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down'"  aria-hidden="true" ng-click="toggleNamespaces()"></span>
-				</div>
-				<div ng-show="showNamespaces" style="padding-top:10px">
-					<ul>
-						<li ng-repeat="ns in wizardForm.namespaces">{{ns.abbrv}} - {{ns.uri}}</li>
-					</ul>
-<!--					<dl class="dl-horizontal">
-						<dt ng-repeat-start="ns in wizardForm.namespaces" ng-bind="ns.abbrv"></dt>
-						<dd ng-repeat-end ng-bind="ns.uri"></dd>
-					</dl>-->
-				</div>
-			</div>
-	        <div style="padding-top:10px">
-	        	<div>        		
-	        		<table class="table table-striped">
-	        			<thead>
-	        				<tr>
-	        					<th style="min-width:150px">Name in Data</th>
-	        					<th>Include</th>
-	        					<th style="width:100%">Name in Search and/or Results</th>
-	        				</tr>
-	        			</thead>
-	        			<tbody>
-	        				<tr ng-repeat="field in wizardForm.fields">
-	        					<td><span ng-bind="field.elementName" title="{{field.xpathNormal}}"></span></td>
-	        					<td>
-					      			<select class="form-control" style="width:150px" ng-model="field.includeMode" ng-change="includeChanged(field)">
-					      				<option value="none">No</option>
-					      				<option ng-if="wizardForm.type == 'Query'" value="both">Both</option>
-					      				<option ng-if="wizardForm.type == 'Query'" value="query">Search Field Only</option>
-					      				<option ng-if="wizardForm.type == 'Query'" value="view">Results Only</option>
-					      				<option ng-if="wizardForm.type != 'Query'" value="view">Yes</option>
-					      			</select>
-	        					</td>
-	        					<td><input ng-required="field.include" ng-disabled="!field.include" type="text" class="form-control" ng-model="field.title"/></td>
-	        				</tr>
-	        			</tbody>
-	        		</table>	        		
-	        	</div>
-	        </div>
-			<div class="form-group">
-				<div class="col-sm-12">
-					<button type="submit"  ng-click="back()" class="btn btn-primary">Back...</button>&nbsp;<button type="submit" ng-click="submitWizard()" ng-disabled="!validForm()" class="btn btn-primary">{{buttonText}}</button>
-				</div>
-			</div>
-
-		</fieldset>
-    </form>
-
-  </div>
-
 </div>

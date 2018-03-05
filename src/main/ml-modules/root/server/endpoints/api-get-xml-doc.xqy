@@ -1,7 +1,7 @@
 xquery version "1.0-ml";
 import module namespace detail-lib = "http://www.marklogic.com/data-explore/lib/detail-lib" at "/server/lib/detail-lib.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 declare function local:get-xml(){
     let $path := xdmp:get-original-url()
     let $tokens := fn:tokenize($path, "/")

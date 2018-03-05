@@ -9,6 +9,7 @@ import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" 
 import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 
 declare namespace db = "http://marklogic.com/xdmp/database";
+
 declare option xdmp:mapping "false";
 
 declare function riu:get-indexes($database as xs:string)

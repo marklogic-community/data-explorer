@@ -2,7 +2,7 @@ xquery version "1.0-ml";
  
 module namespace check-database-lib = "http://marklogic.com/data-explore/lib/check-database-lib" ;
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
-
+declare option xdmp:mapping "false";
 declare function check-database-lib:check-database() {
     let $db := xdmp:database()
     let $db-name := xdmp:database-name($db)

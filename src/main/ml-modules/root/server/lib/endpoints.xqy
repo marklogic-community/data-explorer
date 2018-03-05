@@ -7,7 +7,6 @@ import module namespace  check-user-lib = "http://www.marklogic.com/data-explore
 declare namespace rest="http://marklogic.com/appservices/rest";
 
 declare default function namespace "http://www.w3.org/2005/xpath-functions";
-
 declare option xdmp:mapping "false";
 
 declare variable $endpoints:DEFAULT             as xs:string := "/client/index.html";
@@ -88,7 +87,6 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="queryName"/>
             <param name="docType"/>
             <param name="viewName"/>
-            <param name="insertView"/>
             <http method="GET"/>
         </request>
         <request uri="^/api/listTypeDiscriminator$" endpoint="{$endpoints:API-LIST-TYPE-DISCRIMINATOR}">

@@ -19,6 +19,7 @@ import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-li
 
 
 declare namespace db="http://marklogic.com/xdmp/database";
+
 declare option xdmp:mapping "false";
 
 declare function search-lib:page-count($sr as element())

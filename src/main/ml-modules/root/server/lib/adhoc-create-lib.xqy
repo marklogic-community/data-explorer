@@ -10,7 +10,7 @@ import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/f
 import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 
 declare  namespace sec="http://marklogic.com/xdmp/security";
-
+declare option xdmp:mapping "false";
 
 declare private variable $form-fields-map :=
 	let $form-map := map:map()
@@ -132,7 +132,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $database := map:get($adhoc-fields, "database")
 	let $file-type := map:get($adhoc-fields, "fileType")
 	let $display-order := map:get($adhoc-fields, "displayOrder")
-	return if (fn:not($overwrite) and fn:not(fn:empty(//formQuery[@version=$const:SUPPORTED-VERSION and queryName=$query-name and documentType=$root-element]))) then
+	return if (fn:not($overwrite) and fn:not(fn:empty(cfg:get-form-query($root-element,$query-name) ))) then
 					xdmp:unquote('{"status":"exists"}')
 	else (
 			let $uri :=

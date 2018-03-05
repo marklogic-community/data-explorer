@@ -5,7 +5,7 @@ angular.module('demoApp')
 
     // Detect the back button being pushed
     $scope.$on("$locationChangeStart",function(){
-      if($window.event.target.location.pathname === '/adhoc') {
+      if($window.event.target.location && $window.event.target.location.pathname === '/adhoc') {
         AdhocState.setDisplayLastResults(true);
       }
     });
@@ -15,6 +15,7 @@ angular.module('demoApp')
     $scope.prettyData = '';
     $scope.tabheading = '';
     $scope.details = Detail.get({database:$scope.database,uri:$scope.uri},function(details){
+        console.log("Details"); console.log(details);
       $scope.doc = details;
       if ( $scope.doc.mimetype == "application/json") {
         $scope.prettyData = vkbeautify.json($scope.doc.data)
