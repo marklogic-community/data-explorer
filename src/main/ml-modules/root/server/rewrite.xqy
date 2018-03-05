@@ -9,7 +9,6 @@ import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"
 
 declare default function namespace "http://www.w3.org/2005/xpath-functions";
 
-
 declare option xdmp:mapping "false";
 
 let $path := xdmp:get-request-path()

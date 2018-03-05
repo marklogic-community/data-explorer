@@ -66,7 +66,7 @@ declare function local:get-result()
   
   (: transaction-mode "query" causes XDMP-UPDATEFUNCTIONFROMQUERY on any update :)
   let $code-with-prolog :=
-    $cfg:PROLOG||  local:get-code-from-form-query($doc-type, $query-name)
+    cfg:get-prolog($query-name,$doc-type)||  local:get-code-from-form-query($doc-type, $query-name)
   let $_ := ll:trace-details(text{ "local:get-result, $code-with-prolog = ", $code-with-prolog })
 
   let $excludeDeleted :=

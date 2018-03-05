@@ -4,11 +4,13 @@ import module namespace  check-user-lib = "http://www.marklogic.com/data-explore
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
+import module namespace riu = "http://marklogic.com/data-explore/lib/range-index-utils" at "/server/lib/range-index-utils.xqy";
+declare namespace db = "http://marklogic.com/xdmp/database";
 
 declare function local:get-query-view() {
-    let $queryName := map:get($cfg:getRequestFieldsMap, "queryName")
-    let $docType := map:get($cfg:getRequestFieldsMap, "docType")
-    let $viewName := map:get($cfg:getRequestFieldsMap, "viewName")
+    let $queryName := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "queryName"))
+    let $docType := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "docType"))
+    let $viewName := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "viewName"))
     let $insertView := map:get($cfg:getRequestFieldsMap, "insertView") = "true"
     let $_ := if ( fn:empty($queryName )) then fn:error(xs:QName("ERROR"),"$queryName may not be empty") else ()
     let $_ := if ( fn:empty($docType )) then fn:error(xs:QName("ERROR"),"$docType may not be empty") else ()
@@ -33,6 +35,23 @@ declare function local:get-query-view() {
     let $_ := map:put($json,"displayOrder",$view/displayOrder/fn:string())
     let $_ := map:put($json,"rootElement",$queryDoc/documentType/fn:string())
     let $_ := map:put($json,"prefix",$queryDoc/documentType/@prefix)
+    let $_ := map:put($json,"formLabels",array-node{
+        for $option in $queryDoc/searchFields/searchField
+        let $dict := $queryDoc/formLabels/formLabel[@id=$option/@id]
+        let $form-field := fn:tokenize($dict/@expr, "/")[fn:last()]
+        let $range-index := riu:get-index($queryDoc, $form-field)
+        let $dataType := fn:string($dict/@dataType)
+        let $label := fn:string($option/@label)
+        return
+            let $j := json:object()
+            let $_ := map:put($j,"dataType",$dataType)
+            let $_ := map:put($j,"label",$label)
+            let $_ := if (fn:empty($range-index)) then () else (
+                     map:put($j,"rangeIndex",$form-field),
+                     map:put($j,"scalarType",$range-index/db:scalar-type/fn:string())
+                        )
+            return $j
+        })
     let $_ := map:put($json,"namespaces",array-node{
         for $ns in $queryDoc/namespaces/namespace
         let $j := json:object()

@@ -6,10 +6,13 @@ import module namespace riu = "http://marklogic.com/data-explore/lib/range-index
 
 
 declare function local:get-json() {
-  let $database := map:get($cfg:getRequestFieldsMap, "database")
-  let $index := map:get($cfg:getRequestFieldsMap, "rangeIndex")
-  let $match-text := map:get($cfg:getRequestFieldsMap, "qtext")
-  let $values := riu:match-index-values($match-text, $database, $index, 10)
+  let $queryName := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "queryName"))
+  let $docType := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "docType"))
+  let $query-doc := cfg:get-form-query($docType,$queryName)
+  let $index := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "rangeIndex"))
+  let $match-text := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "qtext"))
+  let $_ := xdmp:log("MATCH-INDEX-VALUES")
+  let $values := riu:match-index-values($match-text, $query-doc, $index, 10)
 
   let $json := json:object()
 

@@ -3,6 +3,8 @@ xquery version "1.0-ml";
 
 module namespace const = "http://www.marklogic.com/data-explore/lib/const";
 
+declare variable $const:DEFAULT-NAMESPACE-PREFIX := "default_ns";
+
 declare variable $const:DEFAULT-VIEW-NAME := "DefaultView";
 
 declare variable $const:SUPPORTED-VERSION := "1.0.0";

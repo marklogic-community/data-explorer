@@ -25,23 +25,20 @@ declare function local:get-structure($is-json as xs:boolean,$doc) {
 declare function local:get-children-nodes-xml($path, $node as node()) {
   let $results :=
       for $i in $node/node()
-      let $root-ns-prefix := nl:get-prefix(fn:root($i))
-      let $root-ns-prefix := if (fn:string-length(fn:normalize-space($root-ns-prefix)) > 0) then $root-ns-prefix||":" else()
-      let $ns-prefix := nl:get-prefix($i)
-      let $ns-prefix := if (fn:string-length(fn:normalize-space($ns-prefix)) > 0) then $ns-prefix||":" else()
-      let $localname := fn:local-name($i)
-      let $rootname := fn:local-name(fn:root($i))
-      let $s := fn:concat($ns-prefix, $localname)
-      let $finalpath := if($path) then
-                            fn:concat($path, "/",$s)
-                        else
-                            $s
-      return
-        if($i/node()) then
-          (if ($i/node() instance of text()) then
-               <child><path>{fn:concat( "/", $finalpath)}</path><dataType>text</dataType></child>
-           else (), local:get-children-nodes-xml($finalpath, $i))
-           else ()
+          let $ns-prefix := nl:get-prefix($i)
+          let $ns-prefix := if (fn:string-length(fn:normalize-space($ns-prefix)) > 0) then $ns-prefix||":" else()
+          let $localname := fn:local-name($i)
+          let $s := fn:concat($ns-prefix, $localname)
+          let $finalpath := if($path) then
+                                fn:concat($path, "/",$s)
+                            else
+                                $s
+          return
+            if($i/node()) then
+              (if ($i/node() instance of text()) then
+                   <child><path>{fn:concat( "/", $finalpath)}</path><dataType>text</dataType></child>
+               else (), local:get-children-nodes-xml($finalpath, $i))
+               else ()
       return functx:distinct-deep($results)
 };
 

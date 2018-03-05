@@ -15,6 +15,7 @@ import module namespace admin = "http://marklogic.com/xdmp/admin"
       at "/MarkLogic/admin.xqy";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
+import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 
 
 declare namespace db="http://marklogic.com/xdmp/database";
@@ -224,7 +225,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
   declare function search-lib:result-to-view($result as element(),$query-doc as element(),$view as element(), $useDB as xs:string, $include-matches as xs:boolean){
     let $uri := $result/fn:data(@uri)
     let $doc := detail-lib:get-document($uri,$useDB)
-    let $view-xqy := fn:concat($cfg:namespaces,
+    let $view-xqy := fn:concat(nl:get-namespace-declaration($query-doc),
         "
         
         declare variable $view external;

@@ -17,6 +17,7 @@ declare variable $endpoints:API-DEAUTH              as xs:string := "/server/end
 declare variable $endpoints:API-CRUD-GET-QUERY-VIEW as xs:string := "/server/endpoints/api-crud-get-query-view.xqy";
 declare variable $endpoints:API-CRUD-LIST-QUERIES as xs:string := "/server/endpoints/api-crud-list-queries.xqy";
 declare variable $endpoints:API-LIST-BOOKMARKS as xs:string := "/server/endpoints/api-list-bookmarks.xqy";
+declare variable $endpoints:API-LIST-TYPE-DISCRIMINATOR as xs:string := "/server/endpoints/api-crud-list-type-discriminators.xqy";
 declare variable $endpoints:API-CRUD-LIST-VIEWS as xs:string := "/server/endpoints/api-crud-list-views.xqy";
 declare variable $endpoints:API-CRUD-REMOVE-QUERY as xs:string := "/server/endpoints/api-crud-remove-query.xqy";
 declare variable $endpoints:API-CRUD-REMOVE-VIEW as xs:string := "/server/endpoints/api-crud-remove-view.xqy";
@@ -25,7 +26,6 @@ declare variable $endpoints:API-DETAIL          as xs:string := "/server/endpoin
 declare variable $endpoints:API-GET-XML-DOC     as xs:string := "/server/endpoints/api-get-xml-doc.xqy";
 declare variable $endpoints:API-USERS           as xs:string := "/server/endpoints/api-users.xqy";
 declare variable $endpoints:API-ADHOC-DATABASES as xs:string := "/server/endpoints/adhoc/api-adhoc-databases.xqy";
-declare variable $endpoints:API-ADHOC-SELECTORS as xs:string := "/server/endpoints/adhoc/api-adhoc-selectors.xqy";
 declare variable $endpoints:API-SEARCH          as xs:string := "/server/endpoints/adhoc/api-adhoc-search.xqy";
 declare variable $endpoints:API-SUGGEST-VALUES  as xs:string := "/server/endpoints/adhoc/api-adhoc-suggest-values.xqy";
 declare variable $endpoints:API-ADHOC-WIZARD as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard.xqy";
@@ -91,10 +91,15 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="insertView"/>
             <http method="GET"/>
         </request>
+        <request uri="^/api/listTypeDiscriminator$" endpoint="{$endpoints:API-LIST-TYPE-DISCRIMINATOR}">
+            <param name="database"/>
+            <http method="GET"/>
+        </request>
         <request uri="^/api/listBookmarks$" endpoint="{$endpoints:API-LIST-BOOKMARKS}">
             <http method="GET"/>
         </request>
         <request uri="^/api/crud/listViews$" endpoint="{$endpoints:API-CRUD-LIST-VIEWS}">
+            <param name="filterDefaultView"/>
             <param name="startOffset"/>
             <param name="pageSize"/>
             <param name="docType"/>
@@ -102,6 +107,8 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <http method="GET"/>
         </request>
         <request uri="^/api/crud/listQueries$" endpoint="{$endpoints:API-CRUD-LIST-QUERIES}">
+            <param name="database"/>
+            <param name="docType"/>
             <param name="startOffset"/>
             <param name="pageSize"/>
             <http method="GET"/>
@@ -110,9 +117,6 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <http method="GET"/>
         </request>
         <request uri="^/api/adhoc$" endpoint="{$endpoints:API-ADHOC-DATABASES}">
-            <http method="GET"/>
-        </request>
-        <request uri="^/api/adhoc/*/*" endpoint="{$endpoints:API-ADHOC-SELECTORS}">
             <http method="GET"/>
         </request>
         <request uri="^/api/search$" endpoint="{$endpoints:API-SEARCH}">
@@ -141,7 +145,8 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <http method="POST"/>
         </request>
         <request uri="^/api/suggest-values$" endpoint="{ $endpoints:API-SUGGEST-VALUES }">
-            <param name="database"/>
+            <param name="docType"/>
+            <param name="queryName"/>
             <param name="rangeIndex"/>
             <param name="qtext"/>
             <http method="GET"/>

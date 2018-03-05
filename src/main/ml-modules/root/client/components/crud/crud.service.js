@@ -20,9 +20,9 @@
       service.removeView = function(queryName,docType,viewName) {
           return $http.get('/api/crud/removeView', {
               params: {
-                  queryName : queryName,
-                  docType : docType,
-                  viewName : viewName
+                  queryName : encodeURIComponent(queryName),
+                  docType : encodeURIComponent(docType),
+                  viewName : encodeURIComponent(viewName)
               }
           })
       };
@@ -30,9 +30,9 @@
       service.listViews = function(queryName,docType,startOffset,pageSize) {
           return $http.get('/api/crud/listViews', {
               params: {
-                  queryName : queryName,
-                  docType : docType,
-                  startOffset : startOffset,
+                  queryName : encodeURIComponent(queryName),
+                  docType : encodeURIComponent(docType),
+                  startOffset : encodeURIComponent(startOffset),
                   pageSize : pageSize
               }
           })
@@ -41,8 +41,8 @@
       service.removeQuery = function(queryName,docType) {
           return $http.get('/api/crud/removeQuery', {
               params: {
-                  queryName : queryName,
-                  docType : docType
+                  queryName : encodeURIComponent(queryName),
+                  docType : encodeURIComponent(docType)
               }
           })
       };

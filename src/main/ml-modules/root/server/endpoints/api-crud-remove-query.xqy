@@ -5,8 +5,8 @@ import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 
 declare function local:remove-query() {
-    let $name := map:get($cfg:getRequestFieldsMap, "queryName")
-    let $docType := map:get($cfg:getRequestFieldsMap, "docType")
+    let $name := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "queryName"))
+    let $docType := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "docType"))
     let $_ := if ( fn:empty($name) or $name = '' ) then fn:error(xs:QName("ERROR"),"QueryName may not be empty.") else ()
     let $_ := if ( fn:empty($docType) or $docType = '' ) then fn:error(xs:QName("ERROR"),"DocType may not be empty.") else ()
     let $docs := /formQuery[@version=$const:SUPPORTED-VERSION and queryName=$name and documentType=$docType]

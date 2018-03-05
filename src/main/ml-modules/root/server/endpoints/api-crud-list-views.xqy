@@ -5,14 +5,19 @@ import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 
 declare function local:get-views() {
+    let $filter-default := xs:boolean(map:get($cfg:getRequestFieldsMap, "filterDefaultView"))
+    let $filter-default := if ( fn:empty($filter-default)) then fn:true() else $filter-default
     let $offset := xs:integer(map:get($cfg:getRequestFieldsMap, "startOffset"))
     let $pageSize := xs:integer(map:get($cfg:getRequestFieldsMap, "pageSize"))
-    let $queryName := map:get($cfg:getRequestFieldsMap, "queryName")
-    let $docType := map:get($cfg:getRequestFieldsMap, "docType")
-    let $_ := if ( fn:empty($queryName )) then fn:error(xs:QName("ERROR"),"$queryName may not be empty") else ()
-    let $_ := if ( fn:empty($docType )) then fn:error(xs:QName("ERROR"),"$docType may not be empty") else ()
-    (: Filter out the default view name :)
-    let $viewNames := fn:filter(function($v) { $v != $const:DEFAULT-VIEW-NAME},//formQuery[queryName=$queryName and documentType=$docType]/views/view/name/fn:string())
+    let $queryName := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "queryName"))
+    let $docType := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "docType"))
+    let $offset := if ( fn:empty($offset) or $offset < 1 ) then 1 else $offset
+    let $pageSize := if ( fn:empty($pageSize) or $pageSize < 1 ) then 9223372036854775806 else ()
+    let $docs := //formQuery[queryName=$queryName and documentType=$docType]/views/view/name/fn:string()
+    let $viewNames := if ( $filter-default) then
+                          fn:filter(function($v) { $v != $const:DEFAULT-VIEW-NAME},$docs)
+                      else
+                          $docs
     let $total-count := fn:count($viewNames)
     let $json :=   json:object()
     let $_ := map:put($json,"result-count",$total-count)

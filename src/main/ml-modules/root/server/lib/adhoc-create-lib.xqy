@@ -7,6 +7,7 @@ import module namespace const = "http://www.marklogic.com/data-explore/lib/const
 import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";
 import module namespace mem = "http://xqdev.com/in-mem-update" at "/MarkLogic/appservices/utils/in-mem-update.xqy";
 import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
+import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 
 declare  namespace sec="http://marklogic.com/xdmp/security";
 
@@ -20,6 +21,21 @@ declare private variable $data-types-map :=
 let $dt-map := map:map()
 return $dt-map
 ;
+
+declare function lib-adhoc-create:create-discriminator-query($database as xs:string,$namespaces as element(),$file-type as xs:string,$doc-type as xs:string) {
+	let $qry := cts:true-query()
+	let $tokens := fn:reverse(fn:tokenize($doc-type,"/"))
+	let $_ := for $token in $tokens
+	return if (fn:string-length($token) > 0) then (
+		let $level-query := if ( $file-type = $const:FILE_TYPE_XML) then
+			cts:element-query(nl:get-qname($database,$namespaces,$token),$qry)
+		else
+			cts:json-property-scope-query($token,$qry)
+		return xdmp:set($qry,$level-query)
+	) else
+		()
+	return $qry
+};
 
 declare function lib-adhoc-create:get-elementname($file-type as xs:string,$xpath as xs:string, $position as xs:string){
   let $tokens := fn:tokenize($xpath, "/")
@@ -77,16 +93,16 @@ declare function lib-adhoc-create:create-ewq-lastest($file-type as xs:string,$da
 	  else
 		  ()
 };
-declare function lib-adhoc-create:create-eq($file-type as xs:string,$xpath as xs:string, $params){
+declare function lib-adhoc-create:create-eq($database as xs:string,$namespaces as element(),$file-type as xs:string,$root-element as xs:string,$xpath as xs:string, $params){
  let $elementname := lib-adhoc-create:get-elementname($file-type,$xpath, "root")
  return
 	 if ( $file-type = $const:FILE_TYPE_XML ) then
-		 fn:concat('cts:and-query((',  $params, ',if ($word) then
+		 fn:concat('cts:and-query((',lib-adhoc-create:create-discriminator-query($database,$namespaces,$file-type,$root-element), ',', $params, ',if ($word) then
   			    cts:word-query($word, "case-insensitive")
  			   else
       		()))')
 	 else if ( $file-type = $const:FILE_TYPE_JSON ) then
-		 fn:concat('cts:and-query((',  $params, ',if ($word) then
+		 fn:concat('cts:and-query((',lib-adhoc-create:create-discriminator-query($database,$namespaces,$file-type,$root-element),',' , $params, ',if ($word) then
   			    cts:json-property-word-query($word, "case-insensitive")
  			   else
       		()))')
@@ -154,7 +170,17 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 							else
 								let $node := $existing-views
 								return mem:node-insert-child($node,$add-view)//views
-
+			let $namespaces := <namespaces>
+				{
+					let $cnt := map:get($adhoc-fields, "namespaceCount")
+					return if ( fn:empty($cnt)) then () else (
+						for $i in (1 to xs:integer($cnt))
+						let $abbrv := map:get($adhoc-fields, "namespaceAbbrv" || $i)
+						let $uri := map:get($adhoc-fields, "namespaceUri" || $i)
+						return <namespace><abbr>{$abbrv}</abbr><uri>{$uri}</uri></namespace>
+					)
+				}
+			</namespaces>
 			let $form-query :=
 				<formQuery version="{$const:SUPPORTED-VERSION}">
 					<queryName>{$query-name}</queryName>
@@ -170,17 +196,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 							)
 						}
 					</possibleRoots>
-					<namespaces>
-						{
-							let $cnt := map:get($adhoc-fields, "namespaceCount")
-							return if ( fn:empty($cnt)) then () else (
-								for $i in (1 to xs:integer($cnt))
-								let $abbrv := map:get($adhoc-fields, "namespaceAbbrv" || $i)
-								let $uri := map:get($adhoc-fields, "namespaceUri" || $i)
-								return <namespace><abbr>{$abbrv}</abbr><uri>{$uri}</uri></namespace>
-							)
-						}
-					</namespaces>
+					{$namespaces}
 					<documentType>{$root-element}</documentType>
 					<formLabels>
 					{
@@ -211,14 +227,14 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 						}
 					</searchFields>
 					{$new}
-				  <code>{if($querytext) then $querytext else lib-adhoc-create:create-edit-form-code($file-type,$adhoc-fields)}</code>
+				  <code>{if($querytext) then $querytext else lib-adhoc-create:create-edit-form-code($database,$namespaces,$file-type,$adhoc-fields,$root-element)}</code>
 				</formQuery>
 		  let $_ := xu:document-insert($uri, $form-query)
 		  return xdmp:unquote('{"status":"saved"}')
 	  )
 };
 
-declare function lib-adhoc-create:create-edit-form-code($file-type as xs:string,$adhoc-fields as map:map){
+declare function lib-adhoc-create:create-edit-form-code($database,$namespaces as element(),$file-type as xs:string,$adhoc-fields as map:map,$root-element as xs:string){
 	  let $params :=
 	    for $key in map:keys($form-fields-map)
 	    return lib-adhoc-create:create-params(fn:substring($key, 3))
@@ -230,7 +246,7 @@ declare function lib-adhoc-create:create-edit-form-code($file-type as xs:string,
     return (
     	$params,
     	$word-query,
-    	lib-adhoc-create:create-eq($file-type,
+    	lib-adhoc-create:create-eq($database,$namespaces,$file-type,$root-element,
     		map:get($adhoc-fields, fn:concat("formLabelHidden", 1)),
     		fn:string-join($evqs, fn:concat(",", fn:codepoints-to-string(10)))
       )

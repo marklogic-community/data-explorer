@@ -118,7 +118,7 @@ angular.module('demoApp')
               .success(function(data, status) {
                   if (status == 200) {
                       $scope.queryTotalCount = data['result-count']
-                      $scope.queryResults = data['rows']
+                      $scope.queryResults = data['queries']
                       $scope.queryPageCount = Math.ceil( $scope.queryTotalCount / $scope.PAGE_SIZE)
                   }
               }).error(function(err){
