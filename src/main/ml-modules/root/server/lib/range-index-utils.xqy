@@ -24,7 +24,6 @@ declare function riu:get-index($query-doc as node(), $form-field as xs:string)
 as node()* 
 {
   let $database := $query-doc/database/text()
-  let $_ := xdmp:log(("JOSRANGE",$database,$form-field))
   let $indexes := riu:get-indexes($database)
   let $qname := nl:get-qname($database,$query-doc,$form-field)
   return fn:head($indexes/db:range-element-index[db:namespace-uri eq fn:namespace-uri-from-QName($qname) 
@@ -38,11 +37,8 @@ as xs:anyAtomicType*
   let $max-items := fn:max((($limit, 10)[1], 1))
   let $qtext := functx:trim($match-text)
   let $index := riu:get-index($query-doc, $form-field)
-  let $_ := xdmp:log(("DATABASE",$database,"QTEXT",$qtext,"INDEX",$index))
   return xu:invoke-function(function() {
-    let $_ := xdmp:log(("INVOKE"))
     let $qname := nl:get-qname($database,$query-doc,$form-field)
-    let $_ := xdmp:log(("QNAME",$qname))
     return cts:element-value-match(
             $qname,
       if (fn:string-length($qtext) gt 0) then fn:concat("*", $match-text, "*") else "*",

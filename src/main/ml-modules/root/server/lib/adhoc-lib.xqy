@@ -97,11 +97,15 @@ as xs:QName*
   ))
   let $next := fn:head(cts:search(/*, $full-query))
   let $next-qname := fn:node-name($next)
-  let $next-term := lib-adhoc:term-from-root-qname($next-qname)
-  return (
-    $next-qname,
-    if (fn:empty($next-qname)) then () else lib-adhoc:next-root-qname($query, ($except-terms, $next-term))
-  )
+  let $ret := if ( fn:empty($next-qname) ) then
+                    ()
+              else
+                  let $next-term := lib-adhoc:term-from-root-qname($next-qname)
+                  return (
+                    $next-qname,
+                    if (fn:empty($next-qname)) then () else lib-adhoc:next-root-qname($query, ($except-terms, $next-term))
+                  )
+  return $ret
 };
 
 declare function lib-adhoc:get-root-qnames($database as xs:string)

@@ -83,7 +83,7 @@
                   <tbody>
                     <tr ng-repeat="result in results['results']">
                       <td ng-repeat="key in results['results-header']">
-                        <span ng-show="key == 'URI'" ng-bind-html="to_trusted(result[key])"></span>
+                        <span ng-show="key == 'URI'"><a href="#" ng-click="openDetails(result['database'],result['URI'])" ng-bind-html="to_value(key, result[key], result)"></a></span>
                         <span ng-hide="key == 'URI'" ng-bind-html="to_value(key, result[key], result)"></span>
                       </td>
                       <td ng-if="includeMatches">
@@ -91,7 +91,7 @@
                           <button type="button" class="btn btn-xs" ng-model="showMatch[$index]" 
                             uib-btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false"
                             ng-class="{ 'btn-danger': showMatch[$index], 'btn-primary': !showMatch[$index] }"
-                            ng-click="showMatch[$index] = !showMatch[$index]">
+                            ng-click="showMatch[$index] = !showMatch[$index]"/>
                             {{ showMatch[$index] ? 'hide' : 'show' }}
                           </a>
                         </div>

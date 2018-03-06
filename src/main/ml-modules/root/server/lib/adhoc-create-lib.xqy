@@ -122,7 +122,8 @@ declare function lib-adhoc-create:file-name($query-name as xs:string)
 declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:map)
 	as document-node()
 {
-	let $overwrite := map:get($adhoc-fields, "overwrite") = "OVERWRITE"
+	let $view-mode := map:get($adhoc-fields, "mode") = "view"
+	let $overwrite := map:get($adhoc-fields, "overwrite") = "true"
 	let $root-element := map:get($adhoc-fields, "rootElement")
 	let $query-name := map:get($adhoc-fields, "queryName")
 	let $querytext := map:get($adhoc-fields, "queryText")
@@ -132,7 +133,8 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $database := map:get($adhoc-fields, "database")
 	let $file-type := map:get($adhoc-fields, "fileType")
 	let $display-order := map:get($adhoc-fields, "displayOrder")
-	return if (fn:not($overwrite) and fn:not(fn:empty(cfg:get-form-query($root-element,$query-name) ))) then
+	let $existing-query-doc := cfg:get-form-query($root-element,$query-name)
+	return if (fn:not($overwrite) and fn:not(fn:empty( $existing-query-doc  ))) then
 					xdmp:unquote('{"status":"exists"}')
 	else (
 			let $uri :=
@@ -160,9 +162,10 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 					}
 				</resultFields>
 			</view>
-			let $existing-views := fn:doc($uri)//views
 
-			let $new :=  if ( fn:empty($existing-views)) then
+			let $existing-views := $existing-query-doc/views
+
+			let $new-views :=  if ( fn:empty($existing-views)) then
 							<views>{$add-view}</views>
 							else if ( $add-view/name/fn:string() = $existing-views/view/name/fn:string() ) then
 								let $node := $existing-views/view[name=$add-view/name/fn:string()]
@@ -170,67 +173,71 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 							else
 								let $node := $existing-views
 								return mem:node-insert-child($node,$add-view)//views
-			let $namespaces := <namespaces>
-				{
-					let $cnt := map:get($adhoc-fields, "namespaceCount")
-					return if ( fn:empty($cnt)) then () else (
-						for $i in (1 to xs:integer($cnt))
-						let $abbrv := map:get($adhoc-fields, "namespaceAbbrv" || $i)
-						let $uri := map:get($adhoc-fields, "namespaceUri" || $i)
-						return <namespace><abbr>{$abbrv}</abbr><uri>{$uri}</uri></namespace>
-					)
-				}
-			</namespaces>
-			let $form-query :=
-				<formQuery version="{$const:SUPPORTED-VERSION}">
-					<queryName>{$query-name}</queryName>
-					<database>{$database}</database>
-				    <fileType>{$file-type}</fileType>
-					<possibleRoots>
-						{
-							let $cnt := map:get($adhoc-fields, "possibleRootsCount")
-							return if ( fn:empty($cnt)) then () else (
-								for $i in (1 to xs:integer($cnt))
-								let $pr := map:get($adhoc-fields, "possibleRoot" || $i)
-								return <possibleRoot>{$pr}</possibleRoot>
-							)
-						}
-					</possibleRoots>
-					{$namespaces}
-					<documentType>{$root-element}</documentType>
-					<formLabels>
+			return if ( $view-mode ) then
+			     	let $_ := xdmp:node-replace($existing-query-doc/views,$new-views)
+					return xdmp:unquote('{"status":"saved"}')
+			else
+				let $namespaces := <namespaces>
 					{
-						for $i in (1 to 250)
-							let $dataType := map:get($adhoc-fields, fn:concat("formLabelDataType", $i))
-							let $field-path := map:get($adhoc-fields, fn:concat("formLabelHidden", $i))
-							return
-								if (fn:exists($field-path)) then
-                                    <formLabel id="{$i}" dataType="{$dataType}" evaluateAs="XPath"  expr="{$field-path}" exec_expr="{lib-adhoc:transform-xpath-with-spaces($field-path)}"/>
-								else
-									()
+						let $cnt := map:get($adhoc-fields, "namespaceCount")
+						return if ( fn:empty($cnt)) then () else (
+							for $i in (1 to xs:integer($cnt))
+							let $abbrv := map:get($adhoc-fields, "namespaceAbbrv" || $i)
+							let $uri := map:get($adhoc-fields, "namespaceUri" || $i)
+							return <namespace><abbr>{$abbrv}</abbr><uri>{$uri}</uri></namespace>
+						)
 					}
-					</formLabels>
-					<searchFields>
+				</namespaces>
+				let $form-query :=
+					<formQuery version="{$const:SUPPORTED-VERSION}">
+						<queryName>{$query-name}</queryName>
+						<database>{$database}</database>
+						<fileType>{$file-type}</fileType>
+						<possibleRoots>
+							{
+								let $cnt := map:get($adhoc-fields, "possibleRootsCount")
+								return if ( fn:empty($cnt)) then () else (
+									for $i in (1 to xs:integer($cnt))
+									let $pr := map:get($adhoc-fields, "possibleRoot" || $i)
+									return <possibleRoot>{$pr}</possibleRoot>
+								)
+							}
+						</possibleRoots>
+						{$namespaces}
+						<documentType>{$root-element}</documentType>
+						<formLabels>
 						{
-							let $counter := 1
 							for $i in (1 to 250)
-								let $label := map:get($adhoc-fields, fn:concat("formLabel", $i))
-								let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
+								let $dataType := map:get($adhoc-fields, fn:concat("formLabelDataType", $i))
+								let $field-path := map:get($adhoc-fields, fn:concat("formLabelHidden", $i))
 								return
-									if (fn:exists($label) and ($mode = "query" or $mode = "both"))  then
-										let $_ := map:put($form-fields-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelHidden", $i)))
-										let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
-										let $_ := xdmp:set($counter, $counter + 1)
-										return
-											<searchField id="{$i}" label="{$label}"/>
-									else ()
+									if (fn:exists($field-path)) then
+										<formLabel id="{$i}" dataType="{$dataType}" evaluateAs="XPath"  expr="{$field-path}" exec_expr="{lib-adhoc:transform-xpath-with-spaces($field-path)}"/>
+									else
+										()
 						}
-					</searchFields>
-					{$new}
-				  <code>{if($querytext) then $querytext else lib-adhoc-create:create-edit-form-code($database,$namespaces,$file-type,$adhoc-fields,$root-element)}</code>
-				</formQuery>
-		  let $_ := xu:document-insert($uri, $form-query)
-		  return xdmp:unquote('{"status":"saved"}')
+						</formLabels>
+						<searchFields>
+							{
+								let $counter := 1
+								for $i in (1 to 250)
+									let $label := map:get($adhoc-fields, fn:concat("formLabel", $i))
+									let $mode := map:get($adhoc-fields, fn:concat("formLabelIncludeMode", $i))
+									return
+										if (fn:exists($label) and ($mode = "query" or $mode = "both"))  then
+											let $_ := map:put($form-fields-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelHidden", $i)))
+											let $_ := map:put($data-types-map, fn:concat("id", $counter), map:get($adhoc-fields, fn:concat("formLabelDataType", $i)))
+											let $_ := xdmp:set($counter, $counter + 1)
+											return
+												<searchField id="{$i}" label="{$label}"/>
+										else ()
+							}
+						</searchFields>
+						{$new-views}
+					  <code>{if($querytext) then $querytext else lib-adhoc-create:create-edit-form-code($database,$namespaces,$file-type,$adhoc-fields,$root-element)}</code>
+					</formQuery>
+			  let $_ := xu:document-insert($uri, $form-query)
+			  return xdmp:unquote('{"status":"saved"}')
 	  )
 };
 
@@ -242,8 +249,8 @@ declare function lib-adhoc-create:create-edit-form-code($database,$namespaces as
 	  let $word-query := fn:concat('let $word := map:get($params, "word")', fn:codepoints-to-string(10), 'return', fn:codepoints-to-string(10))
 	  let $evqs :=
 	    for $key in map:keys($form-fields-map)
-    	return lib-adhoc-create:create-ewq($file-type,map:get($data-types-map,$key),fn:substring($key, 3),  map:get($form-fields-map, $key))
-    return (
+    	  return lib-adhoc-create:create-ewq($file-type,map:get($data-types-map,$key),fn:substring($key, 3),  map:get($form-fields-map, $key))
+	  return (
     	$params,
     	$word-query,
     	lib-adhoc-create:create-eq($database,$namespaces,$file-type,$root-element,

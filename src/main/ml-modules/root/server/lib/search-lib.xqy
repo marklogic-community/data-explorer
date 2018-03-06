@@ -274,7 +274,8 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
     return
       <result>
       {
-        <part><name>URI</name><value><a href='/detail/{$useDB}/{$uri}'>{$uri}</a></value></part>
+        <part><name>database</name><value>{$useDB}</value></part>,
+        <part><name>URI</name><value>{$uri}</value></part>
         ,
         $view-parts
         ,

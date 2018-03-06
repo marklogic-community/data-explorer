@@ -30,9 +30,25 @@ angular.module('demoApp')
 
     $scope.wizardUploadFormData = null;
 
+    databaseService.list().then(function(data) {
+          $scope.availableDatabases = data;
+    });
     $scope.$watch('docTypeMethod', function() {
         $scope.message = "";
     });
+
+      $scope.$watch('formInput.selectedDatabase', function(value) {
+          if ($scope.docTypeMethod !== 'select' || !value) {
+              return;
+          }
+          wizardService.listDocTypes(value).then(function(docTypes) {
+              $scope.availableDocTypes = docTypes || [];
+              var error = _.isEmpty(docTypes);
+              $scope.message = error ?
+                  "Could not find any available document types.  Perhaps it contains no documents or you currently have insufficient permissions to read them."
+                  : "";
+          });
+      });
 
     $scope.resetSelectedDoc=function(){$scope.doc={text:"",type:"",uri:""}};
     $scope.openDocSelectionModal=function(searchType){
@@ -47,7 +63,6 @@ angular.module('demoApp')
             transformRequest: angular.identity
         }).success(function(data, status){
             if (status == 200){
-                $scope.step = 1; 
                 $scope.wizardForm = {databases:data};
             		$("#selectDocument").modal();
             }
@@ -61,8 +76,6 @@ angular.module('demoApp')
     $scope.prev=function(){  $scope.searchDocuments("","prev");};
     
     $scope.searchDocuments=function(docUri,nav){
-        console.log("SEARCH")
-        console.log($scope.formInput.searchString)
     		$scope.doc={text:"",type:"",uri:docUri}
     		var params = new FormData();
 		params.append("database",$scope.formInput.selectedDatabase);
@@ -92,7 +105,6 @@ angular.module('demoApp')
             transformRequest: angular.identity            
         }).success(function(data, status,headers){
             if (status == 200){
-                $scope.step = 1; 
                 if(docUri){
                 		var contentType=headers("content-type")
                 		if ( contentType.includes("application/json")) {
@@ -151,8 +163,6 @@ angular.module('demoApp')
                               newValue = split[0]
                           return {key:inp,value:newValue}
                       });
-	                  console.log("ROOT");
-	                  console.log($scope.rootElements)
 	              }
 	          }).error(function(err){
 	             console.log(err);
@@ -218,15 +228,27 @@ angular.module('demoApp')
     };
 
     function prepareStep2(data) {
-        $scope.step = 2; 
         $scope.wizardForm = data;
         for(var index = 0; index < data.fields.length; index++){ 
             data.fields[index].include = false;
             data.fields[index].includeMode = "none";
             data.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
         }
-        $state.go('adhoc-wizard-field-selection', {});
+        $state.go('adhoc-wizard-field-selection', {deparams:
+                {formData: data,
+                backState: "adhoc-wizard",
+                queryView: "query"}})
+
     }
+
+      function createTitle(suggestedName){
+          var namespaceDelimPos = suggestedName.indexOf(":");
+          if(namespaceDelimPos != -1){
+              return suggestedName.substr(namespaceDelimPos+1);
+          }
+
+          return suggestedName;
+      }
 
     $scope.sample = function() {
         var database = $scope.formInput.selectedDatabase;
@@ -256,7 +278,6 @@ angular.module('demoApp')
               $scope.message = "This file-type is not supported. Choose a different file";
               $scope.uploadButtonActive = false;
         } else {
-            console.log("UPLOAD")
             $http.post('/api/wizard/upload', $scope.wizardUploadFormData, {
                 withCredentials: true,
                 headers: {'Content-Type': undefined },

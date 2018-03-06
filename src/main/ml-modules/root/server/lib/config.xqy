@@ -45,8 +45,7 @@ declare variable $ignoreDbs :=
 declare variable $defaultDb := "FFE";
 
 declare function cfg:get-prolog($query as xs:string,$doc-type as xs:string) {
-  let $_ := ll:trace(("GET PROLOG",$query,$doc-type))
-  return fn:concat('
+  fn:concat('
     import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
       at "/server/lib/config.xqy";
     import module namespace search = "http://marklogic.com/appservices/search"

@@ -1,20 +1,7 @@
 'use strict';
 
 angular.module('demoApp')
-    .filter('tohex', function () {
-        return function (item) {
-            if ( !item )
-                return "";
-            var r = "";
-            for (var i=0; i<item.length; i++) {
-                var hex = item.charCodeAt(i).toString(16);
-                r += ("000"+hex).slice(-4);
-            }
-            return r
-        };
-    })
-
-  .controller('CrudCtrl', function ($state,$window,$scope, $http, $sce, $interval, crudService) {
+   .controller('CrudCtrl', function ($state,$window,$scope, $http, $sce, $interval, crudService) {
 
       // how big are the pages?
       $scope.PAGE_SIZE = 10;
@@ -68,8 +55,21 @@ angular.module('demoApp')
           $state.go('adhoc-wizard');
       }
 
+      $scope.editView = function(docType,queryName,viewName,event) {
+              $state.go('adhoc-wizard-field-selection',
+                  {deparams: {
+                          docType:docType,
+                          queryName: queryName,
+                          viewName : viewName,
+                          queryView: "view"}})
+      }
+
       $scope.editQuery=function(docType,queryName) {
-          $state.go('adhoc-wizard-field-selection', {deparams: {docType:docType,queryName: queryName,queryView: "query"}})
+          $state.go('adhoc-wizard-field-selection',
+              {deparams: {
+                  docType:docType,
+                  queryName: queryName,
+                  queryView: "query"}})
       }
 
       $scope.showViews=function(queryName,docType,event) {

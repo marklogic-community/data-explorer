@@ -8,11 +8,9 @@ declare option xdmp:mapping "false";
 declare function local:get-json() {
   let $queryName := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "queryName"))
   let $docType := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "docType"))
-  let $_ := xdmp:log(("JOS DOCTYPE ",$docType,"queryName",$queryName))
   let $query-doc := cfg:get-form-query($docType,$queryName)
   let $index := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "rangeIndex"))
   let $match-text := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "qtext"))
-  let $_ := xdmp:log("MATCH-INDEX-VALUES")
   let $values := riu:match-index-values($match-text, $query-doc, $index, 10)
 
   let $json := json:object()

@@ -8,39 +8,39 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="/" class="navbar-brand">Data-Explorer</a>
+      <a ui-sref="main" class="navbar-brand">Data-Explorer</a>
     </div>
     <div collapse="isCollapsed" class="navbar-collapse collapse" id="navbar-main">
       <ul class="nav navbar-nav">
         <li ng-repeat="item in menu" ng-class="{active: isActive(item.link)}">
-            <a ng-href="{{item.link}}">{{item.title}}</a>
+          <a href="#" ng-click="goState(item.state)">{{item.title}}</a>
         </li>
         <li ng-show="isWizardUser() || isSearchUser()" ng-repeat="item in dataExplorerMenu" ng-class="{active: isActive(item.link)}">
-            <a ng-href="{{item.link}}">{{item.title}}</a>
+          <a ui-sref="{{item.state}}">{{item.title}}</a>
         </li>
         <li class="dropdown" ng-hide="(!isSearchUser() && !isWizardUser() ) || bookmarks.length == 0">
           <a href="#" ng-controller="NavbarCtrl" dropdown-toggle="" class="dropdown-toggle" data-toggle="dropdown">Query Bookmarks<span class="caret"></span>
           </a>
           <ul class="dropdown-menu" role="menu">
             <li ng-repeat="item in bookmarks">
-              <a ng-click="openBookmark(item.database,item.queryName,item.docType,item.viewName)">{{item.bookmarkLabel}}...</a>
+              <a href="#" ng-click="openBookmark(item.database,item.queryName,item.docType,item.viewName)">{{item.bookmarkLabel}}...</a>
             </li>
           </ul>
         </li>
         <li ng-show="isWizardUser()" ng-class="{active: isActive('/crud')}">
-          <a href="/crud">Edit config...</a>
+          <a ui-sref="crud">Edit config...</a>
         </li>
       </ul>
       </ul>
 
       <ul class="nav navbar-nav" style="float:right; margin-bottom:0px !important;">
-        <li ng-hide="isLoggedIn()" ng-class="{active: isActive('/login')}"><a href="/login">Login</a></li>
+        <li ng-hide="isLoggedIn()" ng-class="{active: isActive('/login')}"><a ui-sref="login">Login</a></li>
         <li ng-show="isLoggedIn()" class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ getCurrentUser().name }} <span class="caret"/></a>
           <ul class="dropdown-menu" role="menu">
-            <li ng-class="{active: isActive('/settings')}"><a href="/settings">Reset Password</a></li>
+            <li ng-class="{active: isActive('/settings')}"><a ui-sref="settings">Reset Password</a></li>
             <li class="divider"></li>
-            <li ng-class="{active: isActive('/logout')}"><a href="" ng-click="logout()">Logout</a></li>
+            <li ng-class="{active: isActive('/logout')}"><a href="#" ng-click="logout()">Logout</a></li>
           </ul>
         </li>
       </ul>

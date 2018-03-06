@@ -9,13 +9,10 @@ factory('$click', function() {
 	      element.dispatchEvent(e);
 	    }
 	  };
-	})	
-  .controller('AdhocCtrl', function($scope, $http, $sce, Auth, User, AdhocState,$window,$timeout,$click,$stateParams) {
+	})
+  .controller('AdhocCtrl', function($state,$scope, $http, $sce, Auth, User, AdhocState,$window,$timeout,$click,$stateParams) {
     var ctrl = this;
-      $scope.loadDatabase = fromHex($stateParams.database);
-      $scope.loadDocType= fromHex($stateParams.docType);
-      $scope.loadQueryName = fromHex($stateParams.queryName);
-      $scope.loadViewName = fromHex($stateParams.viewName);
+
       $scope.initialSearchDone = false;
     // Determine if we arrived here from a back button click
     var displayLastResults = AdhocState.getDisplayLastResults();
@@ -24,7 +21,22 @@ factory('$click', function() {
     // Keep the page number in sync
     $scope.$watch('queryCurrentPage', function(page){
       AdhocState.setPage(page);
-    });  
+    });
+
+      if ( $stateParams.deparams ) {
+          $scope.loadDatabase = $stateParams.deparams.database;
+          $scope.loadDocType= $stateParams.deparams.docType;
+          $scope.loadQueryName = $stateParams.deparams.queryName;
+          $scope.loadViewName = $stateParams.deparams.viewName;
+      }
+
+      $scope.openDetails = function(database,uri) {
+          AdhocState.save($scope);
+          $state.go('detail',
+              {deparams: {
+                      database:database,
+                      uri: uri}})
+      };
 
     ctrl.suggestValues = function(field) {
       return $http.get('/api/suggest-values', {
@@ -44,11 +56,6 @@ factory('$click', function() {
         }
       });
     };
-
-    $scope.to_trusted = function(html_code) {
-      return $sce.trustAsHtml(html_code);
-    };
-
     function highlightText(value, termsToHighlight) {
       var str = value;
       _.forEach(termsToHighlight, term => str = str.replace(term, '<span class="search-match-highlight">' + term + '</span>'));
@@ -151,10 +158,10 @@ factory('$click', function() {
     });
 
     $scope.$watch('selectedQuery', function(newValue) {
-        $scope.textFields = []; // reset query fields
         if (displayLastResults || !newValue ) {
         return;
       }
+        $scope.textFields = []; // reset query fields
         $http.get('/api/crud/listViews', {
             params: {
                 docType : encodeURIComponent($scope.selectedDocType),
@@ -345,18 +352,6 @@ factory('$click', function() {
               $scope.message = 'No documents found';
               return
           }
-          // Convert simple http urls into links
-          data.results.forEach(function(result, resultRow) {
-            data['results-header'].forEach(function(column) {
-              var columnValue = data.results[resultRow][column]
-              // Run the replace if there is a value and it is not already a hyperlink
-              if(columnValue && _.isString(columnValue)) {
-                if(!columnValue.match(/<a[^>]*>([^<]+)<\/a>/i)) {
-                  data.results[resultRow][column] = columnValue.replace(/((http(s)?:\/\/\S+)[\.]?)/gi, '<a href="$2" target="_blank">$2</a>');
-                } 
-              }
-            });
-          });
     		  $scope.message = '';
           if(data['display-order'] === 'alphabetical'){
             var cols = data['results-header'].slice(1).sort(function (a, b) {
@@ -391,12 +386,3 @@ factory('$click', function() {
     }
 
   });
-
-function fromHex(item) {
-    var hexes = item.match(/.{1,4}/g) || [];
-    var back = "";
-    for(var j = 0; j<hexes.length; j++) {
-        back += String.fromCharCode(parseInt(hexes[j], 16));
-    }
-    return back;
-}

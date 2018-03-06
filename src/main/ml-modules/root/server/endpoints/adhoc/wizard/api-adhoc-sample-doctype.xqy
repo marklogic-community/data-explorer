@@ -9,10 +9,8 @@ import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc
 import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 declare option xdmp:mapping "false";
-declare private function local:response($profile as node(), $root-element as xs:string, $type as xs:string) as node()* {
+declare private function local:response($profile as node(), $root-element as xs:string) as node()* {
   let $response := json:object()
-  let $type-label := if ($type eq "query") then "Query" else "View"
-  let $field-label := if ($type eq "query") then "Form Field:" else "Column Name:"
   let $has-json-nodes := $profile/paths/path/@type = "object"
   let $possible-roots := (if ($has-json-nodes) then "/" else (), $profile/paths/path/@path-ns ! fn:concat("/", .))
   let $mapped-ns := $profile/namespaces/ns ! object-node { 
@@ -23,7 +21,6 @@ declare private function local:response($profile as node(), $root-element as xs:
     let $mapped-tokens := $path/token ! fn:string-join((./@prefix,fn:string(.)),":")
     let $xpath := fn:concat( "/" , fn:string-join($mapped-tokens, "/"))
     return object-node {
-      "label": $field-label,
       "dataType": fn:string(if ($path/@type eq "element") then "text" else $path/@type),
       "xpath": fn:string(wl:collapse-xpath($has-json-nodes, $xpath)),
       "xpathNormal": $xpath,
@@ -31,7 +28,6 @@ declare private function local:response($profile as node(), $root-element as xs:
     }
   
   return (
-    map:put($response, "type", $type-label),
     map:put($response, "possibleRoots", json:to-array($possible-roots)),
     map:put($response, "rootElement", $root-element),
     map:put($response, "databases", json:to-array(lib-adhoc:get-databases())),
@@ -91,7 +87,6 @@ declare function local:process() {
   let $database := $payload/database
   let $ns := $payload/ns
   let $root-name := $payload/name
-  let $type := $payload/type
 
   let $eval-expr := if ($root-name eq "/") then "/" else fn:concat(if (fn:string-length($ns) le 0) then '' else 'qn:', $root-name)
   let $max-samples := 100
@@ -107,10 +102,9 @@ declare function local:process() {
     </options>)
 
   let $profile := local:profile-nodes($nodes-to-sample)
-  let $_ := ll:trace($profile)
   let $root-element := fn:concat("/", if (fn:string-length($ns) le 0) then () else $ns||":", $root-name)
   
-  return local:response($profile, $root-element, $type)
+  return local:response($profile, $root-element)
 };
 
 

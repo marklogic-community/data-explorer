@@ -6,32 +6,24 @@ angular.module('demoApp')
 
     $rootScope.menu = [{
       'title': 'Home',
-      'link': '/'
+      'state': 'main'
     }]
     $rootScope.dataExplorerMenu = [{
       'title': 'Search...',
-      'link': '/adhoc////'
+      'state': 'adhoc'
     }];
 
-
-    $rootScope.openBookmark=function(database,queryName,docType,viewName) {
-        $state.go('adhoc', {
-            "database":$rootScope.tohex(database),
-            "queryName":$rootScope.tohex(queryName),
-            "docType" : $rootScope.tohex(docType),
-            "viewName" : $rootScope.tohex(viewName)
-        });
+    $rootScope.goState = function(state) {
+        $state.go(state)
     }
 
-    $rootScope.tohex = function(item) {
-        if ( !item )
-            return "";
-        var r = "";
-        for (var i=0; i<item.length; i++) {
-            var hex = item.charCodeAt(i).toString(16);
-            r += ("000"+hex).slice(-4);
-        }
-        return r
+    $rootScope.openBookmark=function(database,queryName,docType,viewName) {
+        $state.go('adhoc', {deparams: {
+            "database":database,
+            "queryName":queryName,
+            "docType" : docType,
+            "viewName" : viewName }
+        });
     }
 
     $rootScope.loadBookMarks=function() {

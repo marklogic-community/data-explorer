@@ -3,18 +3,23 @@
 angular.module('demoApp')
   .controller('AdhocWizardFieldSelectionCtrl', function ($state,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
     console.log($stateParams)
-    $scope.wizardForm;
+
+    if ($stateParams.deparams) {
+        $scope.wizardForm = $stateParams.deparams.formData;
+        $scope.queryView = $stateParams.deparams.queryView;
+        $scope.loadDocType = $stateParams.deparams.docType;
+        $scope.loadViewName = $stateParams.deparams.viewName;
+        $scope.loadQueryName = $stateParams.deparams.queryName;
+        $scope.backState = $stateParams.deparams.backState;
+    }
+    if ( !$scope.backState) {
+        $scope.backState = 'crud'
+    }
     $scope.wizardResults = '';
-    $scope.queryView =  $stateParams.deparams.queryView;
-    console.log("QueryView "+$scope.queryView);
     $scope.wizardTitle = $scope.queryView == "query" ? "Edit Query" : "Edit view for Query"
     $scope.viewTitle = $scope.queryView == "query" ? "Query search fields and default view" : "View information"
-    $scope.loadDocType = $stateParams.deparams.docType;
-    $scope.loadViewName = $stateParams.deparams.viewName;
-    $scope.loadQueryName = $stateParams.deparams.queryName;
-    console.log("QueryName "+$scope.loadQueryName);
-    console.log("DocType "+$scope.loadDocType);
-    $scope.editMode = $scope.loadQueryName && $scope.loadDocType
+
+    $scope.editMode = !(!$scope.loadQueryName || !$scope.loadDocType)
     $scope.insertView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length == 0
     $scope.updateView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length > 0
     $scope.insertQuery = $scope.queryView == "query" && $scope.editMode == false
@@ -48,7 +53,7 @@ angular.module('demoApp')
                           $scope.wizardForm={}
                           $scope.wizardForm.rootElement=data.rootElement
                           $scope.formInput.queryName=data.queryName
-                          if ( data.bookmarkLabel != undefined && data.bookmarkLabel.length>0) {
+                          if ( !(!$scope.loadViewName && $scope.queryView == "view") && data.bookmarkLabel ) {
                               $scope.formInput.bookmarkCheck=true;
                               $scope.formInput.bookmarkLabel=data.bookmarkLabel;
                           } else {
@@ -65,6 +70,10 @@ angular.module('demoApp')
                           $scope.wizardForm.fields=data.fields
                           for(var index = 0; index < $scope.wizardForm.fields.length; index++){
                               $scope.wizardForm.fields[index].defaultTitle = createTitle(data.fields[index].elementName);
+                              if (  !$scope.loadViewName && $scope.queryView == "view" ) {
+                                  $scope.wizardForm.fields[index].includeMode = 'none'
+                                  $scope.wizardForm.fields[index].title = '';
+                              }
                               $scope.wizardForm.fields[index].include = $scope.wizardForm.fields[index].includeMode != 'none'
                           }
                       }
@@ -106,7 +115,6 @@ angular.module('demoApp')
     	if(!$scope.wizardForm.rootElement){
     		return false;
     	}
-    	console.log("DATABASE |"+$scope.formInput.selectedDatabase+"|")
     	if(!$scope.formInput.selectedDatabase){
     		return false;
     	}
@@ -129,13 +137,14 @@ angular.module('demoApp')
     };
     
     $scope.back = function() {
-            $state.go('crud', {});
+            $state.go($scope.backState, {});
     };
 
     $scope.submitWizard = function(){
         var data = {}
         data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
-        data.overwrite = $scope.editMode ? "OVERWRITE" : "INSERT"
+        data.mode = $scope.queryView
+        data.overwrite = $scope.editMode ? true : false
         data.queryText = '';
         data.rootElement = $scope.wizardForm.rootElement;
         data.displayOrder = $scope.displayOrder;
@@ -204,19 +213,3 @@ angular.module('demoApp')
     }
 
   });
-
-function getFileType(mimeType) {
-    if ( mimeType === "text/xml" || mimeType == "application/xml" ) {
-       return 0;
-    } else if ( mimeType == "application/json" ) {
-           return 1;
-    }
-    return -1;
-}
-function isNamespaceAwareMimeType(mimeType) {
-    return getFileType(mimeType) == 0;
-}
-
-function isSupportedFileType(mimeType) {
-    return getFileType(mimeType) >= 0;
-};

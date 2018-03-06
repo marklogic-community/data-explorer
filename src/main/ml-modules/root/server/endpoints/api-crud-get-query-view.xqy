@@ -12,12 +12,13 @@ declare function local:get-query-view() {
     let $docType := xdmp:url-decode(map:get($cfg:getRequestFieldsMap, "docType"))
     let $viewName := map:get($cfg:getRequestFieldsMap, "viewName")
     let $viewName := if ( fn:empty($viewName) )  then () else xdmp:url-decode($viewName)
+    let $viewMode := fn:string-length(fn:normalize-space($viewName)) > 0
     let $_ := if ( fn:empty($queryName )) then fn:error(xs:QName("ERROR"),"$queryName may not be empty") else ()
     let $_ := if ( fn:empty($docType )) then fn:error(xs:QName("ERROR"),"$docType may not be empty") else ()
     let $queryDoc := cfg:get-form-query($docType,$queryName)
     let $_ := if ( fn:empty($queryDoc)) then
         fn:error(xs:QName("ERROR"),"Query '"||$queryName||"' and DocType '"||$docType||"' not found.") else ()
-    let $viewName := if (fn:string-length(fn:normalize-space($viewName)) = 0) then
+    let $viewName := if (fn:not($viewMode)) then
                         $const:DEFAULT-VIEW-NAME
                      else
                         $viewName
@@ -65,9 +66,9 @@ declare function local:get-query-view() {
             let $search-entry := $queryDoc/searchFields/searchField[@id=$id]
             let $result-entry := $view/resultFields/resultField[@id=$id]
             let $mode :=
-            if ( (fn:not(fn:empty($search-entry)) and fn:not(fn:empty($result-entry))) ) then
+            if ( fn:not($viewMode) and (fn:not(fn:empty($search-entry)) and fn:not(fn:empty($result-entry))) ) then
                      "both"
-            else if ( (fn:not(fn:empty($search-entry)))) then
+            else if ( fn:not($viewMode) and (fn:not(fn:empty($search-entry)))) then
                     "query"
                 else if ( (fn:not(fn:empty($result-entry)))) then
                         "view"
