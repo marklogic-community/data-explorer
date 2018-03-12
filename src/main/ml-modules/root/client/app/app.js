@@ -55,14 +55,13 @@ angular.module('demoApp', [
     'doctypes',
     'queries',
     'views',
-    'textFields',
     'message',
     'searchText',
-    'currentPage'
+    'queryCurrentPage'
   ];
 
   this.setPage = function(page) {
-    _formState.currentPage = page;
+    _formState.queryCurrentPage = page;
   };
 
   this.save = function($scope) {
@@ -71,9 +70,10 @@ angular.module('demoApp', [
       _formState[_savedFields[i]] = $scope[_savedFields[i]]
     }
     _formState.inputField = {};
-    for(var i = 1; i <= 15; i++) {
+    for(var i = 0; i <= 15; i++) {
       _formState.inputField[i] = $scope.getField(i);
     }
+      _formState.textFields = _.cloneDeep($scope.textFields)
   };
 
   this.restore = function($scope) {
@@ -81,19 +81,22 @@ angular.module('demoApp', [
       // Reset the form state
       _formState = {};
       _formState.inputField = {};
-      for(var i = 1; i <= 15; i++) {
+      for(var i = 0; i < 15; i++) {
         _formState.inputField[i] = '';
       }
     }
     for(var i = 0; i < _savedFields.length; i++) {
       $scope[_savedFields[i]] = typeof _formState[_savedFields[i]] !== undefined ? _formState[_savedFields[i]] : '';
     }
-    $scope.currentPage = _formState.currentPage ? _formState.currentPage : 1;
-    $scope.inputField = {};
-    _formState.inputField = _formState.inputField || {};
-    for(var i = 1; i <= 15; i++) {
-      $scope.inputField[i] = _formState.inputField[i] || '';
+    $scope.queryCurrentPage = _formState.queryCurrentPage ? _formState.queryCurrentPage : 1;
+    $scope.inputField  = _formState.inputField
+    if ( !$scope.inputField ) {
+      $scope.inputField = []
+      for ( var i = 0 ; i < 15 ;i++ ) {
+        $scope.inputField.push("");
+      }
     }
+      $scope.textFields = _formState.textFields || []
     _displayLastResults = false;
   };
 

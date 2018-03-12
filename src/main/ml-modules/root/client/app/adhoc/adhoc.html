@@ -2,7 +2,7 @@
 
 <div class="container-fluid">
   <div class="row">
-    <form name="form">
+    <form name="form" novalidate>
       <div class="col-md-3">
           <div class="form-group">
             <label>Database</label>
@@ -11,20 +11,20 @@
             </select>
           </div>
           <div class="form-group">
-            <label>DocType</label>
+            <label>Type discriminator</label>
             <select ng-model="selectedDocType" ng-options="item as item for item in doctypes" class="form-control" required>
             	<option value="">--Choose DocType</option>
             </select>
           </div>
           <div class="form-group">
             <label>Query</label>
-            <select ng-model="selectedQuery" ng-options="item.query as item.query for item in queries" class="form-control" required>
+            <select ng-model="selectedQuery" ng-options="item.queryName as item.queryName for item in queries.queries" class="form-control" required>
             	<option value="">--Choose Query</option>
             </select>
           </div>
           <div class="form-group">
             <label>View</label>
-            <select ng-model="selectedView" ng-options="item as item for item in views" class="form-control" required>
+            <select ng-model="selectedView" ng-options="item.viewName as item.viewName for item in views.views" class="form-control" required>
             	<option value="">--Choose View</option>
             </select>
           </div>
@@ -65,9 +65,7 @@
 	                  <div id="hiddenDiv1" ng-hide="true"></div>
                   </td></tr>
                   <tr><td><strong>Page:</strong></td>
-                  <td>{{results['current-page']}} of {{results['page-count'] | number}}
-                	
-                  </td>
+                  <td>{{results['current-page']}} of {{results['page-count'] | number}}</td>
                   </tr>              	
                 </table>
                 <pagination total-items="results['result-count']" ng-model="currentPage" max-size="5" class="pagination-sm" boundary-links="true" ng-click="search()"></pagination>
@@ -85,7 +83,7 @@
                   <tbody>
                     <tr ng-repeat="result in results['results']">
                       <td ng-repeat="key in results['results-header']">
-                        <span ng-show="key == 'URI'" ng-bind-html="to_trusted(result[key])"></span>
+                        <span ng-show="key == 'URI'"><a href="#" ng-click="openDetails(result['database'],result['URI'])" ng-bind-html="to_value(key, result[key], result)"></a></span>
                         <span ng-hide="key == 'URI'" ng-bind-html="to_value(key, result[key], result)"></span>
                       </td>
                       <td ng-if="includeMatches">
@@ -93,7 +91,7 @@
                           <button type="button" class="btn btn-xs" ng-model="showMatch[$index]" 
                             uib-btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false"
                             ng-class="{ 'btn-danger': showMatch[$index], 'btn-primary': !showMatch[$index] }"
-                            ng-click="showMatch[$index] = !showMatch[$index]">
+                            ng-click="showMatch[$index] = !showMatch[$index]"/>
                             {{ showMatch[$index] ? 'hide' : 'show' }}
                           </a>
                         </div>

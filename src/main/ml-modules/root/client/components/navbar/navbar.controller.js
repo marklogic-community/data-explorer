@@ -1,15 +1,47 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('NavbarCtrl', function($rootScope, $location, Auth, $cookieStore) {
+  .controller('NavbarCtrl', function($rootScope, $location, Auth, $cookieStore,$http,$state) {
+    $rootScope.bookmarks=[]
+
     $rootScope.menu = [{
       'title': 'Home',
-      'link': '/'
+      'state': 'main'
     }]
     $rootScope.dataExplorerMenu = [{
-      'title': 'Search',
-      'link': '/adhoc'
+      'title': 'Search...',
+      'state': 'adhoc'
     }];
+
+    $rootScope.goState = function(state) {
+        $state.go(state)
+    }
+
+    $rootScope.openBookmark=function(database,queryName,docType,viewName) {
+        $state.go('adhoc', {deparams: {
+            "database":database,
+            "queryName":queryName,
+            "docType" : docType,
+            "viewName" : viewName }
+        });
+    }
+
+    $rootScope.loadBookMarks=function() {
+        $rootScope.bookmarks=[]
+
+        if ($rootScope.isWizardUser || $rootScope.isSearchUser) {
+            $http.get('/api/listBookmarks', {
+                params: {
+                }
+            }).success(function (data, status) {
+                  if (status == 200) {
+                      $rootScope.bookmarks=data.bookmarks
+                  }
+              }).error(function (err) {
+                  console.log(err)
+              });
+        }
+     }
 
     $rootScope.isCollapsed = true;
 
@@ -28,6 +60,7 @@ angular.module('demoApp')
         $rootScope.isWizardUser = Auth.isWizardUser;
         $rootScope.isSearchUser = Auth.isSearchUser;
         $rootScope.getCurrentUser = Auth.getCurrentUser;
+        $rootScope.loadBookMarks()
       }
     });
 

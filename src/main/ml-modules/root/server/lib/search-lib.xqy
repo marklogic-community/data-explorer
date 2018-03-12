@@ -2,6 +2,7 @@ xquery version "1.0-ml";
 
 module namespace search-lib = "http://marklogic.com/data-explore/lib/search-lib";
 
+import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 import module namespace functx = "http://www.functx.com"
   at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
 import module namespace search = "http://marklogic.com/appservices/search"
@@ -12,10 +13,13 @@ import module namespace detail-lib = "http://www.marklogic.com/data-explore/lib/
   at "/server/lib/detail-lib.xqy";
 import module namespace admin = "http://marklogic.com/xdmp/admin" 
       at "/MarkLogic/admin.xqy";
-import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
+import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 
 
 declare namespace db="http://marklogic.com/xdmp/database";
+
 declare option xdmp:mapping "false";
 
 declare function search-lib:page-count($sr as element())
@@ -86,30 +90,28 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
 
   let $final-search := ($searchText, $searchFacet)
 
-  let $view :=
-    if (fn:exists($view-name)) then
-      cfg:get-view($doc-type, $view-name)
-    else
-      ()
+  let $qry-doc := cfg:get-form-query($doc-type,$query-name)
+  let $view := cfg:get-view($query-name,$doc-type, $view-name)
 
+  let $file-type := $qry-doc//fileType/fn:string()
+  let $document-format := if ($file-type = $const:FILE_TYPE_XML) then
+                              "format-xml"
+                            else if ( $file-type = $const:FILE_TYPE_JSON) then
+                              "format-json"
+                              else ()
   (: Get the order to display the columns in. Could be 
    : alphabetical or document-order. If not stored in view,
    : default to document-order :)
-  let $display-order := 
-    if(fn:exists($view/displayOrder)) then
-      $view/displayOrder/text()
-    else "document-order"
+  let $display-order := $qry-doc//displayOrder/text()
+  let $display-order := if (fn:empty($display-order)) then "document-order" else $display-order
 
-  let $log :=
-    if ($cfg:D) then
-      (
-        xdmp:log(text{ "db: ", $db }),
-        xdmp:log(text{ "doc-type: ", $doc-type }),
-        xdmp:log(text{ "view-name: ", $view-name }),
-        xdmp:log(text{ "view: ", xdmp:describe($view, (), ()) })
+  let $log := (
+        ll:trace(text{ "db: ", $db }),
+        ll:trace(text{ "doc-type: ", $doc-type }),
+        ll:trace(text{ "additional-query: ", $additional-query}),
+        ll:trace(text{ "view-name: ", $view-name }),
+        ll:trace(text{ "view: ", xdmp:describe($view, (), ()) })
       )
-    else
-      ()
 
   let $options :=
 
@@ -119,12 +121,19 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
         $additional-query
       }
       </additional-query>
+      {
+        if ( fn:empty($document-format)) then
+          ()
+        else (
+          <search-option>{$document-format}</search-option>
+        )
+      }
       <return-results>true</return-results>
       <return-facets>true</return-facets>
       <return-query>true</return-query>
-      <search-option>unfiltered</search-option>
-      <transform-results 
-          apply="custom-snippet" 
+      <search-option>filtered</search-option>
+      <transform-results
+          apply="custom-snippet"
           ns="http://marklogic.com/data-explore/lib/search-lib"
           at="/server/lib/search-lib.xqy">
         <per-match-tokens>30</per-match-tokens>
@@ -187,7 +196,6 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
           ()
       }
     </options>
-
   let $search-response := search-lib:get-results($useDB, $final-search, $options, $page, $page-size)
 
   return
@@ -195,14 +203,18 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
     if ($search-response//search:result) then
       let $results :=
         for $result in $search-response/search:result
-          return search-lib:result-to-view($result, $view, $useDB, $include-matches)
+          return search-lib:result-to-view($result,
+                                           $qry-doc,
+                                           $view,
+                                           $useDB,
+                                           $include-matches)
       return
         <output>
           <result-count>{search-lib:result-count($search-response)}</result-count>
           <current-page>{$page}</current-page>
           <page-count>{search-lib:page-count($search-response)}</page-count>
           <display-order>{$display-order}</display-order>
-          <result-headers><header>URI</header>{for $c in $view/columns/column return <header>{$c/@name/string()}</header>}</result-headers>
+          <result-headers><header>URI</header>{for $c in $view/resultFields/resultField return <header>{$c/@label/fn:string()}</header>}</result-headers>
           <results>{$results}</results>
         </output>
     else
@@ -211,18 +223,20 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
       </output>
   };
 
-  declare function search-lib:result-to-view($result as element(),$view as element(), $useDB as xs:string, $include-matches as xs:boolean){
+  declare function search-lib:result-to-view($result as element(),$query-doc as element(),$view as element(), $useDB as xs:string, $include-matches as xs:boolean){
     let $uri := $result/fn:data(@uri)
     let $doc := detail-lib:get-document($uri,$useDB)
-    let $view-xqy := fn:concat($cfg:namespaces,
+    let $view-xqy := fn:concat(nl:get-namespace-declaration($query-doc),
         "
         
         declare variable $view external;
         declare variable $doc external;
+        declare variable $query-doc external;
 
-        for $column in $view/columns/column
-        let $expr := $column/fn:string(@expr)
-        let $name := xs:string($column/@name)
+        for $column in $view/resultFields/resultField
+        let $dict := $query-doc/formLabels/formLabel[@id=$column/@id]
+        let $expr := $dict/fn:string(@expr)
+        let $name := xs:string($column/@label)
         let $expr :=
           if( fn:contains($expr, '$') ) then
             $expr
@@ -233,15 +247,15 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
           <part><name>{fn:normalize-space($name)}</name>{$values ! <value>{fn:string(.)}</value>}</part>")
     let $view-parts := xu:eval(
       $view-xqy,
-      ((xs:QName("view"),$view),(xs:QName("doc"),$doc))
+      ((xs:QName("query-doc"),$query-doc),(xs:QName("view"),$view),(xs:QName("doc"),$doc))
     )
-
     let $matches := if ($include-matches) 
     then  
       for $match in $result/search:snippet/search:match return
       let $trunc-uri := fn:substring-after($match/@path, fn:concat("fn:doc(&quot;", $result/@uri, "&quot;)/"))
-      let $column-expr := fn:replace($trunc-uri, "\*", $view/documentType/@prefix)
-      let $column := $view/columns/column[@expr = $column-expr]/@name
+      let $column-expr := if (fn:empty($query-doc/documentType/@prefix)) then $trunc-uri else fn:replace($trunc-uri, "\*", $query-doc/documentType/@prefix)
+      let $id := fn:string($query-doc/formLabels/formLabel[@expr=$column-expr]/@id)
+      let $column := $view/resultFields/resultField[@id=$id]
       return
       <match>
         <path>{ $trunc-uri }</path>
@@ -260,7 +274,8 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
     return
       <result>
       {
-        <part><name>URI</name><value><a href='/detail/{$useDB}/{$uri}'>{$uri}</a></value></part>
+        <part><name>database</name><value>{$useDB}</value></part>,
+        <part><name>URI</name><value>{$uri}</value></part>
         ,
         $view-parts
         ,

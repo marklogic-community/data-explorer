@@ -9,25 +9,42 @@ factory('$click', function() {
 	      element.dispatchEvent(e);
 	    }
 	  };
-	})	
-  .controller('AdhocCtrl', function($scope, $http, $sce, Auth, User, AdhocState,$window,$timeout,$click) {
+	})
+  .controller('AdhocCtrl', function($state,$scope, $http, $sce, Auth, User, AdhocState,$window,$timeout,$click,$stateParams) {
     var ctrl = this;
 
+      $scope.initialSearchDone = false;
     // Determine if we arrived here from a back button click
     var displayLastResults = AdhocState.getDisplayLastResults();
     // Restore the saved state
     AdhocState.restore($scope);
     // Keep the page number in sync
-    $scope.$watch('currentPage', function(page){
+    $scope.$watch('queryCurrentPage', function(page){
       AdhocState.setPage(page);
-    });  
+    });
+
+      if ( $stateParams.deparams ) {
+          $scope.loadDatabase = $stateParams.deparams.database;
+          $scope.loadDocType= $stateParams.deparams.docType;
+          $scope.loadQueryName = $stateParams.deparams.queryName;
+          $scope.loadViewName = $stateParams.deparams.viewName;
+      }
+
+      $scope.openDetails = function(database,uri) {
+          AdhocState.save($scope);
+          $state.go('detail',
+              {deparams: {
+                      database:database,
+                      uri: uri}})
+      };
 
     ctrl.suggestValues = function(field) {
       return $http.get('/api/suggest-values', {
         params: {
-          database: $scope.selectedDatabase,
-          rangeIndex: field.item.rangeIndex,
-          qtext: field.value
+          docType : encodeURIComponent($scope.selectedDocType),
+          queryName: encodeURIComponent($scope.selectedQuery),
+          rangeIndex: encodeURIComponent(field.item.rangeIndex),
+          qtext: encodeURIComponent(field.value)
         }
       })
       .then(function(response) {
@@ -39,11 +56,6 @@ factory('$click', function() {
         }
       });
     };
-
-    $scope.to_trusted = function(html_code) {
-      return $sce.trustAsHtml(html_code);
-    };
-
     function highlightText(value, termsToHighlight) {
       var str = value;
       _.forEach(termsToHighlight, term => str = str.replace(term, '<span class="search-match-highlight">' + term + '</span>'));
@@ -71,6 +83,9 @@ factory('$click', function() {
     $http.get('/api/adhoc').success(function(data, status, headers, config) {
       if (status == 200 && Array.isArray(data)) {
         $scope.databases = data;
+        if ( $scope.loadDatabase != undefined) {
+            $scope.selectedDatabase = $scope.loadDatabase;
+        }
       }
       if (status == 401) {
         $scope.message = "Login failure. Please log in.";
@@ -87,10 +102,16 @@ factory('$click', function() {
           $scope.doctypes = [];
           $scope.queries = [];
           $scope.views = [];
-          $http.get('/api/adhoc/' + newValue).success(function(data, status, headers, config) {
+          $http.get('/api/listTypeDiscriminator', {
+              params: {
+                  database : encodeURIComponent(newValue)
+              }
+          }).success(function(data, status, headers, config) {
             if (status == 200) {
               $scope.doctypes = data;
-              if ($scope.doctypes.length > 0) {
+              if ($scope.loadDocType  ) {
+                  $scope.selectedDocType = $scope.loadDocType
+              } else if ($scope.doctypes.length > 0) {
                 $scope.selectedDocType = $scope.doctypes[0];
               }
             }
@@ -109,19 +130,23 @@ factory('$click', function() {
         $scope.selectedView = '';
         $scope.queries = [];
         $scope.views = [];
-        if (typeof(newValue) !== 'undefined' && newValue != '') {
-          $http.get('/api/adhoc/' + $scope.selectedDatabase + "/" + encodeURIComponent(newValue)).success(function(
+        if ( newValue ) {
+          $http.get('/api/crud/listQueries', {
+              params: {
+                  database : encodeURIComponent($scope.selectedDatabase),
+                  docType : encodeURIComponent(newValue)
+              }
+          }).success(function(
             data, status, headers, config) {
             if (status == 200) {
-              $scope.queries = data.queries;
-              $scope.views = data.views;
-              if ($scope.queries && $scope.queries.length > 0) {
-                $scope.selectedQuery = $scope.queries[0].query;
-              }
-              if ($scope.views && $scope.views.length > 0) {
-                $scope.selectedView = $scope.views[0];
-              }
-
+              $scope.queries = data;
+              if ( $scope.loadQueryName  ) {
+                  $scope.selectedQuery = $scope.loadQueryName
+              } else {
+                  if ($scope.queries && $scope.queries.queries.length > 0) {
+                    $scope.selectedQuery = $scope.queries.queries[0].queryName;
+                  }
+                }
             }
             if (status == 401) {
               $scope.message = "Login failure. Please log in.";
@@ -133,24 +158,62 @@ factory('$click', function() {
     });
 
     $scope.$watch('selectedQuery', function(newValue) {
-      if (displayLastResults || typeof(newValue) === 'undefined' || newValue === '') {
+        if (displayLastResults || !newValue ) {
         return;
       }
-
-      $scope.textFields = []; // reset query fields
-      var query = _.find($scope.queries, { query: newValue }); // find query object
+        $scope.textFields = []; // reset query fields
+        $http.get('/api/crud/listViews', {
+            params: {
+                docType : encodeURIComponent($scope.selectedDocType),
+                queryName : encodeURIComponent(newValue),
+                filterDefaultView : false
+            }
+        }).success(function(
+            data, status, headers, config) {
+            if (status == 200) {
+                $scope.views = data;
+                if ( $scope.loadViewName  ) {
+                    $scope.selectedView = $scope.loadViewName
+                    if ( $scope.initialSearchDone == false ) {
+                        $scope.initialSearchDone = true
+                        $scope.search(false)
+                    }
+                } else {
+                    if ($scope.views && $scope.views.views.length > 0) {
+                        $scope.selectedView = $scope.views.views[0].viewName;
+                    }
+                }
+            }
+            if (status == 401) {
+                $scope.message = "Login failure. Please log in.";
+                Auth.logout();
+            }
+        });
+        $http.get('/api/crud/getQueryView', {
+            params: {
+                docType : encodeURIComponent($scope.selectedDocType),
+                queryName : encodeURIComponent($scope.selectedQuery)
+            }
+        }).success(function(
+            data, status, headers, config) {
+            if (status == 200) {
+                $scope.textFields = _.map(data.formLabels, function(o) { // do some processing to the field definitions before passing
+                    var opt = angular.copy(o);
+                    var dataTypeHint = opt.dataType ? ' (' + opt.dataType.trim() + ')' : '';
+                    opt.placeholderText = opt.label + dataTypeHint;
+                    return opt;
+                });
+            }
+            if (status == 401) {
+                $scope.message = "Login failure. Please log in.";
+                Auth.logout();
+            }
+        });
+      var query = _.find($scope.rows, { name: newValue }); // find query object
       if (typeof(query) === 'undefined') {
         return;
       }
 
-      $scope.textFields = _.map(query['form-options'], function(o) { // do some processing to the field definitions before passing
-        var opt = angular.copy(o);
-        var dataTypeHint = opt.dataType ? ' (' + opt.dataType.trim() + ')' : '';
-        opt.placeholderText = opt.label + dataTypeHint;
-        return opt;
-      });
-
-      $scope.dataTypes = query['form-datatypes'];
     });
 
     $scope.getField = function(field) {
@@ -165,7 +228,7 @@ factory('$click', function() {
     $scope.clickSearch = function(form) {
       AdhocState.save($scope);
       if (form.$valid) {
-        $scope.currentPage = 1;
+        $scope.queryCurrentPage = 1;
         $scope.search(false);
       }
     };
@@ -202,7 +265,7 @@ factory('$click', function() {
         if (!$scope.selectedDatabase) {
           missing = 'database'
         } else if (!$scope.selectedDocType) {
-          missing = 'DocType'
+          missing = 'type discriminator'
         } else if (!$scope.selectedQuery) {
           missing = 'query'
         } else if (!$scope.selectedView) {
@@ -212,7 +275,7 @@ factory('$click', function() {
         return;
       }
       if(!pageNumber){
-      	pageNumber= $scope.currentPage
+      	pageNumber= $scope.queryCurrentPage
       }
       if(!exportCsv){
     	$scope.message = 'Searching....';
@@ -285,18 +348,10 @@ factory('$click', function() {
     		    downloadFile();
     	  }
     	  else{
-          // Convert simple http urls into links
-          data.results.forEach(function(result, resultRow) {
-            data['results-header'].forEach(function(column) {
-              var columnValue = data.results[resultRow][column]
-              // Run the replace if there is a value and it is not already a hyperlink
-              if(columnValue && _.isString(columnValue)) {
-                if(!columnValue.match(/<a[^>]*>([^<]+)<\/a>/i)) {
-                  data.results[resultRow][column] = columnValue.replace(/((http(s)?:\/\/\S+)[\.]?)/gi, '<a href="$2" target="_blank">$2</a>');
-                } 
-              }
-            });
-          });
+          if ( data == undefined || data.results == undefined || data.results.length == 0) {
+              $scope.message = 'No documents found';
+              return
+          }
     		  $scope.message = '';
           if(data['display-order'] === 'alphabetical'){
             var cols = data['results-header'].slice(1).sort(function (a, b) {
@@ -311,7 +366,7 @@ factory('$click', function() {
             data['results-header'] = cols;
           }
     	    $scope.results = data;
-    	    $scope.currentPage = $scope.results['current-page'];
+    	    $scope.queryCurrentPage = $scope.results['current-page'];
     	  }
         
       }).error(function(data, status) {

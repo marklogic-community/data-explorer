@@ -1,0 +1,100 @@
+<div ng-include="'components/navbar/navbar.html'"></div>
+<div class="container-fluid">
+  <div class="row">
+  <div class="col-md-12">
+    <legend>List of queries</legend>
+     <div ng-show="queryLoadError != '' || queryGenericError != ''" class="col-md-12">
+              <div class="form-group has-error"><p class="help-block">{{ queryLoadError }}{{ queryGenericError }}</p></div>
+     </div>
+      <div ng-show="queryResults.length === 0"  class="col-md-12">
+          <div class="form-group has-error">
+              <p class="help-block">No queries found.</p>
+          </div>
+      </div>
+      <div ng-show="queryResults.length > 0">
+  <div>
+    <table class="search-results-stats">
+      <tr><td><strong>Total Results:</strong></td><td>{{queryTotalCount | number}}
+      </td></tr>
+      <tr><td><strong>Page:</strong></td>
+      <td>{{queryCurrentPage}} of {{queryPageCount | number}}
+      </td>
+      </tr>
+    </table>
+    <pagination total-items="queryTotalCount" ng-model="queryCurrentPage" items-per-page="PAGE_SIZE" max-size="5" class="pagination-sm" boundary-links="true"></pagination>
+  </div>
+    </div>
+              <div ng-show="queryLoadError == '' && queryResults.length > 0" style="overflow-x:auto">
+                <table class="table table-bordered">
+              	  <thead>
+              	    <tr>
+                       <th>Name</th><th>Database</th><th>Document Type</th><th>Edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="result in queryResults">
+                      <td><span>{{result['queryName']}}</span></td>
+                      <td><span>{{result['database']}}</span></td>
+                      <td><span>{{result['docType']}}</span></td>
+                      <td>
+                                                  <div>
+                                                      <button value="Edit" ng-click="editQuery(result['docType'],result['queryName'])" class="btn btn-primary">Edit...</button>
+                                                      &nbsp;
+                                                      <button value="Show views.." ng-click="showViews(result['queryName'],result['docType'],$event)" class="btn btn-primary">Show views...</button></a>
+                                                      &nbsp;
+                                                      <button value="Remove" ng-click="removeQuery(result['queryName'],result['docType'],$event)" class="btn btn-primary">Remove...</button>
+                                                  </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+      <button ng-click="createNewQuery()" class="btn btn-primary">Create new query...</button>
+      <p/>
+      <div ng-show="displayViews" >
+      </p><legend>List of related non default views of query '{{selectedQueryName}}'</legend>
+      <div ng-show="viewLoadError != '' || viewGenericError != ''" class="col-md-12">
+          <div class="form-group has-error"><p class="help-block">{{ viewLoadError }}{{ viewGenericError }}</p></div>
+      </div>
+      <div ng-show="viewResults.length ==0 && viewLoadError == ''"  class="col-md-12">
+          <div class="form-group has-error"><p class="help-block">No views found. Click 'create view' to create a view.</p></div>
+      </div>
+          <div ng-show="viewResults.length > 0">
+              <div>
+                  <table class="search-results-stats">
+                      <tr><td><strong>Total Results:</strong></td><td>{{viewTotalCount | number}}
+                      </td></tr>
+                      <tr><td><strong>Page:</strong></td>
+                          <td>{{viewCurrentPage}} of {{viewPageCount | number}}
+                          </td>
+                      </tr>
+                  </table>
+                  <pagination total-items="viewTotalCount" ng-model="viewCurrentPage" items-per-page="PAGE_SIZE" max-size="5" class="pagination-sm" boundary-links="true"></pagination>
+              </div>
+          </div>
+          <div ng-show="viewLoadError == '' && viewResults.length > 0" style="overflow-x:auto">
+              <table class="table table-bordered">
+                  <thead>
+                  <tr>
+                      <th>Name</th><th>Edit</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr ng-repeat="result in viewResults">
+                      <td><span>{{result['viewName']}}</span></td>
+                      <td>
+                          <div>
+                              <button value="Edit" class="btn btn-primary" ng-click="editView(selectedDocType,selectedQueryName,result['viewName'],$event)">Edit...</button>
+                              &nbsp;
+                              <button value="Remove" ng-click="removeView(selectedQueryName,selectedDocType,result['viewName'],$event)" class="btn btn-primary">Remove...</button>
+                          </div>
+                      </td>
+                  </tr>
+                  </tbody>
+              </table>
+          </div>
+
+       <button  class="btn btn-primary" ng-click="editView(selectedDocType,selectedQueryName,'',$event)">Create new view...</button>
+  </div>
+</div>
+</div>

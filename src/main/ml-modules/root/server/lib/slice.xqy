@@ -1,8 +1,9 @@
 xquery version "1.0-ml";
 
 module namespace slice = "http://marklogic.com/transitive-closure-slice";
-import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
-
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
+declare option xdmp:mapping "false";
 declare variable $MAX-DEPTH := 1;
 
 declare variable $NS-MAP :=
@@ -83,11 +84,11 @@ declare function slice:getObjects($toDocQNT as xs:QName, $toElemQNT as xs:QName,
     case ("ns:specialobject") return cts:search(/foo, (), "score-zero", 0) ! element()   (: special handling :)
     default return
       let $q :=  slice:objectQuery($toDocQNT, $toElemQNT, $ids)
-      let $LOG := xdmp:log("querying for children using: " || $q)
+      let $_ := ll:trace("querying for children using: " || $q)
       let $results := slice:searchAgainst($q, $database)
       let $check := if (count($results) ge 500) then error(xs:QName("TOOMANY"), "at or over 500") else ()  (: TODO - maybe don't fail? :)
       return $results
-  else (xdmp:log("No ids for to="||$toDocQNT || " toElem=" || $toElemQNT))
+  else (ll:trace("No ids for to="||$toDocQNT || " toElem=" || $toElemQNT))
 };
 
 declare function slice:searchAgainst($query,$database as xs:string){
@@ -134,24 +135,24 @@ declare function slice:getNewRelatedObjects($from as element(), $mapping as elem
     let $toQN := slice:getQName($toQNT,$mapping)
     let $fromQN := slice:getQName($fromQNT,$mapping)
     let $ids := $from//element()[node-name(.) eq $fromQN]/text()  (: find the bpb:objectIdentifier text in the from doc :)
-    let $LOG := xdmp:log("got ids using" || $fromQN|| " from " || base-uri($from) || " for QN " || $toElemQNT ||"/" || $toQNT || "=" || string-join($ids, ","))
+    let $_ := ll:trace("got ids using" || $fromQN|| " from " || base-uri($from) || " for QN " || $toElemQNT ||"/" || $toQNT || "=" || string-join($ids, ","))
     let $related := slice:getObjects($toElemQN, $toQN, $ids, $database)
-    let $LOG := xdmp:log("got related docs: "|| string-join($related/base-uri(), ","))
+    let $_ := ll:trace("got related docs: "|| string-join($related/base-uri(), ","))
     let $new := slice:removeCycles($related)  (: remove any items already retrieved :)
     return $new
 };
 declare function slice:getAllRelatedObjectsRecurse($roots, $depthSoFar, $mapping as element(slice:slice-lookup), $database as xs:string) {
-  xdmp:log("getAllRelatedObjects for " || string-join($roots/base-uri(), ",") || "depth:" ||$depthSoFar),
+  ll:trace("getAllRelatedObjects for " || string-join($roots/base-uri(), ",") || "depth:" ||$depthSoFar),
   for $r in $roots
   let $newRelated := slice:getNewRelatedObjects($r, $mapping, $database)
-  let $log := if ($newRelated) then () else xdmp:log("no new related objects. will stop.")
+  let $_ := if ($newRelated) then () else ll:trace("no new related objects. will stop.")
   return 
     if ($depthSoFar lt $MAX-DEPTH and $newRelated) 
     then 
       let $children := slice:getAllRelatedObjectsRecurse($newRelated, $depthSoFar +1, $mapping, $database)
       return ($newRelated, $children)
     else (
-      xdmp:log("Stopping recursion into related object graph at depth "||$depthSoFar),
+      ll:trace("Stopping recursion into related object graph at depth "||$depthSoFar),
       $newRelated  (:  TODO !!!!!!!!!!!!  somewhere, keep the $roots that were already found :)
       )
 };

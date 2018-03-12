@@ -2,6 +2,7 @@ xquery version "1.0-ml";
 
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib"  at "/server/lib/check-user-lib.xqy";
+declare option xdmp:mapping "false";
 declare variable $error:errors as node()* external;
 
 xdmp:set-response-content-type("text/html"),

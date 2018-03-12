@@ -6,7 +6,7 @@ import module namespace sem = "http://marklogic.com/semantics" at "/MarkLogic/se
 import module namespace slice = "http://marklogic.com/transitive-closure-slice" at "/server/lib/slice.xqy";
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy"; 
 import module namespace sec-util = "http://marklogic.com/data-explore/lib/sec-utils" at "/server/lib/sec-utils.xqy";
-
+declare option xdmp:mapping "false";
 declare function detail-lib:database-exists($database as xs:string){
   try {
     let $x := xdmp:database($database)
@@ -36,24 +36,30 @@ declare function detail-lib:find-related-items-by-document($document,$db as xs:s
 	return $map
 };
 
-declare function detail-lib:print-role-name($role-id as xs:unsignedLong){
-   let $role-name := xu:invoke-function(
+declare function detail-lib:print-role-name($role-id as xs:unsignedLong?){
+   if ( fn:empty($role-id) ) then
+       ()
+   else
+    let $role-name := xu:invoke-function(
       function() { sec-util:get-role-names( $role-id )  },
       <options xmlns="xdmp:eval">
         <database>{xdmp:security-database()}</database>
       </options>
     )
-   return <role-name>{$role-name}</role-name>
+    return <role-name>{$role-name}</role-name>
 };
 
-declare function detail-lib:print-permission($default-permission as element(sec:permission)){
+declare function detail-lib:print-permission($default-permission as element(sec:permission)?){
     let $capability := $default-permission/sec:capability/text()
-    let $role-id := $default-permission/sec:role-id
-    return 
-    <permission>
-        <capability>{$capability}</capability>
-        {detail-lib:print-role-name($role-id)}
-    </permission>
+    return if ( fn:empty($capability ) ) then
+                    ()
+              else
+                 let $role-id := $default-permission/sec:role-id
+                 return
+                <permission>
+                    <capability>{$capability}</capability>
+                    {detail-lib:print-role-name($role-id)}
+                </permission>
 };
 
 declare function detail-lib:get-permissions($document-uri as xs:string, $db as xs:string){
@@ -80,9 +86,10 @@ declare function detail-lib:get-collections($document-uri as xs:string, $db as x
   return $collections
 };
 
-declare function get-triple-component-type($value as xs:anyAtomicType)
+declare function get-triple-component-type($value as xs:anyAtomicType?)
 as xs:string {
-  if (sem:isIRI($value)) then "iri"
+  if ( fn:empty($value)) then ""
+  else if (sem:isIRI($value)) then "iri"
   else if (sem:isLiteral($value)) then "literal"
   else if (sem:isNumeric($value)) then "numeric"
   else ""
@@ -93,7 +100,9 @@ as node()* {
   let $triples := xu:invoke-function(function() {
     for $t in fn:doc($document-uri)//sem:triple
     let $triple := sem:triple($t)
-    let $subj := sem:triple-subject($triple), $pred := sem:triple-predicate($triple), $obj := sem:triple-object($triple)
+    let $subj := sem:triple-subject($triple)
+    let $pred := sem:triple-predicate($triple)
+    let $obj := sem:triple-object($triple)
     return object-node {
       "subject": object-node {
         "value": $subj,

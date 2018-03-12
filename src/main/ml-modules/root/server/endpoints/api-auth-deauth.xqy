@@ -1,6 +1,7 @@
 xquery version "1.0-ml";
-
-let $_ := xdmp:log("FROM: /server/endpoints/api-auth-deauth.xqy","debug")
+import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
+declare option xdmp:mapping "false";
+let $_ := ll:trace("FROM: /server/endpoints/api-auth-deauth.xqy")
 return
 (
 xdmp:logout(),

@@ -67,7 +67,7 @@
 							<accordion close-others="false">
 								<accordion-group heading="{{related.type}} - ({{related.items.length}})" is-open="false" ng-repeat="related in doc.related">
 									<ol>
-										<li ng-repeat="item in related.items"><a href="/detail/{{database}}/{{item}}">{{item}}</a></li>
+										<li ng-repeat="item in related.items"><a href="#" ng-click="openDetails(database,item)">{{item}}</a></li>
 									</ol>
 								</accordion-group>
 							</accordion>
