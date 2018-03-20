@@ -9,21 +9,24 @@ import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config"
 import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
 declare option xdmp:mapping "false";
 declare function check-user-lib:is-admin() {
-    let $security-database := admin:database-get-security-database(admin:get-configuration(), xdmp:database())
-
-    return
-        xdmp:invoke-function(
-                function() {
+         try {
+            let $security-database := admin:database-get-security-database(admin:get-configuration(), xdmp:database())
+            return xdmp:invoke-function(
+                function () {
                     try {
-                        let $_ := sec:check-admin()
-                        return fn:true()
+                         let $_ := sec:check-admin()
+                         return fn:true()
                     } catch ($exception) {
-                        fn:false()
+                         fn:false()
                     }
                 },
                 <options xmlns="xdmp:eval">
-                    <database>{$security-database}</database>
-                </options>)
+                <database>{$security-database}</database>
+                </options>
+            )
+        } catch ($exception) {
+           fn:false()
+        }
 };
 
 declare function check-user-lib:is-wizard-user() as xs:boolean

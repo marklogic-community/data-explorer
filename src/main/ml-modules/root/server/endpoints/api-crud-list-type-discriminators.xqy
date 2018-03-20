@@ -15,6 +15,6 @@ declare function local:get-type-discriminators() {
 };
 
 let $_ := ll:trace("FROM: /server/endpoints/api-crud-list-type-discriminators.xqy")
-return if (check-user-lib:is-logged-in() and (check-user-lib:is-wizard-user()))
+return if (check-user-lib:is-logged-in() and (check-user-lib:is-search-user()))
 then (local:get-type-discriminators())
 else (xdmp:set-response-code(401, "User is not authorized."))
