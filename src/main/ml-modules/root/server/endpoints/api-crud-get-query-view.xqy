@@ -90,6 +90,6 @@ declare function local:get-query-view() {
     return xdmp:to-json($json)
 };
 
-if (check-user-lib:is-logged-in() and (check-user-lib:is-wizard-user()))
+if (check-user-lib:is-logged-in() and (check-user-lib:is-search-user()))
 then (local:get-query-view())
 else (xdmp:set-response-code(401, "User is not authorized."))
