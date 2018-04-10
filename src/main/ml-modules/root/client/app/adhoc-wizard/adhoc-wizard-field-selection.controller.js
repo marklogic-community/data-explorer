@@ -23,7 +23,7 @@ angular.module('demoApp')
     $scope.insertView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length == 0
     $scope.updateView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length > 0
     $scope.insertQuery = $scope.queryView == "query" && $scope.editMode == false
-    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Save..." : "Update...";
+    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Save" : "Update";
     $scope.uploadButtonActive = false;
     $scope.message = "";
     $scope.messageClass = "form-group";
