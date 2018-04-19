@@ -23,12 +23,12 @@
           </a>
           <ul class="dropdown-menu" role="menu">
             <li ng-repeat="item in bookmarks">
-              <a href="#" ng-click="openBookmark(item.database,item.queryName,item.docType,item.viewName)">{{item.bookmarkLabel}}...</a>
+              <a href="#" ng-click="openBookmark(item.database,item.queryName,item.docType,item.viewName)">{{item.bookmarkLabel}}</a>
             </li>
           </ul>
         </li>
         <li ng-show="isWizardUser()" ng-class="{active: isActive('/crud')}">
-          <a ui-sref="crud">Edit config...</a>
+          <a ui-sref="crud">Edit config</a>
         </li>
       </ul>
       </ul>

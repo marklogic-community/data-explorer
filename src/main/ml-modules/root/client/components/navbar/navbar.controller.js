@@ -9,7 +9,7 @@ angular.module('demoApp')
       'state': 'main'
     }]
     $rootScope.dataExplorerMenu = [{
-      'title': 'Search...',
+      'title': 'Search',
       'state': 'adhoc'
     }];
 

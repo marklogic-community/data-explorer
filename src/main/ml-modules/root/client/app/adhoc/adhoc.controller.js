@@ -278,7 +278,7 @@ factory('$click', function() {
       	pageNumber= $scope.queryCurrentPage
       }
       if(!exportCsv){
-    	$scope.message = 'Searching....';
+    	$scope.message = 'Searching...';
     	$scope.results = {};
       }
       $scope.includeMatches = !!$scope.searchText || _.some($scope.inputField || []);
