@@ -44,7 +44,7 @@ angular.module('demoApp')
     $scope.filename = '';
     $scope.fileType = 0;
     $scope.$watch('wizardForm.rootElement', function(value) {
-    		if($scope.wizardForm.allFields){
+    		if($scope.wizardForm && $scope.wizardForm.allFields){
     			var modifiedFields=[];        		
     			for(var index = 0; index < $scope.wizardForm.allFields.length; index++){
     				var field=$scope.wizardForm.allFields[index];
