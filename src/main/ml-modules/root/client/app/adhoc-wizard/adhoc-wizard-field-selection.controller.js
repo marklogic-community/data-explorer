@@ -2,7 +2,6 @@
 
 angular.module('demoApp')
   .controller('AdhocWizardFieldSelectionCtrl', function ($state,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
-    console.log($stateParams)
 
     if ($stateParams.deparams) {
         $scope.wizardForm = $stateParams.deparams.formData;
@@ -140,6 +139,10 @@ angular.module('demoApp')
             $state.go($scope.backState, {});
     };
 
+    $scope.crud = function() {
+            $state.go('crud', {});
+    };
+
     $scope.submitWizard = function(){
         var data = {}
         data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
@@ -187,21 +190,27 @@ angular.module('demoApp')
             params:data
         }).success(function(data, status, headers, config) {
             if ( data.status === 'exists') {
-               alert("A query with this query name and document type already exists.");
+              renderResultsModal('error', 'A query with this query name and document type already exists.');
             } else if ( data.status == 'dataError') {
-               alert("A data error occurred.");
+              renderResultsModal('error', 'A data error occurred.');
             } else if ( data.status == 'saved') {
-                if ( $scope.insertView || $scope.insertQuery ) {
-                    alert("Insert successful");
-                } else {
-                    alert("Update successful");
-                }
-                $state.go('crud', {});
+                $scope.crudResultsHeader = 'Success';
+                $scope.crudResultsAlertClass = 'alert-info';
+                var crudType = $scope.queryView === 'query' ? 'Query' : 'View';
+                var crudAction = ($scope.insertView || $scope.insertQuery) ? ' created ' : ' updated ';
+                renderResultsModal('success', crudType + crudAction + 'successfully.');
             }
         }).error(function(data, status){
-              alert("Server Error, please make changes and try again");
+          renderResultsModal('error', 'Server Error. Please try again later.');
         });
     };
+
+    function renderResultsModal(type, message) {
+      $scope.crudResultsAlertClass = type === 'error' ? 'alert-warning' : 'alert-info';
+      $scope.crudResultsHeader = type === 'error' ? 'Error' : 'Success';
+      $scope.crudResultsMessage = message;
+      $("#crudResultsModal").modal();
+    }
     
     function createTitle(suggestedName){
     	var namespaceDelimPos = suggestedName.indexOf(":");
