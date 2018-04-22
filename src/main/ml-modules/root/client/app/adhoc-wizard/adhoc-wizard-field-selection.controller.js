@@ -43,7 +43,18 @@ angular.module('demoApp')
     $scope.showNamespaces = false;
     $scope.filename = '';
     $scope.fileType = 0;
-
+    $scope.$watch('wizardForm.rootElement', function(value) {
+    		if($scope.wizardForm && $scope.wizardForm.allFields){
+    			var modifiedFields=[];        		
+    			for(var index = 0; index < $scope.wizardForm.allFields.length; index++){
+    				var field=$scope.wizardForm.allFields[index];
+    	            if(field.xpathNormal.startsWith(value)){
+    	            		modifiedFields.push(field);
+    	            }
+    	        }
+    	    		$scope.wizardForm.fields=modifiedFields;	
+    		}
+    });
       databaseService.list().then(function(data) {
           $scope.availableDatabases = data;
           if ( $scope.editMode ) {
@@ -80,6 +91,11 @@ angular.module('demoApp')
                   }).error(function (err) {
                   console.log(err)
               });
+          }
+          else{
+        	  	  if($scope.wizardForm.fields) {
+        	  	   	$scope.wizardForm.allFields=$scope.wizardForm.fields.slice(0);
+        	  	  }
           }
       });
 

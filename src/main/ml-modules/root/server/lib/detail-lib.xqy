@@ -1,6 +1,7 @@
 xquery version "1.0-ml";
 
 module namespace detail-lib = "http://www.marklogic.com/data-explore/lib/detail-lib";
+import module namespace sec = "http://marklogic.com/xdmp/security" at "/MarkLogic/security.xqy";
 
 import module namespace sem = "http://marklogic.com/semantics" at "/MarkLogic/semantics.xqy";
 import module namespace slice = "http://marklogic.com/transitive-closure-slice" at "/server/lib/slice.xqy";
@@ -49,12 +50,14 @@ declare function detail-lib:print-role-name($role-id as xs:unsignedLong?){
     return <role-name>{$role-name}</role-name>
 };
 
-declare function detail-lib:print-permission($default-permission as element(sec:permission)?){
+declare function detail-lib:print-permission($default-permission as element(sec:permission)*){
     let $capability := $default-permission/sec:capability/text()
     return if ( fn:empty($capability ) ) then
                     ()
               else
-                 let $role-id := $default-permission/sec:role-id
+                for $permission in $default-permission
+                 let $role-id := $permission/sec:role-id
+                 let $capability := $permission/sec:capability/text()
                  return
                 <permission>
                     <capability>{$capability}</capability>
