@@ -61,12 +61,12 @@
 
         <div class="col-md-12" ng-if="(docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive)">
           <div class="form-group">
-			  <button ng-click="back()" class="btn btn-primary">Back...</button>&nbsp;<input type="submit" value="Select fields..." ng-click="selectDocumentType()" class="btn btn-primary"/>
+			  <button ng-click="back()" class="btn btn-primary">Back</button>&nbsp;<input type="submit" value="Select fields" ng-click="selectDocumentType()" class="btn btn-primary"/>
 		  </div>
         </div>
 		  <div class="col-md-12" ng-if="!((docTypeMethod === 'select' && formInput.startingDocType) || (docTypeMethod === 'upload' && uploadButtonActive))">
 			  <div class="form-group">
-				   <button ng-click="back()" class="btn btn-primary">Back...</button>
+				   <button ng-click="back()" class="btn btn-primary">Back</button>
 			  </div>
 		  </div>
       </form>

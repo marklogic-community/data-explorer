@@ -21,7 +21,7 @@ angular.module('demoApp')
     $scope.insertView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length == 0
     $scope.updateView = $scope.editMode && $scope.queryView == "view" && $scope.loadViewName.length > 0
     $scope.insertQuery = $scope.queryView == "query" && $scope.editMode == false
-    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Save..." : "Update...";
+    $scope.buttonText = ($scope.insertView || $scope.insertQuery) ? "Save" : "Update";
     $scope.uploadButtonActive = false;
     $scope.message = "";
     $scope.messageClass = "form-group";
@@ -41,7 +41,18 @@ angular.module('demoApp')
     $scope.showNamespaces = false;
     $scope.filename = '';
     $scope.fileType = 0;
-
+    $scope.$watch('wizardForm.rootElement', function(value) {
+    		if($scope.wizardForm && $scope.wizardForm.allFields){
+    			var modifiedFields=[];        		
+    			for(var index = 0; index < $scope.wizardForm.allFields.length; index++){
+    				var field=$scope.wizardForm.allFields[index];
+    	            if(field.xpathNormal.startsWith(value)){
+    	            		modifiedFields.push(field);
+    	            }
+    	        }
+    	    		$scope.wizardForm.fields=modifiedFields;	
+    		}
+    });
       databaseService.list().then(function(data) {
           $scope.availableDatabases = data;
           if ( $scope.editMode ) {
@@ -78,6 +89,11 @@ angular.module('demoApp')
                   }).error(function (err) {
                   console.log(err)
               });
+          }
+          else{
+        	  	  if($scope.wizardForm.fields) {
+        	  	   	$scope.wizardForm.allFields=$scope.wizardForm.fields.slice(0);
+        	  	  }
           }
       });
 
@@ -159,6 +175,10 @@ angular.module('demoApp')
             $state.go($scope.backState, {});
     };
 
+    $scope.crud = function() {
+            $state.go('crud', {});
+    };
+
     $scope.submitWizard = function(){
         var data = {}
         data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
@@ -206,21 +226,27 @@ angular.module('demoApp')
             params:data
         }).success(function(data, status, headers, config) {
             if ( data.status === 'exists') {
-               alert("A query with this query name and document type already exists.");
+              renderResultsModal('error', 'A query with this query name and document type already exists.');
             } else if ( data.status == 'dataError') {
-               alert("A data error occurred.");
+              renderResultsModal('error', 'A data error occurred.');
             } else if ( data.status == 'saved') {
-                if ( $scope.insertView || $scope.insertQuery ) {
-                    alert("Insert successful");
-                } else {
-                    alert("Update successful");
-                }
-                $state.go('crud', {});
+                $scope.crudResultsHeader = 'Success';
+                $scope.crudResultsAlertClass = 'alert-info';
+                var crudType = $scope.queryView === 'query' ? 'Query' : 'View';
+                var crudAction = ($scope.insertView || $scope.insertQuery) ? ' created ' : ' updated ';
+                renderResultsModal('success', crudType + crudAction + 'successfully.');
             }
         }).error(function(data, status){
-              alert("Server Error, please make changes and try again");
+          renderResultsModal('error', 'Server Error. Please try again later.');
         });
     };
+
+    function renderResultsModal(type, message) {
+      $scope.crudResultsAlertClass = type === 'error' ? 'alert-warning' : 'alert-info';
+      $scope.crudResultsHeader = type === 'error' ? 'Error' : 'Success';
+      $scope.crudResultsMessage = message;
+      $("#crudResultsModal").modal();
+    }
     
     function createTitle(suggestedName){
     	var namespaceDelimPos = suggestedName.indexOf(":");

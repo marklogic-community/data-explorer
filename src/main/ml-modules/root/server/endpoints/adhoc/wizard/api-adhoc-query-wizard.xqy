@@ -131,6 +131,6 @@ try {
     
 } catch ($e) {
   ll:trace(
-    ("Error processing uploaded sample doc...", xdmp:quote($e))),
+    ("Error processing uploaded sample doc.", xdmp:quote($e))),
   xdmp:rethrow()
 }

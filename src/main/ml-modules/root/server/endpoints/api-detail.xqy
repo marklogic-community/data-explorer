@@ -107,7 +107,7 @@ declare function local:get-json($uri as xs:string, $db as xs:string){
 
         return to-json:xml-obj-to-json($item)
     let $related-json := to-json:seq-to-array-json($related-items-json)
-    let $permissions-json := to-json:seq-to-array-json(to-json:xml-obj-to-json($permissions))
+    let $permissions-json := to-json:seq-to-array-json($permissions ! to-json:xml-obj-to-json(.))
     let $collections-json := to-json:seq-to-array-json(to-json:string-sequence-to-json($collections))
     let $xml := 
         <output>

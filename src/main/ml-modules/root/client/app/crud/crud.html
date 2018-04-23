@@ -38,18 +38,18 @@
                       <td><span>{{result['docType']}}</span></td>
                       <td>
                                                   <div>
-                                                      <button value="Edit" ng-click="editQuery(result['docType'],result['queryName'])" class="btn btn-primary">Edit...</button>
+                                                      <button value="Edit" ng-click="editQuery(result['docType'],result['queryName'])" class="btn btn-primary">Edit</button>
                                                       &nbsp;
-                                                      <button value="Show views.." ng-click="showViews(result['queryName'],result['docType'],$event)" class="btn btn-primary">Show views...</button></a>
+                                                      <button value="Show views.." ng-click="showViews(result['queryName'],result['docType'],$event)" class="btn btn-primary">Show views</button></a>
                                                       &nbsp;
-                                                      <button value="Remove" ng-click="removeQuery(result['queryName'],result['docType'],$event)" class="btn btn-primary">Remove...</button>
+                                                      <button value="Remove" ng-click="removeQuery(result['queryName'],result['docType'],$event)" class="btn btn-primary">Remove</button>
                                                   </div>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-      <button ng-click="createNewQuery()" class="btn btn-primary">Create new query...</button>
+      <button ng-click="createNewQuery()" class="btn btn-primary">Create new query</button>
       <p/>
       <div ng-show="displayViews" >
       </p><legend>List of related non default views of query '{{selectedQueryName}}'</legend>
@@ -84,9 +84,9 @@
                       <td><span>{{result['viewName']}}</span></td>
                       <td>
                           <div>
-                              <button value="Edit" class="btn btn-primary" ng-click="editView(selectedDocType,selectedQueryName,result['viewName'],$event)">Edit...</button>
+                              <button value="Edit" class="btn btn-primary" ng-click="editView(selectedDocType,selectedQueryName,result['viewName'],$event)">Edit</button>
                               &nbsp;
-                              <button value="Remove" ng-click="removeView(selectedQueryName,selectedDocType,result['viewName'],$event)" class="btn btn-primary">Remove...</button>
+                              <button value="Remove" ng-click="removeView(selectedQueryName,selectedDocType,result['viewName'],$event)" class="btn btn-primary">Remove</button>
                           </div>
                       </td>
                   </tr>
@@ -94,7 +94,27 @@
               </table>
           </div>
 
-       <button  class="btn btn-primary" ng-click="editView(selectedDocType,selectedQueryName,'',$event)">Create new view...</button>
+       <button  class="btn btn-primary" ng-click="editView(selectedDocType,selectedQueryName,'',$event)">Create new view</button>
   </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Confirm</h3>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning">{{confirmMessage}}</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" ng-click="noConfirm()" role="button">No</button>
+          <button type="button" class="btn btn-default" ng-click="confirmRemoveQuery()" ng-show="confirmType == 'query'" role="button">Yes</button>
+          <button type="button" class="btn btn-default" ng-click="confirmRemoveView()" ng-show="confirmType == 'view'" role="button">Yes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 </div>
