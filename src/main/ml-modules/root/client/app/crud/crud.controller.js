@@ -80,44 +80,65 @@ angular.module('demoApp')
       }
 
       $scope.removeView=function(queryName,docType,viewName,ev) {
-          if (confirm('Do you want to remove view '+ viewName + '?')) {
-              crudService.removeView(queryName,docType,viewName)
-                  .success(function (data, status) {
-                      if (status == 200) {
-                          $scope.genericViewError = "";
-                          $scope.viewCurrentPage = 1;
-                          $scope.viewStartOffset = 1;
-                          $scope.loadViews()
-                      }
-                  }).error(function (err) {
-                  $scope.genericViewError = "Error during removing query "+name+". An error occurred. check the log.";
-              });
-          } else {
-              $scope.genericViewError = ""
-          }
+        $scope.confirmMessage = 'Are you sure you wish to remove the view: ' + viewName + '?';
+        $scope.confirmType = 'view';
+        $scope.confirmParams = {
+          queryName: queryName,
+          docType: docType,
+          viewName: viewName
+        }
+        $("#confirmModal").modal();
+      }
+
+      $scope.confirmRemoveView=function() {
+        $("#confirmModal").modal("hide");
+        crudService.removeView($scope.confirmParams.queryName, $scope.confirmParams.docType, $scope.confirmParams.viewName)
+          .success(function (data, status) {
+            if (status == 200) {
+              $scope.genericViewError = "";
+              $scope.viewCurrentPage = 1;
+              $scope.viewStartOffset = 1;
+              $scope.loadViews()
+            }
+          }).error(function (err) {
+            $scope.genericViewError = "Error during removing query " + $scope.confirmParams.viewName + ". An error occurred. check the log.";
+        });
       }
 
       $scope.removeQuery=function(name,docType,ev) {
-          if (confirm('Do you want to remove query '+ name + '?')) {
-              crudService.removeQuery(name,docType)
-                  .success(function (data, status) {
-                      if (status == 200) {
-                          $scope.queryGenericError = "";
-                          $scope.queryCurrentPage = 1;
-                          $scope.queryStartOffset = 1;
-                          $scope.viewCurrentPage = 1;
-                          $scope.viewStartOffset = 1;
-                          $scope.viewTotalCount = 0;
-                          $scope.viewResults = [];
-                          $scope.viewPageCount = 1;
-                          $scope.loadQueries()
-                      }
-                  }).error(function (err) {
-                  $scope.queryGenericError = "Error during removing query "+name+". An error occurred. check the log.";
-              });
-          } else {
-              $scope.queryGenericError = ""
-          }
+        $scope.confirmMessage = 'Are you sure you wish to remove the query: ' + name + '?';
+        $scope.confirmType = 'query';
+        $scope.confirmParams = {
+          name: name,
+          docType: docType
+        }
+        $("#confirmModal").modal();
+      }
+
+      $scope.confirmRemoveQuery=function() {
+        $("#confirmModal").modal("hide");
+        crudService.removeQuery($scope.confirmParams.name, $scope.confirmParams.docType)
+          .success(function (data, status) {
+            if (status == 200) {
+              $scope.queryGenericError = "";
+              $scope.queryCurrentPage = 1;
+              $scope.queryStartOffset = 1;
+              $scope.viewCurrentPage = 1;
+              $scope.viewStartOffset = 1;
+              $scope.viewTotalCount = 0;
+              $scope.viewResults = [];
+              $scope.viewPageCount = 1;
+              $scope.loadQueries()
+              $scope.displayViews = false;
+            }
+          }).error(function (err) {
+            $scope.queryGenericError = "Error removing query: " + $scope.confirmParams.name + ". Please check the log.";
+        });
+      }
+
+      $scope.noConfirm = function() {
+        $scope.queryGenericError = ""
+        $("#confirmModal").modal("hide");
       }
 
       $scope.loadQueries=function() {
