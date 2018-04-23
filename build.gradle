@@ -133,6 +133,10 @@ jar {
       it.isDirectory() ? it : zipTree(it)
     }
   }
+  from(".") {
+    include "version.js"
+    into "META-INF/com.marklogic.dataexplorer/ml-modules/root/client/assets"
+  }
   from ("src/main/ml-modules") {
     into "META-INF/com.marklogic.dataexplorer/ml-modules"
   }
