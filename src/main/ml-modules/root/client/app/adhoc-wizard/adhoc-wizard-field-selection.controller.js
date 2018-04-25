@@ -2,7 +2,6 @@
 
 angular.module('demoApp')
   .controller('AdhocWizardFieldSelectionCtrl', function ($state,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
-
     if ($stateParams.deparams) {
         $scope.wizardForm = $stateParams.deparams.formData;
         $scope.queryView = $stateParams.deparams.queryView;
@@ -149,6 +148,27 @@ angular.module('demoApp')
         }
         	
     	return true;
+    };
+
+    // Toggle all fields selected for view based on the inverse of the first field.
+    $scope.toggleAllSelected = function() {
+      var fieldValues = ['none', 'both', 'query', 'view'];
+      var newInclude, newIncludeMode;
+      if($scope.queryView !== 'query') {
+        // Views are just inverse
+        newInclude = !$scope.wizardForm.fields[0].include;
+        newIncludeMode = newInclude ? 'view' : 'none';
+      } else {
+        // Set to the next field in the array, or back to the beginning
+        var pos = fieldValues.indexOf($scope.wizardForm.fields[0].includeMode) + 1;
+        newIncludeMode = fieldValues[(pos > 3 ? 0 : pos)];
+        newInclude = newIncludeMode === 'none' ? false : true;
+      }
+      for (var i = 0; i < $scope.wizardForm.fields.length; i++){
+        $scope.wizardForm.fields[i].include = newInclude;
+        $scope.wizardForm.fields[i].includeMode = newIncludeMode;
+        $scope.wizardForm.fields[i].title = newInclude ? $scope.wizardForm.fields[i].defaultTitle : '';
+      }
     };
     
     $scope.back = function() {
