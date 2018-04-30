@@ -45,6 +45,9 @@ angular.module('demoApp')
 
     $scope.inputField = {};
 
+    $scope.isFieldError = false;
+    $scope.fieldError = "";
+
     $scope.isNamespaceAware = true;
     $scope.showNamespaces = false;
     $scope.filename = '';
@@ -141,19 +144,19 @@ angular.module('demoApp')
     		return false;
     	}
     	// make sure they've included at least one field and it is populated with a name
-    	var fieldsChosen = 0;
-    	var invalidField = false;
-        for (var index = 0; index < $scope.wizardForm.fields.length; index++){
-        	if($scope.wizardForm.fields[index].include){
-        		fieldsChosen++;
-        	}
-        	if($scope.wizardForm.fields[index].include && ($scope.wizardForm.fields[index].title == undefined || $scope.wizardForm.fields[index].title.trim() == "")){
-        		invalidField = true;
-        	}
-        }
-        if(fieldsChosen == 0 || invalidField){
-        	return false;
-        }
+    	// var fieldsChosen = 0;
+    	// var invalidField = false;
+     //    for (var index = 0; index < $scope.wizardForm.fields.length; index++){
+     //    	if($scope.wizardForm.fields[index].include){
+     //    		fieldsChosen++;
+     //    	}
+     //    	if($scope.wizardForm.fields[index].include && ($scope.wizardForm.fields[index].title == undefined || $scope.wizardForm.fields[index].title.trim() == "")){
+     //    		invalidField = true;
+     //    	}
+     //    }
+     //    if(fieldsChosen == 0 || invalidField){
+     //    	return false;
+     //    }
         	
     	return true;
     };
@@ -188,6 +191,8 @@ angular.module('demoApp')
     };
 
     $scope.submitWizard = function(){
+      clearFieldError();
+      if(validateParameters()){
         var data = {}
         data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
         data.mode = $scope.queryView
@@ -270,7 +275,39 @@ angular.module('demoApp')
         }).error(function(data, status){
           renderResultsModal('error', 'Server Error. Please try again later.');
         });
+      }
     };
+
+    // validate form parameters and display issues with form if any exist (right now for making sure one output field is selected)
+    function validateParameters() {
+      var includedField = false;
+      // go through all included fields to check if at least on is an output field
+      for (var index = 0; index < $scope.wizardForm.fields.length; index++){
+        if($scope.wizardForm.fields[index].include && $scope.wizardForm.fields[index].title != undefined && $scope.wizardForm.fields[index].title.trim() != ""){
+          if(isOutputField($scope.wizardForm.fields[index])) {
+           includedField = true;
+           break;
+          }
+        }
+      }
+      if(!includedField){
+        if($scope.queryView === 'query'){
+          setFieldError("A query requires at least one ouput field. Please select 'Both' or 'Results Only' for at least one field.");
+        }else {
+          setFieldError("A view requires at least one ouput field. Please select 'Yes' for at least one field.");
+        }
+        return false;
+      }
+      return true;
+    }
+
+    function isOutputField(field) {
+      if($scope.queryView === 'query') {
+        return (field.includeMode === 'both' || field.includeMode === 'view');
+      }else {
+        return (field.includeMode === 'view');
+      }
+    }
 
     function renderResultsModal(type, message) {
       $scope.crudResultsAlertClass = type === 'error' ? 'alert-warning' : 'alert-info';
@@ -286,6 +323,17 @@ angular.module('demoApp')
     	}
     	
     	return suggestedName;
+    }
+
+    function clearFieldError() {
+      $scope.isFieldError = false;
+      $scope.fieldError = '';
+    }
+    function setFieldError(fieldErrorMsg){
+      $scope.isFieldError = true;
+      $scope.fieldError = fieldErrorMsg;
+      $location.hash("fieldError");
+      $anchorScroll();
     }
 
   });
