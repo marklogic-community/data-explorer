@@ -7,22 +7,24 @@ buildscript {
     dependencies {
         classpath 'com.marklogic:mlcp:8.0-5'
         classpath 'com.marklogic:mlcp-util:0.3.0'
+        // classpath "com.marklogic:ml-gradle:3.6.2"
     }
 }
 
 plugins {
   id "java"
   id "net.saliman.properties" version "1.4.6"
-  id "com.marklogic.ml-gradle" version "3.2.1"
+  id "com.marklogic.ml-gradle" version "3.6.2"
   id "idea"
 }
+
 
 configurations {
     mlcp
 }
 
 dependencies {
-  compile "com.marklogic:ml-app-deployer:3.2.0"
+  compile "com.marklogic:ml-app-deployer:3.6.2"
 
   // For reading command-line args
   compile "com.beust:jcommander:1.72"
@@ -107,7 +109,7 @@ task exportDemoDataToZip(type: com.marklogic.gradle.task.datamovement.DataMoveme
       def dir = new File("build/export")
       dir.mkdirs()
       def qbt = newQueryBatcherTemplate(client)
-      def consumer = new com.marklogic.client.ext.datamovement.consumer.WriteToFileConsumer(dir)
+      def consumer = new com.marklogic.client.ext.datamovement.consumer.WriteDocumentToFileConsumer(dir)
       def listener = new com.marklogic.client.datamovement.ExportListener()
       listener.onDocumentReady(consumer)
       qbt.applyOnCollections(listener, "DemoData")
