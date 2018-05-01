@@ -30,6 +30,6 @@ declare function local:get-views() {
     return xdmp:to-json($json)
 };
 
-if (check-user-lib:is-logged-in() and (check-user-lib:is-search-user()))
+if (check-user-lib:is-logged-in() and (check-user-lib:is-wizard-user()))
 then (local:get-views())
 else (xdmp:set-response-code(401, "User is not authorized."))
