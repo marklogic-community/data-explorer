@@ -4,7 +4,7 @@
     <div class="col-md-12">
 
       <legend>
-        Queries <i class="help-text glyphicon glyphicon-question-sign" tooltip title="Queries define which fields will be available for search and display. When a query is created, it creates a default view containing all of the fields selected in the query."></i>
+        Queries <i class="help-text glyphicon glyphicon-question-sign" placement="right" tooltip title="Queries define which fields will be available for search and display. When a query is created, it creates a default view containing all of the fields selected in the query."></i>
       </legend> 
 
       <div ng-show="queryLoadError != '' || queryGenericError != ''" class="col-md-12">
@@ -64,14 +64,14 @@
       
       <div ng-show="!displayViews" >
         <legend>
-          Views <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The view defines which fields from the query are displayed, and the name given to each field."></i>
+          Views <i class="help-text glyphicon glyphicon-question-sign" placement="right" tooltip title="The view defines which fields from the query are displayed, and the name given to each field."></i>
         </legend> 
         <p><i>Click the "Display Views" button for a query above to see a list of its associated views.</i></p>
       </div>
 
       <div ng-show="displayViews" >
         <legend>
-          Views for "{{selectedQueryName}}" <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The view defines which fields from the query are displayed, and the name given to each field."></i>
+          Views for "{{selectedQueryName}}" <i class="help-text glyphicon glyphicon-question-sign" placement="right" tooltip title="The view defines which fields from the query are displayed, and the name given to each field."></i>
         </legend> 
 
         <div ng-show="viewLoadError != '' || viewGenericError != ''" class="col-md-12">

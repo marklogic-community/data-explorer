@@ -115,6 +115,7 @@ angular.module('demoApp', [
   return {
     restrict: 'A',
     link: function(scope, element, attrs){
+      element.tooltip({placement: attrs.placement});
       element.hover(function(){
         element.tooltip('show');
       }, function(){
