@@ -17,13 +17,13 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Query</label>
+            <label>Query</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The query selects which fields are available for searching."></i>
             <select ng-model="selectedQuery" ng-options="item.queryName as item.queryName for item in queries.queries" class="form-control" required>
             	<option value="">--Choose Query</option>
             </select>
           </div>
           <div class="form-group">
-            <label>View</label>
+            <label>View</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The view defines which fields from the query are displayed, and the name given to each field."></i>
             <select ng-model="selectedView" ng-options="item.viewName as item.viewName for item in views.views" class="form-control" required>
             	<option value="">--Choose View</option>
             </select>
