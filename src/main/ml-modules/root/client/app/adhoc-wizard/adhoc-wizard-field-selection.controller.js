@@ -214,14 +214,33 @@ angular.module('demoApp')
         } else {
             data.viewName = $scope.formInput.viewName;
         }
+        var fieldNames = [];
+        var dupes = [];
         var counter = 1;
         for (var i = 1; i <= $scope.wizardForm.fields.length; i++){
-                data['formLabel'+counter] = $scope.wizardForm.fields[i-1].title;
-                data['formLabelHidden'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
-                data['formLabelDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
-                data['formLabelIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
-                counter += 1;
+          var fieldName = $scope.wizardForm.fields[i-1].title;
+          // Check/record duplicate field names
+          if(fieldNames.indexOf(fieldName) !== -1) {
+            if(dupes.indexOf(fieldName) === -1) {
+              dupes.push(fieldName);
+            }
+          } else {
+            fieldNames.push(fieldName);
+          }
+          data['formLabel'+counter] = fieldName;
+          data['formLabelHidden'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
+          data['formLabelDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
+          data['formLabelIncludeMode' + counter] = $scope.wizardForm.fields[i-1].includeMode;
+          counter += 1;
         }
+
+        // Handle duplicate field name error
+        if(dupes.length) {
+          var msg = 'Fields must have unique names. Please rename the following duplicate field(s): ' + dupes.join(', ') + '.';
+          renderResultsModal('error', msg);
+          return;
+        }
+
         $http.get('/api/wizard/create',{
             params:data
         }).success(function(data, status, headers, config) {
