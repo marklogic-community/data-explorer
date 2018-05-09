@@ -34,8 +34,14 @@
 			<div class="form-group">
 				<label for="bookmark" class="col-sm-2 control-label">Menu bookmark</label>
 				<div class="col-sm-10">
-					<table><tr><td style="min-width:50px"><input id="bookmarkcheck"   type="checkbox" class="form-control"   ng-model="formInput.bookmarkCheck"/></td><td style="width:100%"><input id="bookmark" ng-disabled="!formInput.bookmarkCheck" type="text" class="form-control"   ng-model="formInput.bookmarkLabel" size="20"/></td>
-					</tr></table>
+					<div class="checkbox" style="float:left;width:20px">
+						<label>
+							<input id="bookmarkcheck" type="checkbox" ng-model="formInput.bookmarkCheck"/>
+						</label>
+					</div>
+					<div style="overflow:hidden;">
+						<input id="bookmark" ng-disabled="!formInput.bookmarkCheck" type="text" class="form-control" ng-model="formInput.bookmarkLabel" placeholder="Enter a name for the bookmark" title="Bookmarking a query adds a link to it in the navigation bar." />
+					</div>
 				</div>
 			</div>
 		</fieldset>
@@ -94,7 +100,7 @@
 	        			</thead>
 	        			<tbody>
 	        				<tr ng-repeat="field in wizardForm.fields">
-	        					<td><span ng-bind="field.elementName" title="{{field.xpathNormal}}"></span></td>
+	        					<td style="vertical-align: middle"><span ng-bind="field.elementName" title="{{field.xpathNormal}}"></span></td>
 	        					<td>
 					      			<select class="form-control" style="width:150px" ng-model="field.includeMode" ng-change="includeChanged(field)">
 					      				<option value="none">No</option>
