@@ -58,7 +58,7 @@ task exportQueriesAndViews(type: com.marklogic.gradle.task.MlcpTask) {
 	//password = "admin" // defaults to mlRestAdminPassword, which defaults to mlPassword
 	database = mlAppConfig.contentDatabaseName
 	output_file_path = "data/export"
-  directory_filter = "/adhoc/"
+  directory_filter = "/query/"
 }
 
 task importQueriesAndViews(type: com.marklogic.gradle.task.MlcpTask) {
@@ -71,7 +71,7 @@ task importQueriesAndViews(type: com.marklogic.gradle.task.MlcpTask) {
     //password = "admin" // defaults to mlRestAdminPassword, which defaults to mlPassword
     database = mlAppConfig.contentDatabaseName
     input_file_path = "data/export"
-    directory_filter = "/adhoc/"
+    directory_filter = "/query/"
 }
 
 task loadDemoData(type: com.marklogic.gradle.task.MlcpTask) {
