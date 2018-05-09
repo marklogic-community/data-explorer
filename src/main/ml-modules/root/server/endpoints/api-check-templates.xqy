@@ -3,7 +3,7 @@ import module namespace  check-user-lib = "http://www.marklogic.com/data-explore
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 declare option xdmp:mapping "false";
 
-let $templateExists := xdmp:estimate(cts:search(fn:doc()/formQuery[@version=$const:SUPPORTED-VERSION], cts:directory-query("/adhoc/","infinity"))) ge 1
+let $templateExists := xdmp:estimate(cts:search(fn:doc()/formQuery[@version=$const:SUPPORTED-VERSION], cts:directory-query("/query/","infinity"))) ge 1
 return 
 '
 {

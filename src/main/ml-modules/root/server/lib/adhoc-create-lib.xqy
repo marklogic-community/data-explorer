@@ -141,7 +141,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 				let $clean-element := fn:replace($root-element, ":", "")
 				return fn:string-join(
 						(
-							"", "adhoc"||$clean-element,
+							"", "query"||$clean-element,
 							"forms-queries",
 							lib-adhoc-create:file-name($query-name)
 						), "/"
