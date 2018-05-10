@@ -198,16 +198,59 @@ angular.module('demoApp')
         	$interval(function() {
             	$scope.filename = files[0].name;
         	},300, 1);
-            $scope.wizardUploadFormData = new FormData();
+
             //Take the first selected file
             var fileMimeType = files[0]['type'];
+
+            $scope.wizardUploadFormData = new FormData();
+            $scope.message = 'Validating file structure...';
+            $scope.uploadButtonActive = false;
+
+            // Read the file and make sure we can parse it as JSON or XML
+            var fileReadError = false;
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                // Do nothing until the file is loaded.
+                if (e.target.readyState !=2) {
+                    return;
+                }
+                
+                if(e.target.error) {
+                    $scope.message = 'Unable to read the file.';
+                } else {
+                    var content = e.target.result;
+                    if (getFileType(fileMimeType) === 0) {
+                        // Validate XML
+                        var parser = new DOMParser();
+                        var xmlDoc = parser.parseFromString(content, 'text/xml');
+                        if(!xmlDoc) {
+                            $scope.message = 'Unable to parse the file as XML.';
+                        } else if (xmlDoc.getElementsByTagName('parsererror').length) {
+                            $scope.message = 'UNABLE TO PARSE XML: ' + xmlDoc.getElementsByTagName('parsererror')[0].innerText;
+                        }
+                    } else {
+                        // Validate JSON
+                        try {
+                            JSON.parse(content)
+                        } catch(e) {
+                            $scope.message = 'UNABLE TO PARSE JSON: ' + e.message;
+                        }
+                    }
+                }
+
+                // If we havent set an error message, then the file is valid.
+                if($scope.message === 'Validating file structure...') {
+                    $scope.message = '';
+                    $scope.wizardUploadFormData.append("uploadedDoc", files[0]);
+                    $scope.wizardUploadFormData.append("mimeType", files[0]['type']);
+                    $scope.uploadButtonActive = true;
+                }
+            }
+
             if ( !isSupportedFileType(fileMimeType) ) {
                 $scope.message = "This file type is not supported. Please choose a different file.";
-                $scope.uploadButtonActive = false;
             } else {
-                $scope.wizardUploadFormData.append("uploadedDoc", files[0]);
-                $scope.wizardUploadFormData.append("mimeType", files[0]['type']);
-                $scope.uploadButtonActive = true;
+                reader.readAsText(files[0]);
             }
         }
         else
