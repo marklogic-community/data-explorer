@@ -9,9 +9,17 @@ angular.module('demoApp')
         AdhocState.setDisplayLastResults(true);
       }
     });
-    if ($stateParams.deparams) {
-        $scope.database = $stateParams.deparams.database;
-        $scope.uri = $stateParams.deparams.uri;
+
+    // Retrieve state from local storage if state params are not passed.
+    var state = $stateParams.deparams || JSON.parse($window.localStorage.getItem('deparams'));
+    if (state) {
+        $scope.database = state.database;
+        $scope.uri = state.uri;
+        $window.localStorage.setItem('deparams', JSON.stringify(state));
+    } else {
+      // Something happened and the state was lost. Kick the user back to the adhoc page.
+      $state.go('adhoc');
+      return;
     }
     $scope.prettyData = '';
     $scope.tabheading = '';
