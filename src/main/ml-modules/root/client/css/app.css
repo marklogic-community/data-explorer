@@ -50,3 +50,10 @@
   color: #ff0000;
   font-weight: bold;
 }
+
+@media (min-width: 992px) {
+  .search-panel {
+    position:fixed ! important;
+    left: 25%;
+  }
+}
