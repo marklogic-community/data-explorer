@@ -7,11 +7,15 @@ angular.module('demoApp')
     $rootScope.menu = [{
       'title': 'Home',
       'state': 'main'
-    }]
-    $rootScope.dataExplorerMenu = [{
-      'title': 'Search',
-      'state': 'adhoc'
     }];
+
+    // Search is disabled if there are no queries setup.
+    if(!Auth.noQueries) {
+      $rootScope.dataExplorerMenu = [{
+        'title': 'Search',
+        'state': 'adhoc'
+      }];
+    }
 
     $rootScope.goState = function(state) {
         $state.go(state)
