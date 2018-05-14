@@ -19,6 +19,7 @@ angular.module('demoApp')
             if (status == 200) {
               if(!data.queryTemplateExists && data.isSearchUser) {
                 Auth.homeMessage = "There are no queries to search. Please contact the Data Explorer admin (Wizard User) to create queries";
+                Auth.homeMessageClass = "alert alert-warning";
                 $location.path('/');
               }
               else if(data.queryTemplateExists && data.isSearchUser)
