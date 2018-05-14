@@ -17,9 +17,12 @@ angular.module('demoApp')
         .then( function() {
           $http.get('/api/checkTemplates').success(function(data, status, headers, config) {
             if (status == 200) {
-              if(!data.queryTemplateExists && data.isSearchUser) {
-                Auth.homeMessage = "There are no queries to search. Please contact the Data Explorer admin (Wizard User) to create queries";
-                Auth.homeMessageClass = "alert alert-warning";
+              if(!data.queryTemplateExists) {
+                if(data.isSearchUser) {
+                  Auth.homeMessage = "<span class=\"alert alert-warning\">There are no queries to search. Please contact the Data Explorer admin (Wizard User) to create queries.</span>";
+                } else if(data.isWizardUser) {
+                  Auth.homeMessage = "<span class=\"alert alert-warning\">There are no queries to search. Please use <a href=\"/crud\">Edit Config</a> to define queries and views.</span>";
+                }
                 Auth.noQueries = true;
                 $location.path('/');
               }
