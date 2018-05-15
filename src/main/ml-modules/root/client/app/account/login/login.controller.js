@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('LoginCtrl', function ($scope, $http, Auth, $location, $window) {
+  .controller('LoginCtrl', function ($rootScope, $scope, $http, Auth, $location, $window) {
     $scope.user = {};
     $scope.errors = {};
     Auth.homeMessage = "";
@@ -23,7 +23,7 @@ angular.module('demoApp')
                 } else {
                   Auth.homeMessage = "<span class=\"alert alert-warning\">There are no queries to search. Please contact the Data Explorer admin (Wizard User) to create queries.</span>";
                 }
-                Auth.noQueries = true;
+                $rootScope.noQueries = true;
                 $location.path('/');
               }
               else if(data.queryTemplateExists && data.isSearchUser)
