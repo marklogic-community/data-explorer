@@ -2,6 +2,8 @@ package data_explorer;
 
 import data_explorer.Constants;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.http.ContentType;
@@ -17,6 +19,7 @@ import org.junit.BeforeClass;
 
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
 public abstract class AbstractTest implements Constants {
 
@@ -45,7 +48,7 @@ public abstract class AbstractTest implements Constants {
 
     // Register a parser for text returns
     // TODO: The rest endpoints should be fixed to always return JSON
-    //RestAssured.registerParser("text/plain", Parser.TEXT);
+    RestAssured.registerParser("text/plain", Parser.TEXT);
   }
 
   // Preload all requests with cookie/session data
@@ -84,6 +87,35 @@ public abstract class AbstractTest implements Constants {
       when().
         post("/deauth").
       andReturn();
+  }
+
+  // Create a query with the supplied body
+  protected void createQuery(String name, String bookmark, String queryBody) {
+    // Login as wizard-user
+    login(WIZARD_USER, WIZARD_PASSWORD);
+
+    String queryRequestBody = "bookmarkLabel=" + bookmark + "&queryName=" + name  + queryBody;
+
+    // Create the query/bookmark
+    String query = newRequest().
+      expect().
+        statusCode(OK.getStatusCode()).
+        body("status", equalTo("saved")).
+      when().
+        get("/api/wizard/create?" + queryRequestBody).
+      andReturn().asString();
+    System.out.println("Create Query Response: " + query);
+
+    // Logout once the query is created
+    logout();
+  }
+
+  protected String getResource(String file) {
+    try {
+      return Resources.toString(Resources.getResource(getClass(), file), Charsets.UTF_8);
+    } catch (IOException e) {
+      throw new RuntimeException("Could not find file: " + file, e);
+    }
   }
 
 }

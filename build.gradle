@@ -27,6 +27,7 @@ dependencies {
   testCompile "com.marklogic:ml-junit:3.0.0"
   testCompile "io.rest-assured:rest-assured:3.0.3"
   testCompile "org.springframework:spring-web:4.3.5.RELEASE"
+  testCompile "com.google.guava:guava:19.0"
 
   compile "com.marklogic:ml-app-deployer:3.6.2"
 
