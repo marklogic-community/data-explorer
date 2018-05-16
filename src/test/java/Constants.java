@@ -1,5 +1,8 @@
 package data_explorer;
 
 public interface Constants {
-  Integer TEST_CONSTANT = 1;
+  String WIZARD_USER = "wizard-user";
+  String WIZARD_PASSWORD = "password";
+  String SEARCH_USER = "search-user";
+  String SEARCH_PASSWORD = "password";
 }
