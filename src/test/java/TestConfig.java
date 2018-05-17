@@ -1,10 +1,19 @@
 package data_explorer;
 
+import data_explorer.GradleTaskRunner;
+
+import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ext.DatabaseClientConfig;
 import com.marklogic.client.ext.helper.DatabaseClientProvider;
 import com.marklogic.client.ext.spring.SimpleDatabaseClientProvider;
+import com.marklogic.client.io.SearchHandle;
+import com.marklogic.client.query.QueryManager;
+import com.marklogic.client.query.StructuredQueryBuilder;
+import com.marklogic.client.query.StructuredQueryDefinition;
 import io.restassured.parsing.Parser;
 import io.restassured.RestAssured;
+import org.junit.After;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
@@ -66,7 +75,8 @@ public class TestConfig implements InitializingBean {
   }
 
   /**
-   * Initialize RestAssured with the host/port and create a text parser for it
+   * Initialize RestAssured with the host/port and create a text parser for it.
+   * Find whether demo data exists or not and set a hook to clean it up.
    */
   @Override
   public void afterPropertiesSet() {
@@ -77,5 +87,29 @@ public class TestConfig implements InitializingBean {
     // Register a parser for text returns
     // TODO: The rest endpoints should be fixed to always return JSON
     RestAssured.registerParser("text/plain", Parser.TEXT);
+
+    // TODO: Refactor
+    DatabaseClientFactory.DigestAuthContext auth = new DatabaseClientFactory.DigestAuthContext(mlUsername, mlPassword);
+    DatabaseClient client = DatabaseClientFactory.newClient(mlHost, 8002, demoDatabase, auth);
+    QueryManager queryMgr = client.newQueryManager();
+    StructuredQueryBuilder qb = new StructuredQueryBuilder();
+    StructuredQueryDefinition querydef = qb.collection("DemoData");
+    SearchHandle results = queryMgr.search(querydef, new SearchHandle());
+
+    // Demo data is not present, so import it and set a shutdown hook to clean it up later.
+    if(results.getTotalResults() == 0L) {
+      System.out.println("Importing Demo Data for testing...");
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> resetDemoData()));
+    }
+  }
+
+  private void resetDemoData() {
+    GradleTaskRunner task = new GradleTaskRunner();
+    task.run("DeleteDemoData");
+  }
+
+  @After
+  public void test() {
+    System.out.println("AFTER");
   }
 }
