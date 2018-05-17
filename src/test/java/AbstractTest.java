@@ -4,6 +4,13 @@ import data_explorer.Constants;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import com.marklogic.client.DatabaseClient;
+import com.marklogic.client.DatabaseClientFactory;
+import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
+import com.marklogic.client.io.SearchHandle;
+import com.marklogic.client.query.QueryManager;
+import com.marklogic.client.query.StructuredQueryDefinition;
+import com.marklogic.client.query.StructuredQueryBuilder;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.http.ContentType;
@@ -15,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.Properties;
-import org.junit.BeforeClass;
 
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.containsString;
@@ -27,18 +33,24 @@ public abstract class AbstractTest implements Constants {
   CookieFilter cookieFilter = new CookieFilter();
   SessionFilter sessionFilter = new SessionFilter();
 
-  @BeforeClass
-  public static void configure() {
+  String mlHost = "localhost";
+  Integer mlRestPort = 7777;
+  String mlUsername = "admin";
+  String mlPassword = "admin";
+  String demoDatabase = "Data-Explorer-content";
+
+  public AbstractTest() {
     // Pull properties from gradle.properties to set the rest server and port
     Properties prop = new Properties();
     InputStream input = null;
-    String mlHost = "localhost";
-    Integer mlRestPort = 7777;
     try {
       input = new FileInputStream("gradle.properties");
       prop.load(input);
       mlHost = prop.getProperty("mlHost");
       mlRestPort = Integer.valueOf(prop.getProperty("mlRestPort"));
+      mlUsername = prop.getProperty("mlUsername");
+      mlPassword = prop.getProperty("mlPassword");
+      demoDatabase = prop.getProperty("demoDatabase");
     } catch (IOException ex) {
       ex.printStackTrace();
     }
@@ -116,6 +128,16 @@ public abstract class AbstractTest implements Constants {
     } catch (IOException e) {
       throw new RuntimeException("Could not find file: " + file, e);
     }
+  }
+
+  protected long getDocumentCountByCollection(String collection) {
+    DigestAuthContext auth = new DigestAuthContext(mlUsername, mlPassword);
+    DatabaseClient client = DatabaseClientFactory.newClient(mlHost, 8002, demoDatabase, auth);
+    QueryManager queryMgr = client.newQueryManager();
+    StructuredQueryBuilder qb = new StructuredQueryBuilder();
+    StructuredQueryDefinition querydef = qb.collection(collection);
+    SearchHandle results = queryMgr.search(querydef, new SearchHandle());
+    return results.getTotalResults();
   }
 
 }
