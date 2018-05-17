@@ -11,57 +11,31 @@ import com.marklogic.client.io.SearchHandle;
 import com.marklogic.client.query.QueryManager;
 import com.marklogic.client.query.StructuredQueryDefinition;
 import com.marklogic.client.query.StructuredQueryBuilder;
+import com.marklogic.junit.spring.AbstractSpringTest;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.http.ContentType;
-import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+
 import java.io.IOException;
-import java.util.Properties;
 
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
-public abstract class AbstractTest implements Constants {
+@ContextConfiguration(classes = {TestConfig.class})
+public abstract class AbstractTest extends AbstractSpringTest implements Constants {
 
   // Use cookie/session tracking for back to back rest tests
   CookieFilter cookieFilter = new CookieFilter();
   SessionFilter sessionFilter = new SessionFilter();
 
-  String mlHost = "localhost";
-  Integer mlRestPort = 7777;
-  String mlUsername = "admin";
-  String mlPassword = "admin";
-  String demoDatabase = "Data-Explorer-content";
-
-  public AbstractTest() {
-    // Pull properties from gradle.properties to set the rest server and port
-    Properties prop = new Properties();
-    InputStream input = null;
-    try {
-      input = new FileInputStream("gradle.properties");
-      prop.load(input);
-      mlHost = prop.getProperty("mlHost");
-      mlRestPort = Integer.valueOf(prop.getProperty("mlRestPort"));
-      mlUsername = prop.getProperty("mlUsername");
-      mlPassword = prop.getProperty("mlPassword");
-      demoDatabase = prop.getProperty("demoDatabase");
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    }
-    RestAssured.baseURI = "http://" + mlHost;
-    RestAssured.port = mlRestPort;
-    System.out.println("Initialized RestAssured at: " + RestAssured.baseURI + ":" + RestAssured.port);
-
-    // Register a parser for text returns
-    // TODO: The rest endpoints should be fixed to always return JSON
-    RestAssured.registerParser("text/plain", Parser.TEXT);
-  }
+  @Autowired
+  protected TestConfig testConfig;
 
   // Preload all requests with cookie/session data
   protected RequestSpecification newRequest() {
@@ -131,8 +105,8 @@ public abstract class AbstractTest implements Constants {
   }
 
   protected long getDocumentCountByCollection(String collection) {
-    DigestAuthContext auth = new DigestAuthContext(mlUsername, mlPassword);
-    DatabaseClient client = DatabaseClientFactory.newClient(mlHost, 8002, demoDatabase, auth);
+    DigestAuthContext auth = new DigestAuthContext(testConfig.mlUsername, testConfig.mlPassword);
+    DatabaseClient client = DatabaseClientFactory.newClient(testConfig.mlHost, 8002, testConfig.demoDatabase, auth);
     QueryManager queryMgr = client.newQueryManager();
     StructuredQueryBuilder qb = new StructuredQueryBuilder();
     StructuredQueryDefinition querydef = qb.collection(collection);
