@@ -1,17 +1,21 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('NavbarCtrl', function($rootScope, $location, Auth, $cookieStore,$http,$state) {
+  .controller('NavbarCtrl', function($rootScope, $location, Auth, $cookieStore, $http, $state) {
     $rootScope.bookmarks=[]
 
     $rootScope.menu = [{
       'title': 'Home',
       'state': 'main'
-    }]
-    $rootScope.dataExplorerMenu = [{
-      'title': 'Search',
-      'state': 'adhoc'
     }];
+
+    // Search is disabled if there are no queries setup.
+    if(!$rootScope.noQueries) {
+      $rootScope.dataExplorerMenu = [{
+        'title': 'Search',
+        'state': 'adhoc'
+      }];
+    }
 
     $rootScope.goState = function(state) {
         $state.go(state)
