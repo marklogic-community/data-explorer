@@ -29,6 +29,7 @@ dependencies {
   testCompile "org.springframework:spring-web:4.3.5.RELEASE"
   testCompile "com.google.guava:guava:19.0"
   testCompile "org.gradle:gradle-tooling-api:4.3"
+  testCompile "commons-io:commons-io:2.6"
 
   compile "com.marklogic:ml-app-deployer:3.6.2"
 

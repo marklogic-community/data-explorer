@@ -96,6 +96,26 @@ public abstract class AbstractTest extends AbstractSpringTest implements Constan
     logout();
   }
 
+  // Remove the query specified by docType, and name
+  protected void deleteQuery(String docType, String name) {
+    // Login as wizard-user
+    login(WIZARD_USER, WIZARD_PASSWORD);
+
+    String queryRequestBody = "docType=" + docType + "&queryName=" + name;
+
+    // Create the query/bookmark
+    String query = newRequest().
+      expect().
+        statusCode(OK.getStatusCode()).
+      when().
+        get("/api/crud/removeQuery?" + queryRequestBody).
+      andReturn().asString();
+    System.out.println("Remove Query Response: " + query);
+
+    // Logout once the query is created
+    logout();
+  }
+
   protected String getResource(String file) {
     try {
       return Resources.toString(Resources.getResource(getClass(), file), Charsets.UTF_8);

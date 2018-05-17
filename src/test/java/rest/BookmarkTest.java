@@ -2,7 +2,6 @@ package data_explorer.rest;
 
 import data_explorer.AbstractTest;
 
-import java.lang.String;
 import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +35,7 @@ public class BookmarkTest extends AbstractTest {
   @After
   public void destroy() {
     logout();
+    deleteQuery("/default_ns:farmersMarket", label);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class BookmarkTest extends AbstractTest {
       when().
         get("/api/listBookmarks").
       andReturn().asString();
-    System.out.println("Find Bookmark Resposne: " + bookmarkList);
+    System.out.println("Find Bookmark Response: " + bookmarkList);
   }
 
 }

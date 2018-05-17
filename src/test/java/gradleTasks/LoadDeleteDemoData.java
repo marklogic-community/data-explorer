@@ -1,8 +1,9 @@
-package data_explorer.rest;
+package data_explorer.gradle_tasks;
 
 import data_explorer.AbstractTest;
 import data_explorer.GradleTaskRunner;
 
+import java.util.UUID;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
