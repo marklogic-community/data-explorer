@@ -7,9 +7,6 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-
-
 
 /**
  * LoadDeleteDemoData
