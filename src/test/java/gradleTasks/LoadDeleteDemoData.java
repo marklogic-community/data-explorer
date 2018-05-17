@@ -1,10 +1,15 @@
 package data_explorer.rest;
 
 import data_explorer.AbstractTest;
+import data_explorer.GradleTaskRunner;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+
+
 
 /**
  * LoadDeleteDemoData
@@ -12,19 +17,23 @@ import org.junit.Test;
 
 public class LoadDeleteDemoData extends AbstractTest {
 
-  @Before
-  public void before() {
-    // Insert code to execute before tests here.
-  }
-
-  @After
-  public void after() {
-    // Insert code to execute after tests here.
-  }
-
   @Test
-  public void myNamedTest() {
-    // This is a stub for a unit test
+  public void DeleteAndLoadDemoData() {
+    GradleTaskRunner task = new GradleTaskRunner();
+
+    // Demo data should already be loaded.
+    long count = getDocumentCountByCollection("DemoData");
+    assertThat(count, is(not(0)));
+
+    // Execute DeleteDemoData and ensure a zero count.
+    task.run("DeleteDemoData");
+    count = getDocumentCountByCollection("DemoData");
+    assertThat(count, is(0L));
+
+    // Execute LoadDemoData and ensure not a zero count.
+    task.run("LoadDemoData");
+    count = getDocumentCountByCollection("DemoData");
+    assertThat(count, is(not(0L)));
   }
 
 }
