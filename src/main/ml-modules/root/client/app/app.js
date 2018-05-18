@@ -110,6 +110,21 @@ angular.module('demoApp', [
 
 })
 
+// Activate tooltips
+.directive('tooltip', function(){
+  return {
+    restrict: 'A',
+    link: function(scope, element, attrs){
+      element.tooltip({placement: attrs.placement});
+      element.hover(function(){
+        element.tooltip('show');
+      }, function(){
+        element.tooltip('hide');
+      });
+    }
+  };
+})
+
 .run(function($rootScope, $location, Auth) {
   // Redirect to login if route requires auth and you're not logged in
   $rootScope.$on('$stateChangeStart', function(event, next) {
