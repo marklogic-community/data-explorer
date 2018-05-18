@@ -120,6 +120,27 @@ task exportDemoDataToZip(type: com.marklogic.gradle.task.datamovement.DataMoveme
 }
 
 /**
+ * Deploys the version.js file to be used by the app
+ * Runs automatically before mlDeploy
+ */
+task deployVersionNumber(type: Copy) {
+  from(".") 
+  include "version.js"
+  into "src/main/ml-modules/root/client/assets"
+}
+mlDeploy.dependsOn deployVersionNumber
+
+/**
+ * Removes the version.js file in the source directory
+ * Runs automatically after mlDeploy
+ */
+task cleanupVersionNumber(type: Delete) {
+  delete "src/main/ml-modules/root/client/assets/version.js"
+}
+mlDeploy.finalizedBy cleanupVersionNumber
+cleanupVersionNumber.mustRunAfter mlDeploy
+
+/**
  * Customize the jar that can be used for deploying the data-explorer.
  *
  * The jar can then be built by running "gradle clean jar", and then run via "java -jar build/libs/data-explorer.jar".
@@ -134,6 +155,10 @@ jar {
     configurations.compile.collect {
       it.isDirectory() ? it : zipTree(it)
     }
+  }
+  from(".") {
+    include "version.js"
+    into "META-INF/com.marklogic.dataexplorer/ml-modules/root/client/assets"
   }
   from ("src/main/ml-modules") {
     into "META-INF/com.marklogic.dataexplorer/ml-modules"
