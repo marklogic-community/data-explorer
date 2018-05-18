@@ -51,6 +51,12 @@
   font-weight: bold;
 }
 
+@media (min-width: 992px) {
+  .search-panel {
+    position:fixed ! important;
+    left: 25%;
+  }
+}
 .nav-tabs > li {
   cursor: pointer;
 }
