@@ -230,6 +230,7 @@ factory('$click', function() {
       if (form.$valid) {
         $scope.queryCurrentPage = 1;
         $scope.search(false);
+        window.scrollTo(0,0);
       }
     };
     $scope.showExportCsv = function() {
