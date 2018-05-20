@@ -50,3 +50,20 @@
   color: #ff0000;
   font-weight: bold;
 }
+
+.help-text {
+  font-size: 70%;
+  vertical-align: top;
+  color: #327AB7;
+}
+
+@media (min-width: 992px) {
+  .search-panel {
+    position:fixed ! important;
+    left: 25%;
+  }
+}
+
+.nav-tabs > li {
+  cursor: pointer;
+}

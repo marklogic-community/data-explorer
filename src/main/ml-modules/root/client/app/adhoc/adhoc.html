@@ -17,13 +17,13 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Query</label>
+            <label>Query</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The query selects which fields are available for searching."></i>
             <select ng-model="selectedQuery" ng-options="item.queryName as item.queryName for item in queries.queries" class="form-control" required>
             	<option value="">--Choose Query</option>
             </select>
           </div>
           <div class="form-group">
-            <label>View</label>
+            <label>View</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The view defines which fields from the query are displayed, and the name given to each field."></i>
             <select ng-model="selectedView" ng-options="item.viewName as item.viewName for item in views.views" class="form-control" required>
             	<option value="">--Choose View</option>
             </select>
@@ -43,7 +43,7 @@
           </div>
         
       </div>
-      <div class="col-md-9">
+      <div class="col-md-9 search-panel">
         <div class="input-group search-box">
           <input type="text" class="form-control" ng-model="searchText" placeholder="Search text" aria-label="Search text">
           <span class="input-group-btn">
@@ -70,7 +70,7 @@
                 </table>
                 <pagination total-items="results['result-count']" ng-model="queryCurrentPage" max-size="5" class="pagination-sm" boundary-links="true" ng-click="search()"></pagination>
               </div>
-              <div style="overflow-x:auto">
+              <div style="max-height:calc(100vh - 260px); overflow-x:auto; overflow-y:auto;">
                 <table class="table table-bordered">
               	  <thead>
               	    <tr>

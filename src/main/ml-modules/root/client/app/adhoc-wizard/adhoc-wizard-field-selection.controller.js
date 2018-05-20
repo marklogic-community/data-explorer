@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('AdhocWizardFieldSelectionCtrl', function ($state, $scope, $http, $window, $stateParams, $sce, $interval, databaseService, wizardService) {
+  .controller('AdhocWizardFieldSelectionCtrl', function ($rootScope, $state, $scope, $http, $window, $stateParams, $sce, $interval, databaseService, wizardService) {
     // Retrieve state from local storage if state params are not passed.
     var state = $stateParams.deparams || JSON.parse($window.localStorage.getItem('deparams'));
     if (state) {
@@ -243,6 +243,7 @@ angular.module('demoApp')
                 var crudType = $scope.queryView === 'query' ? 'Query' : 'View';
                 var crudAction = ($scope.insertView || $scope.insertQuery) ? ' created ' : ' updated ';
                 renderResultsModal('success', crudType + crudAction + 'successfully.');
+                $rootScope.noQueries = false;
             }
         }).error(function(data, status){
           renderResultsModal('error', 'Server Error. Please try again later.');
