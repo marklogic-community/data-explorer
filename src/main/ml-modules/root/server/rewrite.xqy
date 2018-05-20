@@ -18,6 +18,12 @@ let $_ := ll:trace("FROM REWRITE : "||$path)
 let $uri :=
   if( $path eq "/favicon.ico" ) then
     "/client/assets/images/favicon.ico"
+  (: 
+   : This rewrite assumes that any path without a "." in it is an application route)
+   : and directs to our index.html
+   :)
+  else if( fn:not(fn:contains($path, ".")) and empty($rewrite) ) then
+    "/client/index.html"
   else if (empty($rewrite)) then
     fn:concat("/client",$path)
   else

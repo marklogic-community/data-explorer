@@ -1,14 +1,22 @@
 'use strict';
 
 angular.module('demoApp')
-  .controller('AdhocWizardFieldSelectionCtrl', function ($rootScope, $state,$scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
-    if ($stateParams.deparams) {
-        $scope.wizardForm = $stateParams.deparams.formData;
-        $scope.queryView = $stateParams.deparams.queryView;
-        $scope.loadDocType = $stateParams.deparams.docType;
-        $scope.loadViewName = $stateParams.deparams.viewName;
-        $scope.loadQueryName = $stateParams.deparams.queryName;
-        $scope.backState = $stateParams.deparams.backState;
+  .controller('AdhocWizardFieldSelectionCtrl', function ($rootScope, $state, $scope, $http, $window, $stateParams, $sce, $interval, databaseService, wizardService) {
+    // Retrieve state from local storage if state params are not passed.
+    var state = $stateParams.deparams || JSON.parse($window.localStorage.getItem('deparams'));
+    if (state) {
+      $scope.wizardForm = state.formData;
+      $scope.queryView = state.queryView;
+      $scope.loadDocType = state.docType;
+      $scope.loadViewName = state.viewName;
+      $scope.loadQueryName = state.queryName;
+      $scope.backState = state.backState;
+      // Store the state in local storage in case of refresh.
+      $window.localStorage.setItem('deparams', JSON.stringify(state));
+    } else {
+      // Something happened and the state was lost. Kick the user back to the crud page.
+      $state.go('crud');
+      return;
     }
     if ( !$scope.backState) {
         $scope.backState = 'crud'
