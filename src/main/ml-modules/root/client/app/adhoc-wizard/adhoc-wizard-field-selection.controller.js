@@ -218,6 +218,10 @@ angular.module('demoApp')
         var dupes = [];
         var counter = 1;
         for (var i = 1; i <= $scope.wizardForm.fields.length; i++){
+          if(!$scope.wizardForm.fields[i-1].include) {
+            // Don't process fields that aren't included
+            continue;
+          }
           var fieldName = $scope.wizardForm.fields[i-1].title;
           // Check/record duplicate field names
           if(fieldNames.indexOf(fieldName) !== -1) {
