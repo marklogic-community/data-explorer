@@ -218,19 +218,18 @@ angular.module('demoApp')
         var dupes = [];
         var counter = 1;
         for (var i = 1; i <= $scope.wizardForm.fields.length; i++){
-          if(!$scope.wizardForm.fields[i-1].include) {
-            // Don't process fields that aren't included
-            continue;
-          }
           var fieldName = $scope.wizardForm.fields[i-1].title;
           // Check/record duplicate field names
-          if(fieldNames.indexOf(fieldName) !== -1) {
-            if(dupes.indexOf(fieldName) === -1) {
-              dupes.push(fieldName);
-            }
-          } else {
-            fieldNames.push(fieldName);
+          if($scope.wizardForm.fields[i-1].include) {
+            if(fieldNames.indexOf(fieldName) !== -1) {
+              if(dupes.indexOf(fieldName) === -1) {
+                dupes.push(fieldName);
+              }
+            } else {
+              fieldNames.push(fieldName);
+            }  
           }
+          
           data['formLabel'+counter] = fieldName;
           data['formLabelHidden'+counter] = $scope.wizardForm.fields[i-1].xpathNormal;
           data['formLabelDataType'+counter] = $scope.wizardForm.fields[i-1].dataType;
