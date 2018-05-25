@@ -45,9 +45,6 @@ angular.module('demoApp')
 
     $scope.inputField = {};
 
-    $scope.isFieldError = false;
-    $scope.fieldError = "";
-
     $scope.isNamespaceAware = true;
     $scope.showNamespaces = false;
     $scope.filename = '';
@@ -191,7 +188,6 @@ angular.module('demoApp')
     };
 
     $scope.submitWizard = function(){
-      clearFieldError();
       if(validateParameters()){
         var data = {}
         data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
@@ -291,11 +287,13 @@ angular.module('demoApp')
         }
       }
       if(!includedField){
+        var msg = "";
         if($scope.queryView === 'query'){
-          setFieldError("A query requires at least one ouput field. Please select 'Both' or 'Results Only' for at least one field.");
+          msg = "A query requires at least one ouput field. Please select 'Both' or 'Results Only' for at least one field.";
         }else {
-          setFieldError("A view requires at least one ouput field. Please select 'Yes' for at least one field.");
+          msg = "A view requires at least one ouput field. Please select 'Yes' for at least one field.";
         }
+        renderResultsModal('error', msg);
         return false;
       }
       return true;
@@ -324,16 +322,4 @@ angular.module('demoApp')
     	
     	return suggestedName;
     }
-
-    function clearFieldError() {
-      $scope.isFieldError = false;
-      $scope.fieldError = '';
-    }
-    function setFieldError(fieldErrorMsg){
-      $scope.isFieldError = true;
-      $scope.fieldError = fieldErrorMsg;
-      $location.hash("fieldError");
-      $anchorScroll();
-    }
-
   });
