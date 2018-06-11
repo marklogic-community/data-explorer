@@ -214,7 +214,7 @@ declare function search-lib:search($params as map:map, $useDB as xs:string,$expo
           <current-page>{$page}</current-page>
           <page-count>{search-lib:page-count($search-response)}</page-count>
           <display-order>{$display-order}</display-order>
-          <result-headers><header>URI</header>{for $c in $view/resultFields/resultField return <header>{$c/@label/fn:string()}</header>}</result-headers>
+          <result-headers><header>Database Name</header><header>URI</header>{for $c in $view/resultFields/resultField return <header>{$c/@label/fn:string()}</header>}</result-headers>
           <results>{$results}</results>
         </output>
     else
