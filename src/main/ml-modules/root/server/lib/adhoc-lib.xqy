@@ -25,22 +25,36 @@ declare function lib-adhoc:transform-xpath-with-spaces($xpath as xs:string) {
 			,'/')
 };
 
-declare function lib-adhoc:get-databases() as xs:string*{
-	for $db in fn:distinct-values(
-				for $server in xdmp:servers()
-				  return try {
-                      if ( fn:empty($server) or fn:empty(xdmp:server-database($server))) then
-                          ()
-                      else
-                          xdmp:database-name(xdmp:server-database($server))
-                  }
-                  catch($e) {
-                      ll:trace($e)
-                  }
-			   )
-  	where fn:not($db = ($cfg:ignoreDbs))
-  	order by $db ascending
-    return $db
+declare function lib-adhoc:get-databases() as node()* {
+    let $dbs :=
+        fn:distinct-values(
+            for $server in xdmp:servers()
+            return
+                try {
+                    if (fn:empty($server) or fn:empty(xdmp:server-database($server))) then
+                        ()
+                    else
+                        xdmp:database-name(xdmp:server-database($server))
+                }
+                catch($e) {
+                    ll:trace($e)
+                }
+        )
+    for $db in $dbs
+    let $documentCount :=
+        xu:invoke-function(
+            function() { xdmp:estimate(/) },
+            <options xmlns="xdmp:eval">
+                <database>{ xdmp:database($db) }</database>
+            </options>
+        )
+    where fn:not($db = ($cfg:ignoreDbs))
+    order by $db ascending
+    return
+        object-node {
+            "name" : $db,
+            "count" : fn:format-number($documentCount, "#,###")
+        }
 };
 
 declare function lib-adhoc:get-doctypes($database as xs:string) as xs:string*{

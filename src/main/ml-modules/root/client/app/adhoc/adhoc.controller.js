@@ -82,7 +82,11 @@ factory('$click', function() {
 
     $http.get('/api/adhoc').success(function(data, status, headers, config) {
       if (status == 200 && Array.isArray(data)) {
-        $scope.databases = data;
+        var databases = [];
+        for (var key in data) {
+            databases.push(JSON.parse(data[key]));
+        }
+        $scope.databases = databases;
         if ( $scope.loadDatabase != undefined) {
             $scope.selectedDatabase = $scope.loadDatabase;
         }

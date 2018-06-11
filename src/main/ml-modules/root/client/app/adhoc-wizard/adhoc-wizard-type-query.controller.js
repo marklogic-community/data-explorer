@@ -47,7 +47,11 @@ angular.module('demoApp')
         $scope.wizardUploadFormData = null;
 
         databaseService.list().then(function(data) {
-            $scope.availableDatabases = data;
+            var databases = [];
+            for (var key in data) {
+                databases.push(JSON.parse(data[key]));
+            }
+            $scope.availableDatabases = databases;
         });
         $scope.$watch('docTypeMethod', function() {
             $scope.message = "";
@@ -87,8 +91,12 @@ angular.module('demoApp')
                 transformRequest: angular.identity
             }).success(function(data, status) {
                 if (status == 200) {
+                    var databases = [];
+                    for (var key in data) {
+                        databases.push(JSON.parse(data[key]));
+                    }
                     $scope.wizardForm = {
-                        databases: data
+                        databases: databases
                     };
                     $("#selectDocument").modal();
                 }

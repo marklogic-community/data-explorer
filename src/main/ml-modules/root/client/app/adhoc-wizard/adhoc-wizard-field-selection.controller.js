@@ -62,7 +62,11 @@ angular.module('demoApp')
     		}
     });
       databaseService.list().then(function(data) {
-          $scope.availableDatabases = data;
+          var databases = [];
+          for (var key in data) {
+              databases.push(JSON.parse(data[key]));
+          }
+          $scope.availableDatabases = databases;
           if ( $scope.editMode ) {
               wizardService.getQueryView($scope.loadQueryName, $scope.loadDocType,$scope.loadViewName)
                   .success(function (data, status) {
