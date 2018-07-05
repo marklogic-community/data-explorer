@@ -16,11 +16,12 @@ Data Explorer is appropriate for any project with XML data in the database. JSON
 
 ### System Requirements
 
-- MarkLogic 8.0-2 or greater 
-- Java 8 JDK or greater
-- Gradle 3.1 or greater 
+- MarkLogic 8.0-2 or greater [(ML9)](https://developer.marklogic.com/products) [(ML8)](https://developer.marklogic.com/products/marklogic-server/8.0)
+- Java 8 JDK or greater [(Java 8)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+- Gradle 3.1 or greater [(Gradle)](https://gradle.org/gradle-download/)
 
-see [Download Links](#DownloadLinks), below, to get these now.
+see [Download Links](#DownloadLinks), below, to download depend.
+To download latest version of Data Explorer: https://github.com/marklogic-community/data-explorer/releases
 
 ----
 ## Setup and Use Overview
@@ -63,28 +64,52 @@ java -DmlPassword=<your-admin-pwd> -DmlHost=<your-ml-host> -jar data-explorer.ja
 
 ### Set up Queries and Views
 
+Queries and Views can only be created by a user with data-explorer-wizard-role (see Security).
+With the wizard role, the "Edit config" menu item will be visible.  This capability allows management of queries and bookmarks.
+
+**When starting the Data Explorer for the first time, there are not queries defined!!!**
+Select the "Edit config" menu item to define queries.
 Because you have no query views, you'll get dropped right into the "wizard" to create new queries and views when you browse to <ml-host>:7777. 
 
-Data Explorer needs an *Example Document* to get element names for queries and views; therefore, first "browse" to and upload an example document that you must have stored on your local file-system. Ideally, your example doc has most or all expected elements in the documents in your actual database.
+#### What is this Query/View concept?
+The Data Explorer allows a users to search and view their data!  
+The search can be a word/text search across all fields, or a specific elements/attributes search defined in the query
+The output (or View) provides a tabular  view of the results of the search performed.
+The Data Explorer has several options for defining a query.
+- Choose a representative XML/JSON file from the file system
+- Sample the database by collection name, directory, URI, or root element
+- Sample the database by choosing a document type (this does a sampling of documents to choose from)
 
-Once you have indicated a document via the "browse" button, **click "new query"**
+Once you have selected a document via one of these techniques, **click "Select fields"**
 
 
 ![Query Wizard Image](docImages/QueryViewWizard.png?raw=true "Query Wizard")
 
 
 In the resulting wizard you must
-- name the query/view combination
-- specify which elements are used for queries or views or both
-- tell Data Explorer which database this query and view are valid for
+- Name the query
+- Choose the root element (this allows envelop selection)
+- Tell Data Explorer which database this query and view are valid for
+- Identify if you would like a bookmark and name it
+- Specify the result element order as alphabetical or document order
+- Specify which elements are used for queries or views or both
+
+Save the query and go search!!!
 
 ----
 ## Data Explorer Use
 
-**Security** Users typically do **not** have the wizard role, but rather have the data-explorer-search-role. This role allows them to see queries and views on the "search" tab. A default user with name search-user and password "password" will be configured on install. 
-Users *also need permissions for your database* so either add your project's roles to search-user, or add data-explorer-search-role to a user to enable searching.
+###Security 
 
-Log in as that user, or continue as the "wizard-user," and go to the search tab.
+There are two Data explorer roles: wizard role (data-explorer-wizard-role) and search role (data-explorer-search-role).  
+**To user the Data Explorer, they must be assigned one of these roles!!!**
+The wizard role is to configure queries for search role users.  This will generally be someone who has knowledge of MarkLogic and the data domain.
+Search users typically do **not** have the wizard role, but rather have the data-explorer-search-role. This role allows them to see queries and views on the "search" tab. 
+Users **also need permissions for your database** so either add your project's roles to search-user, or add data-explorer-search-role to a user to enable searching.
+
+#### Default Users
+A default user with name search-user and password "password" will be configured on install. 
+Recommend removing default users or changing their passwords!!!
 
 ### Also add your own security roles 
 A user cannot see data in the main database (your database, not the Data Explorer database) without roles that allow them to see it. So users will need roles from your existing security configuration to see data as well.
@@ -94,6 +119,7 @@ Alternatively, if users are already configured as MarkLogic Users in some way, a
 ### Basic searching
 
 The left hand side has selection and query controls to find data and show in your configured view(s).
+Version 0.10 has added bookmarks wich allow quick access to "saved" queries.
 
 ![Search Screen Image](docImages/SearchScreen.png?raw=true "Search Screen")
 
@@ -118,7 +144,7 @@ This is not critical, but for queries to work right, you typically want them res
 # Contributing, Issues and Code
 
 ## Development 
-The JIRA repository for issue and sprint tracking is here: https://project.marklogic.com/jira/projects/FERR/ . However it will move to the MarkLogic Community github site soon.
+The Github repository for issue and sprint tracking is here: https://github.com/marklogic-community/data-explorer. 
 
 
 ## Licenses
