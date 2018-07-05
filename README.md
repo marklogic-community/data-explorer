@@ -20,8 +20,7 @@ Data Explorer is appropriate for any project with XML data in the database. JSON
 - Java 8 JDK or greater [(Java 8)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 - Gradle 3.1 or greater [(Gradle)](https://gradle.org/gradle-download/)
 
-see [Download Links](#DownloadLinks), below, to download depend.
-To download latest version of Data Explorer: https://github.com/marklogic-community/data-explorer/releases
+Data Explorer downloads: https://github.com/marklogic-community/data-explorer/releases
 
 ----
 ## Setup and Use Overview
@@ -73,8 +72,10 @@ Because you have no query views, you'll get dropped right into the "wizard" to c
 
 #### What is this Query/View concept?
 The Data Explorer allows a users to search and view their data!  
-The search can be a word/text search across all fields, or a specific elements/attributes search defined in the query
-The output (or View) provides a tabular  view of the results of the search performed.
+The search can be a word/text search across all fields, or a specific elements/attributes search defined in the query.
+The output (or View) provides a tabular view of the results of the search performed.
+
+#### Defining a query
 The Data Explorer has several options for defining a query.
 - Choose a representative XML/JSON file from the file system
 - Sample the database by collection name, directory, URI, or root element
@@ -97,9 +98,9 @@ In the resulting wizard you must
 Save the query and go search!!!
 
 ----
-## Data Explorer Use
+## Additional Information
 
-###Security 
+### Security 
 
 There are two Data explorer roles: wizard role (data-explorer-wizard-role) and search role (data-explorer-search-role).  
 **To user the Data Explorer, they must be assigned one of these roles!!!**
