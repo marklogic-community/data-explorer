@@ -12,7 +12,8 @@ The tool is **non-intrusive** and **easy to install**, meaning that you can down
 ----
 ## Can I use Data Explorer?
 
-Data Explorer is appropriate for any project with XML data in the database. JSON, RDF, SQL and other access is on the way.
+Data Explorer is appropriate for any project with XML or JSON data in the database. 
+There is support for RDF triples within XML documents.  Full RDF is planned for the future.
 
 ### System Requirements
 
@@ -90,7 +91,9 @@ Once you have selected a document via one of these techniques, **click "Select f
 In the resulting wizard you must
 - Name the query
 - Choose the root element (this allows envelop selection)
-- Tell Data Explorer which database this query and view are valid for
+- Select which database to use for the query and view (
+  - Database selection limited to those with app server
+  - Database counts are documents available base on users roles
 - Identify if you would like a bookmark and name it
 - Specify the result element order as alphabetical or document order
 - Specify which elements are used for queries or views or both
@@ -171,4 +174,5 @@ the permissions on the results (click through to a row to see permissions).
     * Find what is using that port, and change it via the --mlRestPort option to the .jar deployer, or modify gradle.properties to specify 
       another port (see ml-gradle github for details). 
 - No search tab, and/or no wizard tab. - Likely need security roles added to the current user - even admin needs a role for these tabs to be visible on the UI.
-
+- Missing databases - Only databases that have application server are shown in database list.
+- Database counts are incorrect - The counts are based on the permissions available to the user, so check permissions to the data first. 
