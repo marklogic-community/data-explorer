@@ -42,7 +42,7 @@
         <div class="col-md-12" ng-if="docTypeMethod === 'select'">
           <div class="form-group">
             <label for="selectDB">Choose a database:</label>
-            <select id="selectDB" class="form-control" ng-model="formInput.selectedDatabase" ng-options="database as database for database in availableDatabases">
+            <select id="selectDB" class="form-control" ng-model="formInput.selectedDatabase" ng-options="database.name as database.name + ' (' + database.count + ')' for database in availableDatabases">
               <option value="">---</option>
             </select>
           </div>
@@ -86,7 +86,7 @@
 		  					<div class="col-sm-3">
 							<div class="input-group input-group-sm">
 							    <select id="database" ng-model="formInput.selectedDatabase" name="database"
-							     ng-options="database as database for database in wizardForm.databases" 
+							     ng-options="database.name as database.name + ' (' + database.count + ')' for database in wizardForm.databases" 
 							     class="form-control pull-right" required>
 						            	<option value="">--Choose Database</option>
 						        	</select>

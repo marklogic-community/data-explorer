@@ -59,7 +59,7 @@ declare function local:get-uris-by-root-element-name($element-name, $max-uris,$s
     let $max-uris:=xs:int($max-uris)
     let $max-uris-plus1:=$max-uris+1
     let $query:=
-                let $root-name:=fn:substring(tokenize($element-name,"~")[1],2)
+                let $root-name:=tokenize($element-name,"~")[1]
                 let $ns:=tokenize($element-name,"~")[2]
                 return 
                   <query>

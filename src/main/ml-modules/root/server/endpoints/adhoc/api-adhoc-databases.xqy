@@ -12,11 +12,9 @@ declare option xdmp:mapping "false";
 declare function local:get-json(){
     let $databases := 
     	for $d in lib-adhoc:get-databases()
-    	where fn:not(fn:contains(fn:lower-case($d),"modules"))
-    	return $d
-
-
-    let $array-json := to-json:seq-to-array-json(to-json:string-sequence-to-json($databases))
+    	where fn:not(fn:contains(fn:lower-case($d/name/fn:string()),"modules"))
+    	return xdmp:quote($d)
+    let $array-json := json:to-array($databases)
     return $array-json
 };
 

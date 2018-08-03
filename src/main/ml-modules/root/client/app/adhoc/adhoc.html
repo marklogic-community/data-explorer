@@ -6,7 +6,7 @@
       <div class="col-md-3">
           <div class="form-group">
             <label>Database</label>
-            <select ng-model="selectedDatabase" ng-options="item as item for item in databases" class="form-control" required>
+            <select ng-model="selectedDatabase" ng-options="item.name as item.name + ' (' + item.count + ')' for item in databases" class="form-control" required>
             	<option value="">--Choose Database</option>
             </select>
           </div>
