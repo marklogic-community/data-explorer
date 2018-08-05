@@ -38,6 +38,74 @@ factory('$click', function() {
                       uri: uri}})
       };
 
+    ctrl.filetypeData = [{
+      id: 'X',
+      name: 'Empty',
+      color: "#EC2500",
+      value: 1
+    }];
+
+    ctrl.sampleFiletypes = function(dbName) {
+      console.log("ENTER ctrl.sampleFiletypes()");
+      console.log("sampleFiletypes $scope.selectedDatabase", $scope.selectedDatabase);
+      console.log("sampleFiletypes dbName", dbName);
+      return $http.get('/api/sample-filetypes', {
+        params: {
+          dbName: encodeURIComponent( (dbName) ? dbName : $scope.selectedDatabase )
+        }
+      })
+      .then(function(response) {
+        console.log("ctrl.sampleFiletypes() received response", response);
+        if (response.data && response.data.values) {
+          // console.log("ctrl.sampleFiletypes() has response.data.values", response.data.values);
+          ctrl.filetypeData = response.data;
+          ctrl.makeChart();
+          return response.data.values;
+        }
+        else {
+          // console.log("ctrl.sampleFiletypes() has no good response");
+          ctrl.filetypeData = [{
+            id: 'X',
+            name: 'Empty',
+            color: "#DFDFDF",
+            value: 1
+          }];
+          ctrl.makeChart();
+          return [];
+        }
+      });
+      // console.log("EXIT ctrl.sampleFiletypes()");
+    };
+
+    ctrl.sampleFiletypes($scope.selectedDatabase);
+
+    ctrl.makeChart = function() {
+      Highcharts.chart('fileVizContainer', {
+          series: [{
+              type: "treemap",
+              layoutAlgorithm: 'squarified',
+              alternateStartingDirection: true,
+              levels: [{
+                  level: 1,
+                  layoutAlgorithm: 'sliceAndDice',
+                  dataLabels: {
+                      enabled: true,
+                      align: 'left',
+                      verticalAlign: 'top',
+                      style: {
+                          fontSize: '15px',
+                          fontWeight: 'bold'
+                      }
+                  }
+              }],
+              data: ctrl.filetypeData
+          }],
+          title: {
+              text: 'Database contents'
+          }
+      });
+    };
+
     ctrl.suggestValues = function(field) {
       return $http.get('/api/suggest-values', {
         params: {
@@ -123,6 +191,9 @@ factory('$click', function() {
               $scope.message = "Login failure. Please log in.";
               Auth.logout();
             }
+
+            // ...and also, refresh the database content visualization
+            ctrl.sampleFiletypes(newValue);
           });
         }
       }

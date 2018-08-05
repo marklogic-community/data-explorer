@@ -27,6 +27,7 @@ declare variable $endpoints:API-USERS           as xs:string := "/server/endpoin
 declare variable $endpoints:API-ADHOC-DATABASES as xs:string := "/server/endpoints/adhoc/api-adhoc-databases.xqy";
 declare variable $endpoints:API-SEARCH          as xs:string := "/server/endpoints/adhoc/api-adhoc-search.xqy";
 declare variable $endpoints:API-SUGGEST-VALUES  as xs:string := "/server/endpoints/adhoc/api-adhoc-suggest-values.xqy";
+declare variable $endpoints:API-SAMPLE-FILETYPES  as xs:string := "/server/endpoints/adhoc/api-sample-filetypes.xqy";
 declare variable $endpoints:API-ADHOC-WIZARD as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard.xqy";
 declare variable $endpoints:API-ADHOC-WIZARD-SELECT-DOC as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard-doc-selection.xqy";
 declare variable $endpoints:API-ADHOC-WIZARD-CREATE as xs:string := "/server/endpoints/adhoc/wizard/api-adhoc-query-wizard-create.xqy";
@@ -147,6 +148,10 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="queryName"/>
             <param name="rangeIndex"/>
             <param name="qtext"/>
+            <http method="GET"/>
+        </request>
+        <request uri="^/api/sample-filetypes$" endpoint="{ $endpoints:API-SAMPLE-FILETYPES }">
+            <param name="dbName"/>
             <http method="GET"/>
         </request>
         <request uri="^/api/wizard/upload$" endpoint="{$endpoints:API-ADHOC-WIZARD}">
