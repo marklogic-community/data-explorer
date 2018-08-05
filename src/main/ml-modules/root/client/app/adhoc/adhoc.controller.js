@@ -83,11 +83,11 @@ factory('$click', function() {
       Highcharts.chart('fileVizContainer', {
           series: [{
               type: "treemap",
-              layoutAlgorithm: 'squarified',
+              layoutAlgorithm: "squarified",
               alternateStartingDirection: true,
               levels: [{
                   level: 1,
-                  layoutAlgorithm: 'sliceAndDice',
+                  layoutAlgorithm: 'squarified',
                   dataLabels: {
                       enabled: true,
                       align: 'left',
