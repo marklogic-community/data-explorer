@@ -46,24 +46,18 @@ factory('$click', function() {
     }];
 
     ctrl.sampleFiletypes = function(dbName) {
-      console.log("ENTER ctrl.sampleFiletypes()");
-      console.log("sampleFiletypes $scope.selectedDatabase", $scope.selectedDatabase);
-      console.log("sampleFiletypes dbName", dbName);
       return $http.get('/api/sample-filetypes', {
         params: {
           dbName: encodeURIComponent( (dbName) ? dbName : $scope.selectedDatabase )
         }
       })
       .then(function(response) {
-        console.log("ctrl.sampleFiletypes() received response", response);
         if (response.data && response.data.values) {
-          // console.log("ctrl.sampleFiletypes() has response.data.values", response.data.values);
           ctrl.filetypeData = response.data;
           ctrl.makeChart();
           return response.data.values;
         }
         else {
-          // console.log("ctrl.sampleFiletypes() has no good response");
           ctrl.filetypeData = [{
             id: 'X',
             name: 'Empty',
@@ -74,7 +68,6 @@ factory('$click', function() {
           return [];
         }
       });
-      // console.log("EXIT ctrl.sampleFiletypes()");
     };
 
     ctrl.sampleFiletypes($scope.selectedDatabase);
