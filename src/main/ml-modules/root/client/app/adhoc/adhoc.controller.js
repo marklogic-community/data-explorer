@@ -93,9 +93,7 @@ factory('$click', function() {
               }],
               data: ctrl.filetypeData
           }],
-          title: {
-              text: 'Database contents'
-          }
+          title: {}
       });
     };
 
