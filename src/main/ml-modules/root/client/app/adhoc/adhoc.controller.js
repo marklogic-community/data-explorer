@@ -93,7 +93,9 @@ factory('$click', function() {
               }],
               data: ctrl.filetypeData
           }],
-          title: {}
+          title: {
+              text: ''
+          }
       });
     };
 
