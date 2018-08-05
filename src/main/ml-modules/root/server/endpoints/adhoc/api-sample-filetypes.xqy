@@ -21,15 +21,6 @@ declare function local:sampleFs($databaseName) {
     declare variable $sampleThreshold as xs:int external;
 
 
-    declare function local:randomRgb() {
-      let $hex := ("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F")
-      let $rands := (xdmp:random() mod 16, xdmp:random() mod 16, xdmp:random() mod 16, xdmp:random() mod 16, xdmp:random() mod 16, xdmp:random() mod 16)
-      return ("#"
-        || $hex[$rands[1]+1] || $hex[$rands[2]+1] || $hex[$rands[3]+1]
-        || $hex[$rands[4]+1] || $hex[$rands[5]+1] || $hex[$rands[6]+1]
-      )
-    };
-
     declare function local:HSVtoRGB($h, $s, $v) {
         let $i := math:floor($h * 6)
         let $f := $h * 6 - $i
