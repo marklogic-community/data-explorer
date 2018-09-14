@@ -20,6 +20,10 @@ public class ClasspathAssets extends LoggingObject {
 	}
 
 	public PropertySource newPropertySource() {
+		return new SimplePropertySource(readApplicationProperties());
+	}
+
+	public Properties readApplicationProperties() {
 		Properties props = new Properties();
 		String fullPath = path + "/" + propertiesFilename;
 
@@ -39,8 +43,7 @@ public class ClasspathAssets extends LoggingObject {
 				props.setProperty(skey, systemProps.getProperty(skey));
 			}
 		}
-
-		return new SimplePropertySource(props);
+		return props;
 	}
 
 	public void setOverwritePropertiesWithSystemProperties(boolean overwritePropertiesWithSystemProperties) {

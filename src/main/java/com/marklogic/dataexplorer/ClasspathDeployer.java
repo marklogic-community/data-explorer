@@ -6,7 +6,9 @@ import com.marklogic.appdeployer.command.Command;
 import com.marklogic.appdeployer.command.CommandContext;
 import com.marklogic.appdeployer.command.CommandMapBuilder;
 import com.marklogic.appdeployer.command.modules.LoadModulesCommand;
+import com.marklogic.appdeployer.command.security.DeployRolesCommand;
 import com.marklogic.appdeployer.impl.SimpleAppDeployer;
+import com.marklogic.appdeployer.util.SimplePropertiesSource;
 import com.marklogic.client.ext.file.JarDocumentFileReader;
 import com.marklogic.client.ext.helper.LoggingObject;
 import com.marklogic.client.ext.modulesloader.impl.AssetFileLoader;
@@ -19,6 +21,7 @@ import com.marklogic.mgmt.admin.AdminConfig;
 import com.marklogic.mgmt.admin.AdminManager;
 import com.marklogic.mgmt.admin.DefaultAdminConfigFactory;
 import com.marklogic.mgmt.util.PropertySource;
+import com.marklogic.mgmt.util.SimplePropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -27,10 +30,8 @@ import org.springframework.util.FileCopyUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Not quite the best name - this class knows how to deploy/undeploy an application from modules and configuration
@@ -39,24 +40,33 @@ import java.util.Map;
  */
 public class ClasspathDeployer extends LoggingObject {
 
+	private Consumer<CommandContext> beforeDeployCallback;
+
 	public void processRequest(ClasspathAssets assets, boolean isDeploy) {
 		final String path = assets.getPath();
 
-		PropertySource propertySource = assets.newPropertySource();
+		final Properties applicationProperties = assets.readApplicationProperties();
+		final PropertySource propertySource = new SimplePropertySource(applicationProperties);
 
-		AppConfig appConfig = buildAppConfig(path, propertySource);
+		AppConfig appConfig = buildAppConfig(path, applicationProperties);
+
 		ManageClient manageClient = buildManageClient(propertySource);
 		AdminManager adminManager = buildAdminManager(propertySource);
 		CommandContext commandContext = new CommandContext(appConfig, manageClient, adminManager);
 
 		File configDir = writeConfigFilesToDirectory(path);
-		appConfig.getConfigDir().setBaseDir(configDir);
+		appConfig.getFirstConfigDir().setBaseDir(configDir);
 
 		List<Command> commands = buildCommandList(commandContext, isDeploy);
 		SimpleAppDeployer appDeployer = new SimpleAppDeployer(manageClient, adminManager, commands.toArray(new Command[]{}));
 
 		if (isDeploy) {
 			logger.info("Deploying application...");
+
+			if (beforeDeployCallback != null) {
+				beforeDeployCallback.accept(new CommandContext(appConfig, manageClient, adminManager));
+			}
+
 			appDeployer.deploy(appConfig);
 		} else {
 			logger.info("Undeploying application...");
@@ -64,10 +74,19 @@ public class ClasspathDeployer extends LoggingObject {
 		}
 	}
 
-	protected AppConfig buildAppConfig(String path, PropertySource propertySource) {
-		AppConfig appConfig = new DefaultAppConfigFactory(propertySource).newAppConfig();
+	/**
+	 * This depends on the Properties object containing the application properties so that the properties can be used
+	 * both for constructing an AppConfig instance and for token replacement.
+	 *
+	 * @param path
+	 * @param applicationProperties
+	 * @return
+	 */
+	protected AppConfig buildAppConfig(String path, Properties applicationProperties) {
+		AppConfig appConfig = new DefaultAppConfigFactory(new SimplePropertySource(applicationProperties)).newAppConfig();
 		appConfig.setModulePaths(Arrays.asList("classpath*:" + path + "/ml-modules"));
 		appConfig.setModuleTimestampsPath(null);
+		appConfig.populateCustomTokens(new SimplePropertiesSource(applicationProperties));
 		return appConfig;
 	}
 
@@ -193,4 +212,13 @@ public class ClasspathDeployer extends LoggingObject {
 		return mlConfigDir;
 	}
 
+	/**
+	 * The intent of this consumer is to give the client a chance to fiddle with the objects in the CommandContext after
+	 * they've been constructed but before the application is deployed.
+	 *
+	 * @param beforeDeployCallback
+	 */
+	public void setBeforeDeployCallback(Consumer<CommandContext> beforeDeployCallback) {
+		this.beforeDeployCallback = beforeDeployCallback;
+	}
 }
