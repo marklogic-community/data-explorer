@@ -31,7 +31,7 @@ dependencies {
   testCompile "org.gradle:gradle-tooling-api:4.3"
   testCompile "commons-io:commons-io:2.6"
 
-  compile "com.marklogic:ml-app-deployer:3.6.2"
+  compile "com.marklogic:ml-app-deployer:3.9.0"
 
   // For reading command-line args
   compile "com.beust:jcommander:1.72"
@@ -47,12 +47,6 @@ repositories {
 
     maven { url "http://developer.marklogic.com/maven2/" }
     maven { url "http://repository.cloudera.com/artifactory/cloudera-repos/" }
-}
-
-
-task MyTask() {
-    println 'Port =' + mlAppConfig.restPort
-    println 'Modules Database =' + mlAppConfig.modulesDatabaseName
 }
 
 task exportQueriesAndViews(type: com.marklogic.gradle.task.MlcpTask) {
