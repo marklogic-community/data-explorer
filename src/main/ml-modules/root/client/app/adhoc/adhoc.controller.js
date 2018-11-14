@@ -358,6 +358,12 @@ factory('$click', function() {
               return
           }
     		  $scope.message = '';
+
+          // remove 'Database Name' header because we don't want to display that column in the results
+          var colIdx = data['results-header'].indexOf('Database Name');
+          if(colIdx !== -1){
+              data['results-header'].splice(colIdx, 1);
+          }
           if(data['display-order'] === 'alphabetical'){
             var cols = data['results-header'].slice(1).sort(function (a, b) {
               return a.toLowerCase().localeCompare(b.toLowerCase());
