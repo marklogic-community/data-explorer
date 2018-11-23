@@ -5,7 +5,7 @@ This is a tool to **quickly and easily set up queries and tabular views** of dat
 
 The guiding principle of Data Explorer is to separate the roles between *a data owner* who knows the data and manages lists of queries and views, and *data users* who simply need to query, view, explore and export data.
 
-All data is exposed thorugh tabular HTML views and tabular Excel outputs (.csv format).
+All data is exposed through tabular HTML views and tabular Excel outputs (.csv format).
 
 The tool is **non-intrusive** and **easy to install**, meaning that you can download and run an install quickly without impacting your existing databases or configuration. Data Explorer will set up an extra modules and configuration database, but will not store or modify data in your own databases.
 
@@ -35,7 +35,7 @@ Most of the setup is self explanatory. Follow these steps to get views on your (
    * upload a sample document to tell Data Explorer what elements are possible
    * Choose fields for query and view, respectively
    * Name the query/view combo and set the database where it applies
-* Update/create a user or users to have both a data-explorer role, "data-explorer-search-role", and whatever role(s) needed to access data in your DB.
+* Update/create a user or users to have **both** a data-explorer role, "data-explorer-search-role", and whatever **role(s) needed to access data in your DB**.
    * Data Explorer explicitly checks for wizard and search roles, so even the admin user will not work without a role.
 * go to the "search" tab or log out and log back in as the "search-user" to see your data
 
