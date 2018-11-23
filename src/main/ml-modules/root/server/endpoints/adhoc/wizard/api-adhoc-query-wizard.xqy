@@ -117,7 +117,7 @@ try {
             to-json:seq-to-array-json(to-json:string-sequence-to-json(local:get-structure($is-json,$uploaded-doc)))
           }</possibleRoots>
 	      <rootElement>{if ($is-json) then "/" else fn:replace(xdmp:path($uploaded-doc/node()), "\[.*\]", "")}</rootElement>
-	      <databases>{to-json:seq-to-array-json(to-json:string-sequence-to-json(lib-adhoc:get-databases()))}</databases>
+	      <databases>{to-json:seq-to-array-json(to-json:string-sequence-to-json(lib-adhoc:get-databases()/name))}</databases>
 	      <namespaces>{ to-json:seq-to-array-json($namespaces) }</namespaces>
 	      <fields>{ $fields }</fields>
 	  </data>
