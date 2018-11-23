@@ -35,7 +35,7 @@ Most of the setup is self explanatory. Follow these steps to get views on your (
    * upload a sample document to tell Data Explorer what elements are possible
    * Choose fields for query and view, respectively
    * Name the query/view combo and set the database where it applies
-* Update/create a user or users to have **both** a data-explorer role, "data-explorer-search-role", and whatever **role(s) needed to access data in your DB**.
+* IMPORTANT: Update/create a user or users to have **both** a data-explorer role, "data-explorer-search-role", and whatever **role(s) needed to access data in your DB**.
    * Data Explorer explicitly checks for wizard and search roles, so even the admin user will not work without a role.
 * go to the "search" tab or log out and log back in as the "search-user" to see your data
 
