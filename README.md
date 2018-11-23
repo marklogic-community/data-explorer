@@ -24,12 +24,11 @@ There is support for RDF triples within XML documents.  Full RDF is planned for 
 Data Explorer downloads: https://github.com/marklogic-community/data-explorer/releases
 
 ----
-## Setup and Use Overview
+## Setup and Quick Overview
 Most of the setup is self explanatory. Follow these steps to get views on your (existing) data fast:
 1. Download the data-explorer.jar from the releases area (don't download or checkout all the source code)
-1. run 
-   * java -jar data-explorer.jar deploy
-1. browse to localhost:7777 and login as wizard-user 
+1. Run: java -jar data-explorer.jar deploy
+1. Browse to localhost:7777 and login as wizard-user 
    * The deploy step created two users, "wizard-user" and "search-user" both with password = "password". Recommendation: change those passwords or remove users if not needed.
    * Add the data-explorer-search-role to users in your application so they will be able to see their data. See #5 below.
 1. Configure your first query:
@@ -38,7 +37,8 @@ Most of the setup is self explanatory. Follow these steps to get views on your (
    * Name the query/view combo and set the database where it applies
 1. **IMPORTANT:** Update/create a user or users to have **both** a data-explorer role, "data-explorer-search-role", and whatever **role(s) needed to access data in your DB**.
    * Data Explorer explicitly checks for wizard and search roles, so even the admin user will not work without a role.
-1. go to the "search" tab or log out and log back in as the "search-user" to see your data
+   * See the security section below for additional details.
+1. Go to the "search" tab or log out and log back in as a "search-user" to see your data
 
 **THAT'S IT** Start searching.
 
