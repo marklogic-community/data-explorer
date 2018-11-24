@@ -42,6 +42,8 @@ Most of the setup is self explanatory. Follow these steps to get views on your (
 
 **THAT'S IT** Start searching.
 
+[Troubleshooting](#troubleshooting)
+
 More details below, including pictures and some variants or advanced topics.
 
 ----
@@ -65,7 +67,7 @@ java -DmlPassword=<your-admin-pwd> -DmlHost=<your-ml-host> -jar data-explorer.ja
 
 ### Set up Queries and Views
 
-Queries and Views can only be created by a user with data-explorer-wizard-role (see Security).
+Queries and Views can only be created by a user with data-explorer-wizard-role (see [Security](#security)).
 With the wizard role, the "Edit config" menu item will be visible.  This capability allows management of queries and bookmarks.
 
 **When starting the Data Explorer for the first time, there are not queries defined!!!**
@@ -104,6 +106,7 @@ Save the query and go search!!!
 ----
 ## Additional Information
 
+<a name="security"></a>
 ### Security 
 
 There are two Data explorer roles: wizard role (data-explorer-wizard-role) and search role (data-explorer-search-role).  
@@ -122,7 +125,7 @@ Key Security Considerations for Data Explorer (**MUST READ**):
 #### Default Data Explorer Users
 A default users wizard-user and search-user with password "password" are be configured on install. 
 These users are for convenience to do demos.
-**IMPORTANT: It is highly recommended to remove these users or change their passwords for deployments!!!**
+**IMPORTANT: It is highly recommended to remove the default users or change their passwords for deployments!!!**
 
 ### Application Security Roles 
 The Data Explorer and the data explorer roles do not have any permissions to see any application data.  
@@ -177,8 +180,9 @@ The Github repository for issue and sprint tracking is here: https://github.com/
 - [(download Java 8)](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 - [(Gradle)](https://gradle.org/gradle-download/)
 
+<a name="troubleshooting"></a>
 ## Troubleshooting
-- if you get no results, be sure your user has a role that allows you to see the data. Log in as "admin" and use the Data Explorer tool to see 
+- If you get no results, be sure your user has a role that allows you to see the data. Log in as "admin" and use the Data Explorer tool to see 
 the permissions on the results (click through to a row to see permissions).
 - _"No database with identifier 18212714155313180665"_
     * Clear out (remove) the amps that reference the database with the database identifier
@@ -187,4 +191,5 @@ the permissions on the results (click through to a row to see permissions).
       another port (see ml-gradle github for details). 
 - No search tab, and/or no wizard tab. - Likely need security roles added to the current user - even admin needs a role for these tabs to be visible on the UI.
 - Missing databases - Only databases that have application server are shown in database list.
-- Database counts are incorrect - The counts are based on the permissions available to the user, so check permissions to the data first. 
+- Databases with 0 (zero) documents - Check that the user has the permissions/roles to see the data.
+- Database counts are incorrect - The counts are based on the permissions available to the user, so check permissions (roles) to the data first. 
