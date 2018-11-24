@@ -107,11 +107,16 @@ Save the query and go search!!!
 ### Security 
 
 There are two Data explorer roles: wizard role (data-explorer-wizard-role) and search role (data-explorer-search-role).  
-**To use the Data Explorer, they must be assigned one of these roles!!!**  These are shown on the left side of the diagram below.
+**To use the Data Explorer, users must be assigned one of these roles!!!**  These are shown on the left side of the diagram below.
 
-The wizard role is to configure queries for search role users.  This will generally be someone who has knowledge of MarkLogic and the data domain.
-Search users typically do **not** have the wizard role, but rather have the data-explorer-search-role. This role allows them to see queries and views on the "search" tab. 
-Users **also need permissions for your database** so either add your project's roles to search-user, or add data-explorer-search-role to a user to enable searching.
+Key Security Considerations for Data Explorer (**MUST READ**):
+- The **wizard role** is to configure queries for search role users.  This will generally be someone who has knowledge of MarkLogic and the data domain.
+  - Add the wizard role to the admin user or specific consultants/users that perform admin duties on the project.
+- The **search role** is for users to view and run queries that have been previously created.  
+  - Search users typically do **not** have the wizard role.
+  - Search users must have the search role to use the Data Explorer, so remember to add the search role to users to enable searching.
+- All Data Explorer users **need permissions for the content database** to view and query the data, so remember to verify they have the appropriate application roles.
+
 ![Roles Image](docImages/Roles.png?raw=true "Roles")
 
 #### Default Data Explorer Users
