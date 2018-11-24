@@ -60,7 +60,7 @@ This shows the new databases, forests and app server that should be installed af
 
 ![Installed Artifacts Image](docImages/DataExplorerInstallResult.png?raw=true "Installed MarkLogic Items")
 
-... Note that if you do not have a common configuraiton with your marklogic server on "localhost" with username/password of admin/admin, you'll have to modify the following parameters on the command line
+... Note that if you do not have a common configuration with your marklogic server on "localhost" with username/password of admin/admin, you'll have to modify the following parameters on the command line
 java -DmlPassword=<your-admin-pwd> -DmlHost=<your-ml-host> -jar data-explorer.jar deploy 
 
 ### Set up Queries and Views
@@ -107,33 +107,39 @@ Save the query and go search!!!
 ### Security 
 
 There are two Data explorer roles: wizard role (data-explorer-wizard-role) and search role (data-explorer-search-role).  
-**To user the Data Explorer, they must be assigned one of these roles!!!**
+**To use the Data Explorer, they must be assigned one of these roles!!!**  These are shown on the left side of the diagram below.
+
 The wizard role is to configure queries for search role users.  This will generally be someone who has knowledge of MarkLogic and the data domain.
 Search users typically do **not** have the wizard role, but rather have the data-explorer-search-role. This role allows them to see queries and views on the "search" tab. 
 Users **also need permissions for your database** so either add your project's roles to search-user, or add data-explorer-search-role to a user to enable searching.
+![Roles Image](docImages/Roles.png?raw=true "Roles")
 
-#### Default Users
-A default user with name search-user and password "password" will be configured on install. 
-Recommend removing default users or changing their passwords!!!
+#### Default Data Explorer Users
+A default users wizard-user and search-user with password "password" are be configured on install. 
+These users are for convenience to do demos.
+**IMPORTANT: It is highly recommended to remove these users or change their passwords for deployments!!!**
 
-### Also add your own security roles 
-A user cannot see data in the main database (your database, not the Data Explorer database) without roles that allow them to see it. So users will need roles from your existing security configuration to see data as well.
+### Application Security Roles 
+The Data Explorer and the data explorer roles do not have any permissions to see any application data.  
+Users of the Data Explorer must have the application roles required to see data in the database, otherwise they can't see the data.
+If a user is already configured in MarkLogic with application roles, you can simply add the data-explorer-search-role to the existing user
+account to use the Data Explorer tool *and* see their data.
 
-Alternatively, if users are already configured as MarkLogic Users in some way, and can see certain data, you can simply add teh data-explorer-search-role to their existing user record to enable them to use the tool *and* see their data.
+NOTE: If a search user is not seeing their data - check their roles/permissions.  
 
 ### Basic searching
 
 The left hand side has selection and query controls to find data and show in your configured view(s).
-Version 0.10 has added bookmarks wich allow quick access to "saved" queries.
+Version 0.10 has added bookmarks which allow quick access to "saved" queries.
 
 ![Search Screen Image](docImages/SearchScreen.png?raw=true "Search Screen")
 
-### Other featuers
+### Other features
 In addition, the data can be
 - Exported to Excel
 - clicked into to see a hierarchical view of the data
-    - in this view, element names are tokenized to text prompts and XML nesting becomes simple indentaiton
-- click through the heirarchical view to the raw data
+    - in this view, element names are tokenized to text prompts and XML nesting becomes simple indentation
+- click through the hierarchical view to the raw data
 - view properties and collections of records
 
 ----
