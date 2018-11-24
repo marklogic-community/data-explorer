@@ -40,9 +40,15 @@
 		</div>
 
         <div class="col-md-12" ng-if="docTypeMethod === 'select'">
-          <div class="form-group">
+			<div class="form-group">
+				<label for="selectFileType">Choose a format:</label>
+				<select id="selectFileType" class="form-control" ng-model="formInput.fileType" ng-options="format.value as format.name for format in supportedFormats">
+					<option value="">---</option>
+				</select>
+			</div>
+          <div ng-if="formInput.fileType" class="form-group">
             <label for="selectDB">Choose a database:</label>
-            <select id="selectDB" class="form-control" ng-model="formInput.selectedDatabase" ng-options="database.name as database.name + ' (' + database.count + ')' for database in availableDatabases">
+            <select id="selectDB" class="form-control" ng-model="formInput.selectedDatabase" ng-options="database.name as database.name + ' (xml: ' + database.countXml + ' json: ' + database.countJson + ')' for database in availableDatabases">
               <option value="">---</option>
             </select>
           </div>

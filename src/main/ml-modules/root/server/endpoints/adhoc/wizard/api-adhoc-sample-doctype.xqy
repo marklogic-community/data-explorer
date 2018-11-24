@@ -1,5 +1,5 @@
 xquery version "1.0-ml";
-
+import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 import module namespace json = "http://marklogic.com/xdmp/json" at "/MarkLogic/json/json.xqy";
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
@@ -9,7 +9,7 @@ import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc
 import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
 import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"  at "/server/lib/logging-lib.xqy";
 declare option xdmp:mapping "false";
-declare private function local:response($profile as node(), $root-element as xs:string) as node()* {
+declare private function local:response($file-type as xs:string,$database as xs:string,$profile as node(), $root-element as xs:string) as node()* {
   let $response := json:object()
   let $has-json-nodes := $profile/paths/path/@type = "object"
   let $possible-roots := (if ($has-json-nodes) then "/" else (), $profile/paths/path/@path-ns ! fn:concat("/", .))
@@ -28,6 +28,8 @@ declare private function local:response($profile as node(), $root-element as xs:
     }
   
   return (
+    map:put($response,"fileType",$file-type),
+    map:put($response,"database",$database),
     map:put($response, "possibleRoots", json:to-array($possible-roots)),
     map:put($response, "rootElement", $root-element),
     map:put($response, "databases", json:to-array(lib-adhoc:get-databases())),
@@ -61,7 +63,11 @@ declare function local:profile-nodes($roots as node()*) as node()
               $path-tokens
             }
             return if (map:contains($paths, $path-ns))
-               then ()
+               then
+                (: If previous registered as null and now it is not null, use the current one :)
+                  if (map:get($paths,$path-ns)/type/fn:string()='null' and xdmp:node-kind($node) ne 'null') then
+                      map:put($paths, $path-ns, $node-path)
+                  else ()
             else
               map:put($paths, $path-ns, $node-path)
 
@@ -85,6 +91,12 @@ declare function local:profile-nodes($roots as node()*) as node()
 declare function local:process() {
   let $payload := xdmp:get-request-body()
   let $database := $payload/database
+  let $file-type := $payload/fileType
+  let $document-format := if ($file-type = $const:FILE_TYPE_XML) then
+                            ',"format-xml"'
+                          else if ( $file-type = $const:FILE_TYPE_JSON) then
+                              ',"format-json"'
+                            else ()
   let $ns := $payload/ns
   let $root-name := $payload/name
 
@@ -92,7 +104,7 @@ declare function local:process() {
   let $max-samples := 100
   let $eval := fn:concat(
     if (fn:string-length($ns) le 0) then '' else 'declare namespace qn ="' || $ns || '"; ',
-    'cts:search(/' || $eval-expr || ', (), ("unfiltered", "score-random"))[1 to ' || $max-samples || ']'
+    'cts:search(/' || $eval-expr || ', (), ("unfiltered", "score-random"'||$document-format||'))[1 to ' || $max-samples || ']'
   )
   let $nodes-to-sample := xu:eval(
     $eval, 
@@ -104,7 +116,7 @@ declare function local:process() {
   let $profile := local:profile-nodes($nodes-to-sample)
   let $root-element := fn:concat("/", if (fn:string-length($ns) le 0) then () else $ns||":", $root-name)
   
-  return local:response($profile, $root-element)
+  return local:response($file-type,$database,$profile, $root-element)
 };
 
 

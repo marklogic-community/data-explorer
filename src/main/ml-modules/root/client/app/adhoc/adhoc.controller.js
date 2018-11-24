@@ -22,7 +22,8 @@ factory('$click', function() {
     $scope.$watch('queryCurrentPage', function(page){
       AdhocState.setPage(page);
     });
-
+      $scope.collections ="---";
+      $scope.fileFormat = "JSON";
       if ( $stateParams.deparams ) {
           $scope.loadDatabase = $stateParams.deparams.database;
           $scope.loadDocType= $stateParams.deparams.docType;
@@ -201,6 +202,7 @@ factory('$click', function() {
         }).success(function(
             data, status, headers, config) {
             if (status == 200) {
+                $scope.collections = data.collections
                 $scope.textFields = _.map(data.formLabels, function(o) { // do some processing to the field definitions before passing
                     var opt = angular.copy(o);
                     var dataTypeHint = opt.dataType ? ' (' + opt.dataType.trim() + ')' : '';

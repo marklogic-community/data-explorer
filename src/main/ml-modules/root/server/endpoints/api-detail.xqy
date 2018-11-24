@@ -101,11 +101,12 @@ declare function local:get-json($uri as xs:string, $db as xs:string){
                              detail-lib:find-related-items-by-document($doc,$db)
                            else () (: TODO for JSON :)
     let $related-items-json :=
+        if ( fn:not(fn:empty($related-map))) then (
         for $key in map:keys($related-map)
         let $values := to-json:seq-to-array-json(to-json:string-sequence-to-json(map:get($related-map,$key)))
         let $item := <item><type>{$key}</type><items>{$values}</items></item>
-
         return to-json:xml-obj-to-json($item)
+        ) else ()
     let $related-json := to-json:seq-to-array-json($related-items-json)
     let $permissions-json := to-json:seq-to-array-json($permissions ! to-json:xml-obj-to-json(.))
     let $collections-json := to-json:seq-to-array-json(to-json:string-sequence-to-json($collections))

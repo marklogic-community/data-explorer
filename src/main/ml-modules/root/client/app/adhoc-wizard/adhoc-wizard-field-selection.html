@@ -6,6 +6,10 @@
 	  	
 		<fieldset>
 		  	<legend>{{wizardTitle}}</legend>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Format</label>
+					<label class="col-sm-10 control-label">{{format}}</label>
+				</div>
 		      	<div class="form-group">
 		      		<label for="queryName" class="col-sm-2 control-label">Query name</label>
 		      		<div class="col-sm-10">
@@ -13,7 +17,7 @@
 		      		</div>
 		      	</div>
 		      	<div class="form-group">
-		      		<label for="rootElement" class="col-sm-2 control-label">Type discriminator</label>
+		      		<label for="rootElement" class="col-sm-2 control-label">Path Filter</label>
 		      		<div class="col-sm-10">
 			        	<select id="rootElement" ng-disabled="editMode" ng-model="wizardForm.rootElement" name="rootElement" ng-options="rootElement as rootElement for rootElement in wizardForm.possibleRoots" class="form-control">
 			            	<option value="">--Choose root element</option>
@@ -23,11 +27,17 @@
 		      	<div class="form-group">
 		      		<label for="database" class="col-sm-2 control-label">Database</label>
 		      		<div class="col-sm-10">
-			        	<select id="database" ng-disabled="queryView == 'view'" ng-model="formInput.selectedDatabase" name="database" ng-options="database.name as database.name + ' (' + database.count + ')' for database in availableDatabases" class="form-control" required>
+			        	<select id="database" ng-disabled="queryView == 'view'" ng-model="formInput.selectedDatabase" name="database" ng-options="database.name as database.name + ' (xml: ' + database.countXml + ' json: ' + database.countJson + ')' for database in availableDatabases" class="form-control" required>
 			            	<option value="">--Choose Database</option>
 			        	</select>
 		      		</div>
 		      	</div>
+				<div class="form-group">
+					<label for="collectionFilter" class="col-sm-2 control-label">Collection Filter <i class="help-text glyphicon glyphicon-question-sign" tooltip title="Specify zero or more collections. Use comma to separate collections. Searches for documents which match all collections.".></i></label>
+					<div class="col-sm-10">
+						<input id="collectionFilter" type="text" class="form-control" ng-model="formInput.collectionFilter"  size="20"/>
+					</div>
+				</div>
 			<legend>
 				<span>Bookmark</span>
 			</legend>

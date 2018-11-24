@@ -27,6 +27,8 @@ declare function local:get-query-view() {
                   fn:error(xs:QName("ERROR"),"View '"||$viewName||"' not found.")
               else ()
     let $json :=   json:object()
+    let $_ := map:put($json,"collections", $queryDoc/collections/fn:string())
+    let $_ := map:put($json,"fileType", $queryDoc/fileType/fn:string())
     let $_ := map:put($json,"queryName", $queryDoc/queryName/fn:string())
     let $_ := map:put($json,"viewName",$view/name/fn:string())
     let $_ := map:put($json,"bookmarkLabel",$view/bookmarkLabel/fn:string())

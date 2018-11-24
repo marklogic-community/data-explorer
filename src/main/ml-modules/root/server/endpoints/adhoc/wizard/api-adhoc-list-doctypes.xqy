@@ -10,8 +10,10 @@ declare option xdmp:mapping "false";
 
 declare function local:process() {
   try {
+    let $_ := xdmp:log("JOS HERE")
     let $database := map:get($cfg:getRequestFieldsMap, "database")
-    let $qnames := lib-adhoc:get-root-qnames($database)
+    let $fileType := map:get($cfg:getRequestFieldsMap, "fileType")
+    let $qnames := lib-adhoc:get-root-qnames($database,$fileType)
 
     let $doc-types := for $qname in $qnames
       let $local-name := fn:local-name-from-QName($qname)
