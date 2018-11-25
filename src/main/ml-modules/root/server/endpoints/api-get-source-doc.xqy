@@ -12,7 +12,6 @@ declare function local:get-source(){
     	if (fn:count($tokens) > 4) then
     		if (detail-lib:database-exists($db)) then
                 let $doc :=detail-lib:get-document($uri,$db)
-                let $_ := xdmp:log(("JOS GET",$doc))
                 return if ( xdmp:node-kind($doc/node())  = "object" ) then
     			           (xdmp:set-response-content-type("text/json"),$doc)
                          else

@@ -98,12 +98,14 @@ declare function lib-adhoc-create:create-eq($collection-filter as xs:string?,$da
  return
 	 if ( $file-type = $const:FILE_TYPE_XML ) then
 		 fn:concat('cts:and-query((',lib-adhoc-create:create-collection-filter($collection-filter),",",lib-adhoc-create:create-discriminator-query($database,$namespaces,$file-type,$root-element), ',', $params, ',if ($word) then
-  			    cts:word-query($word, ("wildcarded","case-insensitive")
+  			    (: cts:word-query($word, ("wildcarded","case-insensitive") :)
+  			    cts:parse($word)
  			   else
       		()))')
 	 else if ( $file-type = $const:FILE_TYPE_JSON ) then
 		 fn:concat('cts:and-query((',lib-adhoc-create:create-collection-filter($collection-filter),",",lib-adhoc-create:create-discriminator-query($database,$namespaces,$file-type,$root-element),',' , $params, ',if ($word) then
-  			    cts:json-property-word-query(('||lib-adhoc-create:get-all-text-properties($file-type)||'),$word, ("wildcarded","case-insensitive"))
+  			  (:  cts:json-property-word-query(('||lib-adhoc-create:get-all-text-properties($file-type)||'),$word, ("wildcarded","case-insensitive")) :)
+  			  cts:parse($word)
  			   else
       		()))')
 	 else

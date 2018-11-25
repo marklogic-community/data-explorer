@@ -345,8 +345,6 @@ angular.module('demoApp')
             wizardService.sampleDocType(database, fileType,docType.ns, docType.localName, $scope.queryView)
                 .success(function(data, status) {
                     if (status == 200) {
-                        console.log("JOS SAMPLE DATA")
-                        console.log(data)
                         prepareStep2(data);
                     }
                 }).error(function(err) {

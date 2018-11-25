@@ -81,8 +81,6 @@ angular.module('demoApp')
               wizardService.getQueryView($scope.loadQueryName, $scope.loadDocType,$scope.loadViewName)
                   .success(function (data, status) {
                       if (status == 200) {
-                          console.log("JOS Received data");
-                          console.log(data);
                           $scope.wizardForm={}
                           $scope.wizardForm.rootElement=data.rootElement
                           $scope.formInput.queryName=data.queryName
