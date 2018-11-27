@@ -8,11 +8,13 @@ import module namespace ll = "http://marklogic.com/data-explore/lib/logging-lib"
 import module namespace const = "http://www.marklogic.com/data-explore/lib/const" at "/server/lib/const.xqy";
 declare option xdmp:mapping "false";
 
+
 declare function local:process() {
   try {
     let $database := map:get($cfg:getRequestFieldsMap, "database")
+    let $collections := map:get($cfg:getRequestFieldsMap, "collections")
     let $fileType := map:get($cfg:getRequestFieldsMap, "fileType")
-    let $qnames := lib-adhoc:get-root-qnames($database,$fileType)
+    let $qnames := lib-adhoc:get-root-qnames($collections,$database,$fileType)
 
     let $doc-types := for $qname in $qnames
       let $local-name := fn:local-name-from-QName($qname)

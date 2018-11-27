@@ -106,11 +106,12 @@ as xs:unsignedLong
   return xu:eval($eval, ())//qry:term-query[fn:starts-with(qry:annotation, "doc-root")]/qry:key/data()
 };
 
-declare private function lib-adhoc:next-root-qname($query as cts:query?, $except-terms as xs:unsignedLong*,$fileType as xs:string)
+declare private function lib-adhoc:next-root-qname($query as cts:query?, $except-terms as xs:unsignedLong*,$fileType as xs:string,$collection-query as cts:query)
 as xs:QName*
 {
   let $full-query := cts:and-query((
     $query,
+    $collection-query,
     $except-terms ! cts:not-query(cts:term-query(., 0))
   ))
   let $format := if ($fileType = "0" ) then "format-xml" else "format-json"
@@ -122,16 +123,26 @@ as xs:QName*
                   let $next-term := lib-adhoc:term-from-root-qname($next-qname)
                   return (
                     $next-qname,
-                    if (fn:empty($next-qname)) then () else lib-adhoc:next-root-qname($query, ($except-terms, $next-term),$fileType)
+                    if (fn:empty($next-qname)) then () else lib-adhoc:next-root-qname($query, ($except-terms, $next-term),$fileType,$collection-query)
                   )
   return $ret
 };
 
-declare function lib-adhoc:get-root-qnames($database as xs:string,$fileType as xs:string)
+declare function lib-adhoc:get-collection-query($collections as xs:string?) {
+    let $tokens := fn:tokenize($collections,",") ! fn:normalize-space(.)
+    return if ( fn:empty($tokens) ) then
+        cts:true-query()
+    else
+        cts:and-query(($tokens ! cts:collection-query(.)))
+};
+
+
+declare function lib-adhoc:get-root-qnames($collections as xs:string?,$database as xs:string,$fileType as xs:string)
 as xs:QName*
 {
-	xu:invoke-function(function() {
-      lib-adhoc:next-root-qname((), (),$fileType)
+    let $collection-query := lib-adhoc:get-collection-query($collections)
+	return xu:invoke-function(function() {
+      lib-adhoc:next-root-qname((), (),$fileType,$collection-query)
     },
     <options xmlns="xdmp:eval">
       <database>{ xdmp:database($database) }</database>

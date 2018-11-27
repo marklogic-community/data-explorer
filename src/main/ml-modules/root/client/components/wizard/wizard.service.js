@@ -19,9 +19,10 @@
           })
       };
 
-    service.listDocTypes = function(database,fileType) {
+    service.listDocTypes = function(collections,database,fileType) {
       return $http.get('/api/wizard/doctypes', {
         params: {
+          collections: collections,
           database: database,
           fileType : fileType
         }
@@ -38,8 +39,9 @@
       });
     };
 
-    service.sampleDocType = function(database, fileType,ns, name, type) {
+    service.sampleDocType = function(database, collections,fileType,ns, name, type) {
       var payload = {
+        collections: collections,
         database: database,
         fileType: fileType,
         ns: ns,

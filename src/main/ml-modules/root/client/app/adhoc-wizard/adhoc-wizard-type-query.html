@@ -52,7 +52,15 @@
               <option value="">---</option>
             </select>
           </div>
-          <div ng-if="formInput.selectedDatabase" class="form-group">
+			<div ng-if="formInput.selectedDatabase" class="form-group">
+				<label for="collections">Enter collections:</label>
+				<table style="width:99%"><tr><td><input id="collections" type="text" class="form-control" ng-model="formInput.collections"></td>
+					<td style="width:10px">
+						<button style="margin-left: 10px" ng-click="lookupDocType()" class="btn btn-primary" style="width:100px">Lookup</button>
+				</td></tr></table>
+
+			</div>
+          <div ng-if="availableDocTypes" class="form-group">
             <label for="selectDocType">Choose a document type:</label>
             <select id="selectDocType" class="form-control" ng-model="formInput.startingDocType" ng-options="item.docType for item in availableDocTypes track by item.docType">
             </select>

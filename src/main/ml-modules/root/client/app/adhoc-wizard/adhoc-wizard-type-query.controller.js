@@ -57,16 +57,7 @@ angular.module('demoApp')
         });
 
         $scope.$watch('formInput.selectedDatabase', function(value) {
-            if ($scope.docTypeMethod !== 'select' || !value) {
-                return;
-            }
-            wizardService.listDocTypes(value,$scope.formInput.fileType).then(function(docTypes) {
-                $scope.availableDocTypes = docTypes || [];
-                var error = _.isEmpty(docTypes);
-                $scope.message = error ?
-                    "Could not find any available document types.  Perhaps it contains no documents or you currently have insufficient permissions to read them." :
-                    "";
-            });
+
         });
 
         $scope.$watch('formInput.fileType', function(value) {
@@ -187,7 +178,7 @@ angular.module('demoApp')
             if ($scope.searchType == $scope.searchTypeRootName) {
                 $scope.rootElements = [];
                 var params = new FormData();
-                params.append("database", newValue);
+                params.append("database", formInput.selectedDatabase);
                 $http.post('/api/wizard/documentSelection', params, {
                     withCredentials: true,
                     headers: {
@@ -339,10 +330,11 @@ angular.module('demoApp')
         }
 
         $scope.sample = function() {
+            var collections = $scope.formInput.collections;
             var database = $scope.formInput.selectedDatabase;
             var docType = $scope.formInput.startingDocType;
             var fileType = $scope.formInput.fileType;
-            wizardService.sampleDocType(database, fileType,docType.ns, docType.localName, $scope.queryView)
+            wizardService.sampleDocType(database, collections,fileType,docType.ns, docType.localName, $scope.queryView)
                 .success(function(data, status) {
                     if (status == 200) {
                         prepareStep2(data);
@@ -383,6 +375,19 @@ angular.module('demoApp')
                     $scope.messageClass = "form-group has-error";
                 });
             }
+        };
+
+        $scope.lookupDocType = function() {
+            if ($scope.docTypeMethod !== 'select' || !$scope.formInput.selectedDatabase) {
+                return;
+            }
+            wizardService.listDocTypes($scope.formInput.collections,$scope.formInput.selectedDatabase,$scope.formInput.fileType).then(function(docTypes) {
+                $scope.availableDocTypes = docTypes || [];
+                var error = _.isEmpty(docTypes);
+                $scope.message = error ?
+                    "Could not find any available document types.  Perhaps it contains no documents or you currently have insufficient permissions to read them." :
+                    "";
+            });
         };
 
         $scope.back = function() {

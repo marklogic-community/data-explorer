@@ -137,6 +137,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
         </request>
         <request uri="^/api/wizard/doctypes$" endpoint="{$endpoints:API-ADHOC-WIZARD-LIST-DOCTYPES}">
             <param name="database"/>
+            <param name="collections"/>
             <param name="fileType"/>
             <http method="GET"/>
         </request>

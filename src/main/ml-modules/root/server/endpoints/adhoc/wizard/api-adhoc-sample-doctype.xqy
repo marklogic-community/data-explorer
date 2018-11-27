@@ -92,6 +92,7 @@ declare function local:process() {
   let $payload := xdmp:get-request-body()
   let $database := $payload/database
   let $file-type := $payload/fileType
+  let $collections := $payload/collections
   let $document-format := if ($file-type = $const:FILE_TYPE_XML) then
                             ',"format-xml"'
                           else if ( $file-type = $const:FILE_TYPE_JSON) then
@@ -104,8 +105,10 @@ declare function local:process() {
   let $max-samples := 100
   let $eval := fn:concat(
     if (fn:string-length($ns) le 0) then '' else 'declare namespace qn ="' || $ns || '"; ',
-    'cts:search(/' || $eval-expr || ', (), ("unfiltered", "score-random"'||$document-format||'))[1 to ' || $max-samples || ']'
+      'import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";',
+      'cts:search(/' || $eval-expr || ', lib-adhoc:get-collection-query('||"'"||$collections||"'"||'), ("unfiltered", "score-random"'||$document-format||'))[1 to ' || $max-samples || ']'
   )
+  let $_ := xdmp:log(("JOSEVAL",$eval))
   let $nodes-to-sample := xu:eval(
     $eval, 
     (), 
