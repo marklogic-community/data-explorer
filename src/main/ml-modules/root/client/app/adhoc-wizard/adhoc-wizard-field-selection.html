@@ -67,8 +67,8 @@
 				</div>
 			</div>
 			<div>
-	        	<div ng-if="queryView == 'query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it is available to search on, displayed in results, both, or none. You may also choose the column sort order.</div>
-	        	<div ng-if="queryView != 'query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it displayed in results or not. You may also choose column sort order</div>
+	        	<div ng-if="queryView == 'query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it is available to search on, displayed in results, both, or none. You may also choose the column sort order. You can drag and drop the rows in the table to change the sorting.</div>
+	        	<div ng-if="queryView != 'query'" class="wizard-step-detail" style="margin-top:-10px">For each field you may select whether it displayed in results or not. You may also choose column sort order. You can drag and drop the rows in the table to change the sorting.</div>
 	        	<div><label>Column Order</label></div>
 	        	<div style="padding-left:20px;">
 	        				<span class="radio-inline">
@@ -80,7 +80,7 @@
 	        				<span class="radio-inline">
   								<label style="font-weight:normal">
     								<input type="radio" ng-model="displayOrder" value="document-order">
-    								Document Order
+    								Drag and Drop Sort Order
   								</label>
 							</span>
 	        	</div>
@@ -115,8 +115,8 @@
 	        					<th style="width:100%">Name in Search and/or Results</th>
 	        				</tr>
 	        			</thead>
-	        			<tbody>
-	        				<tr ng-repeat="field in wizardForm.fields">
+	        			<tbody sv-root sv-part="wizardForm.fields">
+	        				<tr ng-repeat="field in wizardForm.fields" sv-element>
 	        					<td style="vertical-align: middle"><span ng-bind="field.elementName" title="{{field.xpathNormal}}"></span></td>
 	        					<td>
 					      			<select class="form-control" style="width:150px" ng-model="field.includeMode" ng-change="includeChanged(field)">

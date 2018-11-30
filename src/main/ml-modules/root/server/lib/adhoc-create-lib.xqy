@@ -150,7 +150,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $view-mode := map:get($adhoc-fields, "mode") = "view"
 	let $overwrite := map:get($adhoc-fields, "overwrite") = "true"
 	let $root-element := map:get($adhoc-fields, "rootElement")
-	let $query-name := map:get($adhoc-fields, "queryName")
+	let $query-name := xdmp:url-decode(map:get($adhoc-fields, "queryName"))
 	let $querytext := map:get($adhoc-fields, "queryText")
 	let $bookmark-label := map:get($adhoc-fields,"bookmarkLabel")
 	let $view-name :=  map:get($adhoc-fields, "viewName")

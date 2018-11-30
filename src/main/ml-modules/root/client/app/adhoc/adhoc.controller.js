@@ -203,6 +203,7 @@ factory('$click', function() {
             data, status, headers, config) {
             if (status == 200) {
                 $scope.collections = data.collections
+                $scope.fields = data.fields;
                 $scope.textFields = _.map(data.formLabels, function(o) { // do some processing to the field definitions before passing
                     var opt = angular.copy(o);
                     var dataTypeHint = opt.dataType ? ' (' + opt.dataType.trim() + ')' : '';
@@ -372,12 +373,13 @@ factory('$click', function() {
             });
             cols.push(data['results-header'][0]);
             data['results-header'] = cols;
-          }else {
+          } else {
             // file order
             var cols = data['results-header'].slice(1);
             cols.push(data['results-header'][0]);
             data['results-header'] = cols;
           }
+              console.log(data['results-header'])
     	    $scope.results = data;
     	    $scope.queryCurrentPage = $scope.results['current-page'];
     	  }

@@ -40,7 +40,7 @@ angular.module('demoApp')
     $scope.formInput = {};
     $scope.formInput.bookmarkCheck=false;
     $scope.formInput.bookmarkLabel="";
-    $scope.formInput.collectionFilter = '';
+    $scope.formInput.collectionFilter = state.collectionFilter;
     $scope.formInput.queryName = '';
     $scope.format="Undefined"
     if ( state.formData && state.formData.fileType ) {

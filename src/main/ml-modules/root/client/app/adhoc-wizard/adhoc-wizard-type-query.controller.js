@@ -314,7 +314,8 @@ angular.module('demoApp')
                 deparams: {
                     formData: data,
                     backState: "adhoc-wizard",
-                    queryView: "query"
+                    queryView: "query",
+                    collectionFilter : $scope.formInput.collections
                 }
             })
 
