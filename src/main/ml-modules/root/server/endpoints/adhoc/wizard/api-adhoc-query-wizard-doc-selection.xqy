@@ -59,13 +59,32 @@ declare function local:get-uris-by-root-element-name($element-name, $max-uris,$s
     let $max-uris:=xs:int($max-uris)
     let $max-uris-plus1:=$max-uris+1
     let $query:=
-                let $root-name:=tokenize($element-name,"~")[1]
-                let $ns:=tokenize($element-name,"~")[2]
-                return 
-                  <query>
-                     cts:uris("{$start-uri}",('score-zero',"limit={$max-uris-plus1}"),cts:element-query(fn:QName("{$ns}","{$root-name}"),cts:true-query()))
-                     [1 to {$max-uris-plus1}]
-                  </query>/text()
+                (: checks to see if its xml :)
+                if (fn:contains($element-name, "~")) then (
+                  (: for xml docs :) 
+                  let $root-name:= tokenize($element-name,"~")[1]
+                  let $ns:=tokenize($element-name,"~")[2]
+                  return 
+                    <query>
+                      cts:uris(
+                        "{$start-uri}",
+                        ('score-zero',"limit={$max-uris-plus1}"),
+                          cts:element-query(fn:QName("{$ns}","{$root-name}"),cts:true-query())
+                        )
+                       [1 to {$max-uris-plus1}]
+                    </query>/text()
+                ) else (
+                  (: for json docs :) 
+                    <query>
+                      cts:uris(
+                        "{$start-uri}",
+                        ('score-zero',"limit={$max-uris-plus1}"),
+                        cts:json-property-scope-query("{fn:substring-after($element-name,'/')}", cts:true-query())
+                      )
+                       [1 to {$max-uris-plus1}]
+                    </query>/text()
+                )
+    let $log := xdmp:log($query)           
     return xu:eval($query,(),
     <options xmlns="xdmp:eval">
       <database>{ xdmp:database($db) }</database>
@@ -86,9 +105,17 @@ declare function local:get-root-element-names($db) {
                             return $qname||"~"||fn:namespace-uri-from-QName($qname) else ()
                       else
                         for $d in cts:search(/, cts:and-query(()))                        
-                          return if($d/element()) then
-                          let $qname:=fn:node-name($d/element())
-                          return "/"||$qname||"~"||fn:namespace-uri-from-QName($qname) else ()
+                          return 
+                            if($d/element()) then (
+                              let $qname:=fn:node-name($d/element())
+                              return "/"||$qname||"~"||fn:namespace-uri-from-QName($qname) 
+                              )
+                            else if (
+                                fn:exists($d/object-node()/object-node()) and 
+                                fn:count($d/object-node()/object-node()) = 1
+                              ) then (
+                              "/" || fn:node-name($d/object-node()/object-node())
+                            ) else ()
                     )
                 </query>/text()
   
