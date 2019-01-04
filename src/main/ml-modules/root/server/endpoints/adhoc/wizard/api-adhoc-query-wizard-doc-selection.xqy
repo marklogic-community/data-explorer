@@ -83,8 +83,7 @@ declare function local:get-uris-by-root-element-name($element-name, $max-uris,$s
                       )
                        [1 to {$max-uris-plus1}]
                     </query>/text()
-                )
-    let $log := xdmp:log($query)           
+                )       
     return xu:eval($query,(),
     <options xmlns="xdmp:eval">
       <database>{ xdmp:database($db) }</database>
