@@ -39,6 +39,7 @@ angular.module('demoApp')
     $scope.noResultsMessage="";
     $scope.formInput = {};
     $scope.formInput.bookmarkCheck=false;
+    $scope.formInput.createTDE=false;
     $scope.formInput.bookmarkLabel="";
     $scope.formInput.collectionFilter = state.collectionFilter;
     $scope.formInput.queryName = '';
@@ -84,6 +85,7 @@ angular.module('demoApp')
                           $scope.wizardForm={}
                           $scope.wizardForm.rootElement=data.rootElement
                           $scope.formInput.queryName=data.queryName
+                          $scope.formInput.createTDE=data.createTDE
                           if ( !(!$scope.loadViewName && $scope.queryView == "view") && data.bookmarkLabel ) {
                               $scope.formInput.bookmarkCheck=true;
                               $scope.formInput.bookmarkLabel=data.bookmarkLabel;
@@ -216,6 +218,7 @@ angular.module('demoApp')
     $scope.submitWizard = function(){
       if(validateParameters()){
         var data = {}
+        data.createTDE = $scope.formInput.createTDE;
         data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
         data.mode = $scope.queryView
         data.overwrite = $scope.editMode ? true : false

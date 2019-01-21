@@ -8,6 +8,7 @@ import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc
 import module namespace mem = "http://xqdev.com/in-mem-update" at "/MarkLogic/appservices/utils/in-mem-update.xqy";
 import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
 import module namespace nl = "http://marklogic.com/data-explore/lib/namespace-lib"  at "/server/lib/namespace-lib.xqy";
+import module namespace tde-lib = "http://www.marklogic.com/data-explore/lib/tde-lib" at "/server/lib/tde-lib.xqy";
 
 declare  namespace sec="http://marklogic.com/xdmp/security";
 declare option xdmp:mapping "false";
@@ -153,6 +154,8 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $query-name := xdmp:url-decode(map:get($adhoc-fields, "queryName"))
 	let $querytext := map:get($adhoc-fields, "queryText")
 	let $bookmark-label := map:get($adhoc-fields,"bookmarkLabel")
+	let $gen-tde := map:get($adhoc-fields,"createTDE") = "true"
+	let $_ := xdmp:log(("ADHOC-FIELDS",$adhoc-fields))
 	let $view-name :=  map:get($adhoc-fields, "viewName")
 	let $view-name := if (fn:empty($view-name)) then $const:DEFAULT-VIEW-NAME else $view-name
 	let $database := map:get($adhoc-fields, "database")
@@ -200,6 +203,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 								let $node := $existing-views
 								return mem:node-insert-child($node,$add-view)//views
 			return if ( $view-mode ) then
+					let $_ := tde-lib:create-or-update-tde($gen-tde,$existing-query-doc,$add-view)
 			     	let $_ := xdmp:node-replace($existing-query-doc/views,$new-views)
 					return xdmp:unquote('{"status":"saved"}')
 			else
@@ -264,6 +268,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 					  <code>{if($querytext) then $querytext else lib-adhoc-create:create-edit-form-code($collection-filter,$database,$namespaces,$file-type,$adhoc-fields,$root-element)}</code>
 					</formQuery>
 			  let $_ := xu:document-insert($uri, $form-query)
+			  let $_ := tde-lib:create-or-update-tde($gen-tde,$form-query,$add-view)
 			  return xdmp:unquote('{"status":"saved"}')
 	  )
 };

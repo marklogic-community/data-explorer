@@ -177,6 +177,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="viewName"/>
             <param name="queryText"/>
             <param name="database"/>
+            <param name="createTDE"/>
             <param name="bookmarkLabel"/>
             <param name="overwrite"/>
             <param name="displayOrder"/>
