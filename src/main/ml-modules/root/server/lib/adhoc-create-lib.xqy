@@ -155,7 +155,6 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $querytext := map:get($adhoc-fields, "queryText")
 	let $bookmark-label := map:get($adhoc-fields,"bookmarkLabel")
 	let $gen-tde := map:get($adhoc-fields,"createTDE") = "true"
-	let $_ := xdmp:log(("ADHOC-FIELDS",$adhoc-fields))
 	let $view-name :=  map:get($adhoc-fields, "viewName")
 	let $view-name := if (fn:empty($view-name)) then $const:DEFAULT-VIEW-NAME else $view-name
 	let $database := map:get($adhoc-fields, "database")

@@ -58,7 +58,7 @@ declare function tde-lib:create-or-update-tde($create-tde as xs:boolean,$form-qu
                                         let $expression := if (fn:starts-with($expression, $context)) then "."||fn:substring($expression,fn:string-length($context)+1) else $expression
                                         let $label := $col/@label/fn:string()
                                         return <column xmlns="http://marklogic.com/xdmp/tde">
-                                            <name>{$label}</name>
+                                            <name>{fn:replace($label,"\.","_")}</name>
                                             <scalar-type>string</scalar-type>
                                             <val>{$expression}</val>
                                             <nullable>true</nullable>
