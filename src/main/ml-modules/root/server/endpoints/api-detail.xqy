@@ -100,7 +100,7 @@ declare function local:get-json($uri as xs:string, $db as xs:string){
 	let $related-map 	 :=if ( $content-type = "application/xml") then
                              detail-lib:find-related-items-by-document($doc,$db)
                            else () (: TODO for JSON :)
-    let $related-items-json :=
+    let $related-items-json := 
         if ( fn:not(fn:empty($related-map))) then (
         for $key in map:keys($related-map)
         let $values := to-json:seq-to-array-json(to-json:string-sequence-to-json(map:get($related-map,$key)))
