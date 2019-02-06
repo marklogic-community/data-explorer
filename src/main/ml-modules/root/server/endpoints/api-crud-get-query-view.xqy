@@ -1,5 +1,6 @@
 xquery version "1.0-ml";
 
+import module namespace tde-lib = "http://www.marklogic.com/data-explore/lib/tde-lib" at "/server/lib/tde-lib.xqy";
 import module namespace  check-user-lib = "http://www.marklogic.com/data-explore/lib/check-user-lib" at "/server/lib/check-user-lib.xqy" ;
 import module namespace cfg = "http://www.marklogic.com/data-explore/lib/config" at "/server/lib/config.xqy";
 import module namespace functx = "http://www.functx.com" at "/MarkLogic/functx/functx-1.0-nodoc-2007-01.xqy";
@@ -27,9 +28,12 @@ declare function local:get-query-view() {
                   fn:error(xs:QName("ERROR"),"View '"||$viewName||"' not found.")
               else ()
     let $json :=   json:object()
+    let $_ := map:put($json,"collections", $queryDoc/collections/fn:string())
+    let $_ := map:put($json,"fileType", $queryDoc/fileType/fn:string())
     let $_ := map:put($json,"queryName", $queryDoc/queryName/fn:string())
     let $_ := map:put($json,"viewName",$view/name/fn:string())
     let $_ := map:put($json,"bookmarkLabel",$view/bookmarkLabel/fn:string())
+    let $_ := map:put($json,"createTDE",tde-lib:has-tde($queryDoc,$view))
     let $_ := map:put($json,"database",$queryDoc/database/fn:string())
     let $_ := map:put($json,"displayOrder",$view/displayOrder/fn:string())
     let $_ := map:put($json,"rootElement",$queryDoc/documentType/fn:string())

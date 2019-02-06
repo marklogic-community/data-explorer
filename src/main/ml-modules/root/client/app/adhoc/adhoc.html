@@ -4,17 +4,25 @@
   <div class="row">
     <form name="form" novalidate>
       <div class="col-md-3">
+        <div class="form-group">
+          <label>Document Format</label></br>
+          <label>{{ fileFormat }}</label>
+        </div>
           <div class="form-group">
             <label>Database</label>
-            <select ng-model="selectedDatabase" ng-options="item.name as item.name + ' (' + item.count + ')' for item in databases" class="form-control" required>
+            <select ng-model="selectedDatabase" ng-options="database.name as database.name + ' (xml: ' + database.countXml + ' json: ' + database.countJson + ')' for database in databases" class="form-control" required>
             	<option value="">--Choose Database</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Type discriminator</label>
+            <label>Path Filter</label>
             <select ng-model="selectedDocType" ng-options="item as item for item in doctypes" class="form-control" required>
             	<option value="">--Choose DocType</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label>Collection Filter</label></br>
+            <label>{{ collections }}</label>
           </div>
           <div class="form-group">
             <label>Query</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The query selects which fields are available for searching."></i>

@@ -9,3 +9,4 @@ build
 *.ipr
 *.iws
 out
+/gradle-azure.properties

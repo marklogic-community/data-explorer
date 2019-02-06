@@ -22,7 +22,7 @@ declare variable $endpoints:API-CRUD-REMOVE-QUERY as xs:string := "/server/endpo
 declare variable $endpoints:API-CRUD-REMOVE-VIEW as xs:string := "/server/endpoints/api-crud-remove-view.xqy";
 declare variable $endpoints:API-USERS-PASS      as xs:string := "/server/endpoints/api-users-pass.xqy";
 declare variable $endpoints:API-DETAIL          as xs:string := "/server/endpoints/api-detail.xqy";
-declare variable $endpoints:API-GET-XML-DOC     as xs:string := "/server/endpoints/api-get-xml-doc.xqy";
+declare variable $endpoints:API-GET-SOURCE-DOC     as xs:string := "/server/endpoints/api-get-source-doc.xqy";
 declare variable $endpoints:API-USERS           as xs:string := "/server/endpoints/api-users.xqy";
 declare variable $endpoints:API-ADHOC-DATABASES as xs:string := "/server/endpoints/adhoc/api-adhoc-databases.xqy";
 declare variable $endpoints:API-SEARCH          as xs:string := "/server/endpoints/adhoc/api-adhoc-search.xqy";
@@ -111,7 +111,7 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="pageSize"/>
             <http method="GET"/>
         </request>
-        <request uri="^/api/get-xml-doc/*/*" endpoint="{$endpoints:API-GET-XML-DOC}">
+        <request uri="^/api/get-source-doc/*/*" endpoint="{$endpoints:API-GET-SOURCE-DOC}">
             <http method="GET"/>
         </request>
         <request uri="^/api/adhoc$" endpoint="{$endpoints:API-ADHOC-DATABASES}">
@@ -137,6 +137,8 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
         </request>
         <request uri="^/api/wizard/doctypes$" endpoint="{$endpoints:API-ADHOC-WIZARD-LIST-DOCTYPES}">
             <param name="database"/>
+            <param name="collections"/>
+            <param name="fileType"/>
             <http method="GET"/>
         </request>
         <request uri="^/api/wizard/sample$" endpoint="{$endpoints:API-ADHOC-WIZARD-SAMPLE-DOCTYPE}">
@@ -170,10 +172,12 @@ declare variable $endpoints:ENDPOINTS as element(rest:options) :=
             <param name="mode"/>
             <param name="rootElement"/>
             <param name="fileType"/>
+            <param name="collections"/>
             <param name="queryName"/>
             <param name="viewName"/>
             <param name="queryText"/>
             <param name="database"/>
+            <param name="createTDE"/>
             <param name="bookmarkLabel"/>
             <param name="overwrite"/>
             <param name="displayOrder"/>

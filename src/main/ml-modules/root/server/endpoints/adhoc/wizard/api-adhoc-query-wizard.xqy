@@ -110,9 +110,10 @@ try {
         ) else ()
 
     let $fields := local:render-fields($uploaded-doc, $type,$is-json)
-   
+    let $fileType := if ( $is-json) then $const:FILE_TYPE_JSON else $const:FILE_TYPE_XML
     let $xml :=
       <data>
+          <fileType>{$fileType}</fileType>
 	      <type>{ $type-label }</type>
 	      <possibleRoots>{
             to-json:seq-to-array-json(to-json:string-sequence-to-json(local:get-structure($is-json,$uploaded-doc)))

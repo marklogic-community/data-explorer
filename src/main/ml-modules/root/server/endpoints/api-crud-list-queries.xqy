@@ -25,6 +25,7 @@ declare function local:get-queries() {
         let $j := json:object()
         let $_ := map:put($j,"queryName", $i/queryName/fn:string())
         let $_ := map:put($j,"database", $i/database/fn:string())
+        let $_ := map:put($j,"collections", $i/collections/fn:string())
         let $_ := map:put($j,"docType", $i/documentType/fn:string())
         return $j
     })

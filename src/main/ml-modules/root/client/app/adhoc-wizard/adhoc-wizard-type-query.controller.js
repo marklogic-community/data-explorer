@@ -2,7 +2,7 @@
 
 angular.module('demoApp')
     .controller('AdhocWizardTypeQueryCtrl', function($state, $scope, $http, $stateParams, $sce, $interval, databaseService, wizardService) {
-
+        $scope.supportedFormats = [{value:"0",name:"XML"},{value:"1",name:"JSON"}]
         $scope.uploadButtonActive = false;
         $scope.message = "";
         $scope.messageClass = "form-group";
@@ -42,7 +42,6 @@ angular.module('demoApp')
         $scope.urisStack = [];
 
         $scope.filename = '';
-        $scope.fileType = 0;
 
         $scope.wizardUploadFormData = null;
 
@@ -58,16 +57,11 @@ angular.module('demoApp')
         });
 
         $scope.$watch('formInput.selectedDatabase', function(value) {
-            if ($scope.docTypeMethod !== 'select' || !value) {
-                return;
-            }
-            wizardService.listDocTypes(value).then(function(docTypes) {
-                $scope.availableDocTypes = docTypes || [];
-                var error = _.isEmpty(docTypes);
-                $scope.message = error ?
-                    "Could not find any available document types.  Perhaps it contains no documents or you currently have insufficient permissions to read them." :
-                    "";
-            });
+
+        });
+
+        $scope.$watch('formInput.fileType', function(value) {
+            $scope.formInput.selectedDatabase = ""
         });
 
         $scope.resetSelectedDoc = function() {
@@ -184,8 +178,7 @@ angular.module('demoApp')
             if ($scope.searchType == $scope.searchTypeRootName) {
                 $scope.rootElements = [];
                 var params = new FormData();
-                params.append("database", newValue);
-
+                params.append("database", formInput.selectedDatabase);
                 $http.post('/api/wizard/documentSelection', params, {
                     withCredentials: true,
                     headers: {
@@ -321,7 +314,8 @@ angular.module('demoApp')
                 deparams: {
                     formData: data,
                     backState: "adhoc-wizard",
-                    queryView: "query"
+                    queryView: "query",
+                    collectionFilter : $scope.formInput.collections
                 }
             })
 
@@ -337,9 +331,11 @@ angular.module('demoApp')
         }
 
         $scope.sample = function() {
+            var collections = $scope.formInput.collections;
             var database = $scope.formInput.selectedDatabase;
             var docType = $scope.formInput.startingDocType;
-            wizardService.sampleDocType(database, docType.ns, docType.localName, $scope.queryView)
+            var fileType = $scope.formInput.fileType;
+            wizardService.sampleDocType(database, collections,fileType,docType.ns, docType.localName, $scope.queryView)
                 .success(function(data, status) {
                     if (status == 200) {
                         prepareStep2(data);
@@ -359,7 +355,7 @@ angular.module('demoApp')
             $scope.wizardUploadFormData.append('type', $scope.queryView);
             var fileMimeType = $scope.wizardUploadFormData.get('mimeType');
             $scope.isNamespaceAware = isNamespaceAwareMimeType(fileMimeType)
-            $scope.fileType = getFileType(fileMimeType)
+            $scope.formInput.fileType = getFileType(fileMimeType)
             if (!isSupportedFileType(fileMimeType)) {
                 $scope.message = "This file-type is not supported. Choose a different file";
                 $scope.uploadButtonActive = false;
@@ -380,6 +376,19 @@ angular.module('demoApp')
                     $scope.messageClass = "form-group has-error";
                 });
             }
+        };
+
+        $scope.lookupDocType = function() {
+            if ($scope.docTypeMethod !== 'select' || !$scope.formInput.selectedDatabase) {
+                return;
+            }
+            wizardService.listDocTypes($scope.formInput.collections,$scope.formInput.selectedDatabase,$scope.formInput.fileType).then(function(docTypes) {
+                $scope.availableDocTypes = docTypes || [];
+                var error = _.isEmpty(docTypes);
+                $scope.message = error ?
+                    "Could not find any available document types.  Perhaps it contains no documents or you currently have insufficient permissions to read them." :
+                    "";
+            });
         };
 
         $scope.back = function() {

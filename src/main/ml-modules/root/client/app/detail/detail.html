@@ -13,7 +13,7 @@
 		    			</div>
 		    		</tab>
 		    		<tab heading="{{tabheading}}" active="false"><br/>
-		    			<a class="btn btn-default xml-button" target="_blank" href="/api/get-xml-doc/{{database}}/{{uri}}" role="button"><span class="glyphicon glyphicon-share" aria-hidden="true"></span>XML-Only Page</a><br/>
+		    			<a class="btn btn-default xml-button" target="_blank" href="/api/get-source-doc/{{database}}/{{uri}}" role="button"><span class="glyphicon glyphicon-share" aria-hidden="true"></span>{{type}}-Only Page</a><br/>
 		    			<code>{{prettyData}}</code>
 		    		</tab>
 		    	</tabset>
@@ -25,12 +25,12 @@
 	    				<div>
 	    					<h4>Collections</h4>
 	    					<div ng-hide="!!doc.collections.length" class="alert alert-info" role="alert">Not in any collections</div>
-	    					<span class="label label-success label-collection" ng-repeat="collection in doc.collections">{{collection}}</span>
+	    					<span class="label label-success label-collection" ng-repeat="collection in doc.collections">{{collection}}&nbsp;<br/></span>
 	    				</div>
 	    				<div>
 	    					<h4>Permissions</h4>
 	    					<div ng-hide="!!doc.permissions.length" class="alert alert-warning" role="alert"><strong>Warning!</strong> Admin Only Permissions</div>
-	    					<span class="label label-warning label-permission" ng-repeat="permission in doc.permissions">{{permission['role-name']}}:{{permission.capability}}</span>
+	    					<span class="label label-warning label-permission" ng-repeat="permission in doc.permissions">{{permission['role-name']}}:{{permission.capability}}&nbsp;<br/></span>
 							</div>
 							<div>
 								<h4>Triples</h4>

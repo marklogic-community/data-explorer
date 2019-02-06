@@ -5,7 +5,8 @@ angular.module('demoApp', [
     'ngResource',
     'ngSanitize',
     'ui.router',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'angular-sortable-view'
   ])
   .config(function($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider

@@ -8,6 +8,9 @@ angular.module('demoApp')
       $scope.wizardForm = state.formData;
       $scope.queryView = state.queryView;
       $scope.loadDocType = state.docType;
+      if ( state.formData ) {
+         $scope.database = state.formData.database;
+      }
       $scope.loadViewName = state.viewName;
       $scope.loadQueryName = state.queryName;
       $scope.backState = state.backState;
@@ -33,22 +36,29 @@ angular.module('demoApp')
     $scope.uploadButtonActive = false;
     $scope.message = "";
     $scope.messageClass = "form-group";
-     $scope.noResultsMessage="";
-    	
+    $scope.noResultsMessage="";
     $scope.formInput = {};
     $scope.formInput.bookmarkCheck=false;
+    $scope.formInput.createTDE=false;
     $scope.formInput.bookmarkLabel="";
-    $scope.formInput.selectedDatabase = '';
+    $scope.formInput.collectionFilter = state.collectionFilter;
     $scope.formInput.queryName = '';
+    $scope.format="Undefined"
+    if ( state.formData && state.formData.fileType ) {
+        $scope.fileType = state.formData.fileType;
+        if ($scope.fileType == "0" ) {
+            $scope.format = "XML"
+        } else if ($scope.fileType == "1" ) {
+            $scope.format = "JSON"
+        }
+    }
     $scope.formInput.startingDocType = '';
     $scope.displayOrder = 'alphabetical';
-
     $scope.inputField = {};
 
     $scope.isNamespaceAware = true;
     $scope.showNamespaces = false;
     $scope.filename = '';
-    $scope.fileType = 0;
     $scope.$watch('wizardForm.rootElement', function(value) {
     		if($scope.wizardForm && $scope.wizardForm.allFields){
     			var modifiedFields=[];        		
@@ -67,6 +77,7 @@ angular.module('demoApp')
               databases.push(JSON.parse(data[key]));
           }
           $scope.availableDatabases = databases;
+          $scope.formInput.selectedDatabase = $scope.database;
           if ( $scope.editMode ) {
               wizardService.getQueryView($scope.loadQueryName, $scope.loadDocType,$scope.loadViewName)
                   .success(function (data, status) {
@@ -74,6 +85,7 @@ angular.module('demoApp')
                           $scope.wizardForm={}
                           $scope.wizardForm.rootElement=data.rootElement
                           $scope.formInput.queryName=data.queryName
+                          $scope.formInput.createTDE=data.createTDE
                           if ( !(!$scope.loadViewName && $scope.queryView == "view") && data.bookmarkLabel ) {
                               $scope.formInput.bookmarkCheck=true;
                               $scope.formInput.bookmarkLabel=data.bookmarkLabel;
@@ -84,8 +96,20 @@ angular.module('demoApp')
                           if ( !$scope.insertView ) {
                               $scope.formInput.viewName = data.viewName
                           }
-                          $scope.formInput.selectedDatabase=data.database
+                          if ( data.database ) {
+                              $scope.formInput.selectedDatabase = data.database
+                          }
+                          $scope.format="Undefined"
+                          $scope.fileType=data.fileType
+                          if ( $scope.fileType ) {
+                              if ($scope.fileType == "0" ) {
+                                  $scope.format = "XML"
+                              } else if ($scope.fileType == "1" ) {
+                                  $scope.format = "JSON"
+                              }
+                          }
                           $scope.displayOrder = data.displayOrder
+                          $scope.formInput.collectionFilter=data.collections;
                           $scope.wizardForm.possibleRoots=data.possibleRoots
                           $scope.wizardForm.namespaces=data.namespaces
                           $scope.wizardForm.fields=data.fields
@@ -194,6 +218,7 @@ angular.module('demoApp')
     $scope.submitWizard = function(){
       if(validateParameters()){
         var data = {}
+        data.createTDE = $scope.formInput.createTDE;
         data.bookmarkLabel = $scope.formInput.bookmarkCheck ? $scope.formInput.bookmarkLabel : "";
         data.mode = $scope.queryView
         data.overwrite = $scope.editMode ? true : false
@@ -219,6 +244,7 @@ angular.module('demoApp')
                 counter += 1;
             }
         }
+        data.collections=$scope.formInput.collectionFilter;
         data.database = $scope.formInput.selectedDatabase;
         data.fileType =  $scope.fileType;
         data.queryName = $scope.formInput.queryName;

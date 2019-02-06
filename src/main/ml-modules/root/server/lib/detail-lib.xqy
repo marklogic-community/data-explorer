@@ -144,7 +144,16 @@ declare function detail-lib:get-document-content-type($document-uri as xs:string
     let $doc := xu:eval(
             'xquery version "1.0-ml";
   declare variable $document-uri as xs:string external;
-  xdmp:uri-content-type($document-uri)',
+  let $doc := fn:doc($document-uri)
+  (:  We cannot rely on xdmp:uri-content-type. :)
+  let $nk := xdmp:node-kind($doc/node())
+  let $_ := xdmp:log(("NODE KIND JOS ",$nk))
+  let $mime := if ( $nk = "element" ) then "application/xml"
+         else if ( $nk = "object" ) then "application/json"
+         else "application/x-unknown-content-type"
+   let $_ := xdmp:log(("JOS MIME ",$mime))
+   return $mime
+    ',
             (xs:QName("document-uri"),$document-uri),
             <options xmlns="xdmp:eval">
                 <database>{xdmp:database($db)}</database>

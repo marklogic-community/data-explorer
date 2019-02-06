@@ -23,14 +23,17 @@ angular.module('demoApp')
     }
     $scope.prettyData = '';
     $scope.tabheading = '';
+    $scope.type = '';
     $scope.details = Detail.get({database:$scope.database,uri:$scope.uri},function(details){
       $scope.doc = details;
       if ( $scope.doc.mimetype == "application/json") {
         $scope.prettyData = vkbeautify.json($scope.doc.data)
         $scope.tabheading = "JSON View";
+          $scope.type = 'JSON';
       } else {
         $scope.prettyData = vkbeautify.xml($scope.doc.data);
         $scope.tabheading = "XML View";
+        $scope.type = 'XML';
       }
     });
 
