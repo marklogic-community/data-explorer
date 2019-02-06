@@ -120,6 +120,19 @@ task exportDemoDataToZip(type: com.marklogic.gradle.task.datamovement.DataMoveme
   }
 }
 
+/*
+  Deploys moduels from the folders into modules database
+*/
+task importModules(type: com.marklogic.gradle.task.MlcpTask) {
+  classpath = configurations.mlcp
+  command = "IMPORT"
+  database = mlAppConfig.modulesDatabaseName
+  input_file_path = "src/main/ml-modules/root/"
+  output_collections = "importModules"
+  output_permissions = mlModulePermissions
+  output_uri_replace = ".*/src/main/ml-modules/root,''"
+}
+
 /**
  * Deploys the version.js file to be used by the app
  * Runs automatically before mlDeploy

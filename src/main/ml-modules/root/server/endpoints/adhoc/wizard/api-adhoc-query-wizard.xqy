@@ -100,9 +100,10 @@ try {
     let $type := xdmp:get-request-field("type")
     
     let $type-label := if ($type eq "query") then "Query" else "View"
-    let $namespaces-map := nl:get-prefix-namespace-map($uploaded-doc)
+      
     let $namespaces :=
        if ( $is-json = fn:false() ) then (
+         let $namespaces-map := nl:get-prefix-namespace-map($uploaded-doc)
         for $key in map:keys($namespaces-map)
            return
              to-json:xml-obj-to-json(<namespace><abbrv>{ $key }</abbrv><uri>{map:get($namespaces-map, $key)}</uri></namespace>)
