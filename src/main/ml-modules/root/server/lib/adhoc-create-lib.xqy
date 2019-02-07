@@ -160,7 +160,7 @@ declare function lib-adhoc-create:create-edit-form-query($adhoc-fields as map:ma
 	let $database := map:get($adhoc-fields, "database")
 	let $file-type := map:get($adhoc-fields, "fileType")
 	let $collection-filter := map:get($adhoc-fields, "collections")
-	let $file-type := if (fn:starts-with($root-element, "/")) then  ("1") else ("0")
+	(: )let $file-type := if (fn:starts-with($root-element, "/")) then  ("1") else ("0") :)
 	let $display-order := map:get($adhoc-fields, "displayOrder")
 	let $existing-query-doc := cfg:get-form-query($root-element,$query-name)
 	return if (fn:not($overwrite) and fn:not(fn:empty( $existing-query-doc  ))) then
