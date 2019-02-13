@@ -6,7 +6,17 @@ angular.module('demoApp', [
     'ngSanitize',
     'ui.router',
     'ui.bootstrap',
-    'angular-sortable-view'
+    'angular-sortable-view',
+    'ngRoute',
+    'ngAnimate',
+    'raw.filters',
+    'raw.services',
+    'raw.directives',
+    'raw.controllers',
+    'mgcrea.ngStrap',
+    'ui',
+    'colorpicker.module',
+    'ngFileUpload'
   ])
   .config(function($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
     $urlRouterProvider

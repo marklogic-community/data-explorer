@@ -19,6 +19,11 @@
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/detail.css">
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/angular-bootstrap-colorpicker/css/colorpicker.css">
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="bower_components/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="css/raw.css"/>
+
       <!-- injector:css -->
       <!-- endinjector -->
     <!-- endbuild -->
@@ -48,10 +53,21 @@
       <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
       <script src="bower_components/vkbeautify/vkbeautify.js"></script>
       <script src="bower_components/angular-sortable-view/src/angular-sortable-view.js"></script>
+      <script src="bower_components/angular-route/angular-route.min.js"></script>
+      <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+      <script src="bower_components/angular-strap/dist/angular-strap.min.js"></script>
+      <script src="bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
+      <script src="bower_components/angular-ui/build/angular-ui.js"></script>
+      <script src="bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.js"></script>
+      <script src="bower_components/ng-file-upload/ng-file-upload.min.js"></script>
+      <script src="bower_components/is_js/is.min.js"></script>
+      <script src="bower_components/js-xlsx/dist/xlsx.full.min.js"></script>
       <!-- endbower -->
     <!-- endbuild -->
 
         <!-- build:js({.tmp,client}) app/app.js -->
+
+
         <script src="app/app.js"></script>
           <!-- injector:js -->
           <script src="app/account/account.js"></script>
@@ -81,6 +97,54 @@
 
         <!-- custom scripts -->
           <script src="app/js/wait.js"></script>
+          <!-- jquery -->
+          <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+          <script type="text/javascript" src="bower_components/jqueryui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+          <!-- bootstrap -->
+          <script type="text/javascript" src="bower_components/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js"></script>
+          <!-- d3 -->
+          <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
+          <!-- d3 plugins -->
+          <script type="text/javascript" src="bower_components/d3-voronoi/d3-voronoi.min.js"></script>
+          <script type="text/javascript" src="bower_components/d3-hexbin/d3-hexbin.min.js"></script>
+          <script type="text/javascript" src="bower_components/d3-sankey/d3-sankey.min.js"></script>
+          <script type="text/javascript" src="bower_components/d3-contour/d3-contour.min.js"></script>
+          <script type="text/javascript" src="bower_components/d3-box/index.js"></script>
+          <!-- codemirror -->
+          <script type="text/javascript" src="bower_components/codemirror/lib/codemirror.js"></script>
+          <script type="text/javascript" src="bower_components/codemirror/addon/display/placeholder.js"></script>
+          <!-- canvastoblob -->
+          <script type="text/javascript" src="bower_components/canvas-toBlob.js/canvas-toBlob.js"></script>
+          <!-- filesaver -->
+          <script type="text/javascript" src="bower_components/FileSaver/index.js"></script>
+          <!-- zeroclipboard -->
+          <script type="text/javascript" src="bower_components/zeroclipboard/dist/ZeroClipboard.min.js"></script>
+          <!-- raw -->
+          <script type="text/javascript" src="lib/raw.js"></script>
+
+          <!-- charts -->
+          <script src="charts/treemap.js"></script>
+          <script src="charts/streamgraph.js"></script>
+          <script src="charts/scatterPlot.js"></script>
+          <script src="charts/packing.js"></script>
+          <script src="charts/clusterDendrogram.js"></script>
+          <script src="charts/voronoi.js"></script>
+          <script src="charts/alluvial.js"></script>
+          <script src="charts/convexHullMultiple.js"></script>
+          <script src="charts/hexagonalBinning.js"></script>
+          <script src="charts/parallelCoordinates.js"></script>
+          <script src="charts/circularDendrogram.js"></script>
+          <script src="charts/smallMultiplesArea.js"></script>
+          <script src="charts/bumpChart.js"></script>
+          <script src="charts/sunburst.js"></script>
+          <script src="charts/gantt.js"></script>
+          <script src="charts/horizonChart.js"></script>
+          <script src="charts/barChart.js"></script>
+          <script src="charts/pieChart.js"></script>
+          <script src="charts/contourPlot.js"></script>
+          <script src="charts/beeswarmPlot.js"></script>
+          <script src="charts/boxPlot.js"></script>
+
         <!-- end custom scripts -->
 </body>
 </html>
