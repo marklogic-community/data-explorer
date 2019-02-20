@@ -98,3 +98,18 @@ code {
 .triple-value {
 
 }
+
+.tab-content {
+	scroll-behavior: smooth;
+	overflow: scroll;
+	height: 78vh;
+}
+
+.search-content {
+	height: 85vh;
+}
+
+.search-panel {
+	height: 85vh;
+}
+

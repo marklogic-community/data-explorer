@@ -210,7 +210,7 @@ angular.module('raw.directives', [])
 	.directive('colors', function ($rootScope) {
 	    return {
 	      restrict: 'A',
-	      templateUrl : 'templates/colors.html',
+	      templateUrl : '/assets/templates/colors.html',
 	      link: function postLink(scope, element, attrs) {
 
 	        scope.scales = [
@@ -457,11 +457,11 @@ angular.module('raw.directives', [])
 	    return {
 	      restrict: 'A',
 	      scope:false,
-	    	//  templateUrl : 'templates/dimensions.html',
+	    	//  templateUrl : '/assets/templates/dimensions.html',
 	      link: function postLink(scope, element, attrs) {
 
 		      scope.$watch('metadata', metadata => {
-		      	if(!metadata.length) element.find('li').remove();
+		      	if(metadata && !metadata.length) element.find('li').remove();
 			      element.find('li').draggable({
 			        connectToSortable:'.dimensions-container',
 					helper : 'clone',

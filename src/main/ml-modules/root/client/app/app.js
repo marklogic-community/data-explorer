@@ -9,10 +9,10 @@ angular.module('demoApp', [
     'angular-sortable-view',
     'ngRoute',
     'ngAnimate',
-    'raw.filters',
+    // 'raw.filters',
     'raw.services',
-    'raw.directives',
-    'raw.controllers',
+    // 'raw.directives',
+    // 'raw.controllers',
     'mgcrea.ngStrap',
     'ui',
     'colorpicker.module',
@@ -25,6 +25,7 @@ angular.module('demoApp', [
     $locationProvider.html5Mode(true);
     $httpProvider.interceptors.push('authInterceptor');
   })
+
 
 .factory('authInterceptor', function($rootScope, $q, $cookieStore, $location) {
   return {
