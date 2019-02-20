@@ -6,7 +6,7 @@
         .title('Alluvial Diagram')
         .description(
             "Alluvial diagrams allow to represent flows and to see correlations between categorical dimensions, visually linking to the number of elements sharing the same categories. It is useful to see the evolution of cluster (such as the number of people belonging to a specific group). It can also be used to represent bipartite graphs, using each node group as dimensions.<br/>Mainly based on DensityDesign's work with Fineo, it is inspired by <a href='https://bl.ocks.org/mbostock/ca9a0bb7ba204d12974bca90acc507c0'>https://bl.ocks.org/mbostock/ca9a0bb7ba204d12974bca90acc507c0</a>")
-        .thumbnail("imgs/alluvial.png")
+        .thumbnail("/assets/imgs/alluvial.png")
         .category("Multi categorical")
         .model(graph);
 

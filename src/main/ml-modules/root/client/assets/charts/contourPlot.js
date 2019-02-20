@@ -10,7 +10,7 @@
         .title('Contour Plot')
         .description(
             "It shows the estimated density of point clouds, which is especially useful to avoid overplotting in large datasets.<br/>Based on <a href='https://bl.ocks.org/mbostock/7f5f22524bd1d824dd53c535eda0187f'>Density Contours II</a>")
-        .thumbnail("imgs/contourplot.png")
+        .thumbnail("/assets/imgs/contourplot.png")
         .category('Dispersion')
         .model(points)
 

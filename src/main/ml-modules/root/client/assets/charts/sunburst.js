@@ -5,7 +5,7 @@
     var chart = raw.chart()
         .title('Sunburst')
         .description("A sunburst is similar to the treemap, except it uses a radial layout. The root node of the tree is at the center, with leaves on the circumference. The area (or angle, depending on implementation) of each arc corresponds to its value.<br/>Based on <a href='http://bl.ocks.org/mbostock/4063423'>http://bl.ocks.org/mbostock/4063423</a>")
-        .thumbnail("imgs/sunburst.png")
+        .thumbnail("/assets/imgs/sunburst.png")
         .category('Hierarchy (weighted)')
         .model(tree);
 

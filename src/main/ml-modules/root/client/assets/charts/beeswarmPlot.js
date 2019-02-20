@@ -64,7 +64,7 @@
     var chart = raw.chart()
         .title('Beeswarm Plot')
         .description("It distributes elements horizontally avoiding overlap between them and according to a selected dimension.<br/><br/>Based on <a href='https://bl.ocks.org/mbostock/6526445e2b44303eebf21da3b6627320'>https://bl.ocks.org/mbostock/6526445e2b44303eebf21da3b6627320</a>")
-        .thumbnail("imgs/beeswarm.png")
+        .thumbnail("/assets/imgs/beeswarm.png")
         .category('Distribution')
         .model(model)
 

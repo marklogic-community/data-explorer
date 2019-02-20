@@ -85,7 +85,7 @@
     // The Chart
     var chart = raw.chart()
         .title('Gantt Chart')
-        .thumbnail("imgs/gantt.png")
+        .thumbnail("/assets/imgs/gantt.png")
         .description("A Gantt chart is a type of bar chart, developed by Henry Gantt in the 1910s, that illustrates a project schedule. Gantt charts illustrate the start and finish dates of the terminal elements and summary elements of a project.")
         .category('Time chunks')
         .model(timechuncks)

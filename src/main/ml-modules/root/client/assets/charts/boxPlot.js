@@ -37,7 +37,7 @@
     var chart = raw.chart()
         .title("Box plot")
         .description("A box-and-whisker plot uses simple glyphs that summarize a quantitative distribution with five standard statistics: the smallest value, lower quartile, median, upper quartile, and largest value.<br>Based on <a href='https://bl.ocks.org/mbostock/4061502'>https://bl.ocks.org/mbostock/4061502</a>")
-        .thumbnail("imgs/boxplot.png")
+        .thumbnail("/assets/imgs/boxplot.png")
         .category('Distribution')
         .model(model)
 

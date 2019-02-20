@@ -47,7 +47,7 @@
         .title('Convex Hull')
         .description(
             "In mathematics, the <a href='https://en.wikipedia.org/wiki/Convex_hull'>convex hull</a> is the smallest convex shape containing a set of points. Applied to a scatterplot, it is useful to identify points belonging to the same category.<br /> <br/>Based on <a href='http://bl.ocks.org/mbostock/4341699'>http://bl.ocks.org/mbostock/4341699</a>")
-        .thumbnail("imgs/multipleConvexHull.png")
+        .thumbnail("/assets/imgs/multipleConvexHull.png")
         .model(model)
         .category('Dispersion')
 

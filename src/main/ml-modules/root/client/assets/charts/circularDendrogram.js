@@ -10,7 +10,7 @@
 		.title('Circular Dendrogram')
 		.description(
 			"Dendrograms are tree-like diagrams used to represent the distribution of a hierarchical clustering. The different depth levels represented by each node are visualized on the horizontal axes and it is useful to visualize a non-weighted hierarchy.<br />Based on <br /><a href='http://bl.ocks.org/mbostock/4063570'>http://bl.ocks.org/mbostock/4063570</a>")
-		.thumbnail("imgs/circularDendrogram.png")
+		.thumbnail("/assets/imgs/circularDendrogram.png")
 		.category('Hierarchy')
 		.model(tree);
 

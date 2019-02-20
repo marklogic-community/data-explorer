@@ -54,7 +54,7 @@
     var chart = raw.chart()
         .title("Pie chart")
         .description("A pie chart (or a circle chart) is a circular statistical graphic which is divided into slices to illustrate numerical proportion.")
-        .thumbnail("imgs/pieChart.png")
+        .thumbnail("/assets/imgs/pieChart.png")
         .category('Other')
         .model(model);
 
