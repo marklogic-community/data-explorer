@@ -103,6 +103,8 @@ declare function local:sampleFs($databaseName) {
             return 
               if (fn:matches($contentType,"/xml"))
               then fn:node-name($d/element())
+              else if (fn:matches($contentType, "/x-unknown-content-type"))
+              then $contentType
               else fn:string-join(($contentType,$extension), "|")
         )
       return $docTypes
