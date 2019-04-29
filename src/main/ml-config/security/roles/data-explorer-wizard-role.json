@@ -7,8 +7,12 @@
     "action" : "http://marklogic.com/ps/data-explorer-access",
     "kind" : "execute"
   },{
-    "privilege-name" : "xdmp-value",
+    "privilege-name" : "xdmp:value",
     "action" : "http://marklogic.com/xdmp/privileges/xdmp-value",
+    "kind" : "execute"
+  }, {
+    "privilege-name" : "xdmp:eval",
+    "action" : "http://marklogic.com/xdmp/privileges/xdmp-eval",
     "kind" : "execute"
   }]
 }
