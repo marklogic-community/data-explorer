@@ -8,49 +8,49 @@
           <label>Document Format</label></br>
           <label>{{ fileFormat }}</label>
         </div>
-          <div class="form-group">
-            <label>Database</label>
-            <select ng-model="selectedDatabase" ng-options="database.name as database.name + ' (xml: ' + database.countXml + ' json: ' + database.countJson + ')' for database in databases" class="form-control" required>
-            	<option value="">--Choose Database</option>
-            </select>
+        <div class="form-group">
+          <label>Database</label>
+          <select ng-model="selectedDatabase" ng-options="database.name as database.name + ' (xml: ' + database.countXml + ' json: ' + database.countJson + ')' for database in databases" class="form-control" required>
+          	<option value="">--Choose Database</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Path Filter</label>
+          <select ng-model="selectedDocType" ng-options="item as item for item in doctypes" class="form-control" required>
+          	<option value="">--Choose DocType</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Collection Filter</label></br>
+          <label>{{ collections }}</label>
+        </div>
+        <div class="form-group">
+          <label>Query</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The query selects which fields are available for searching."></i>
+          <select ng-model="selectedQuery" ng-options="item.queryName as item.queryName for item in queries.queries" class="form-control" required>
+          	<option value="">--Choose Query</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>View</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The view defines which fields from the query are displayed, and the name given to each field."></i>
+          <select ng-model="selectedView" ng-options="item.viewName as item.viewName for item in views.views" class="form-control" required>
+          	<option value="">--Choose View</option>
+          </select>
+        </div>
+        <div ng-show="textFields.length">
+          <div ng-repeat="item in textFields" class="form-group">
+            <label for="input{{index+1}}">
+              {{ item.label }}
+              <span class="index-indicator" ng-if="item.rangeIndex" tooltip="This element currently has a range index.">*</span>
+            </label>
+            <select ng-if="!item.rangeIndex && item.dataType === 'boolean'" ng-model="inputField[$index+1]" class="form-control" ng-options="item for item in ['','true', 'false']"></select>
+            <input ng-if="!item.rangeIndex && item.dataType  === 'text'"  type="text" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item.placeholderText }}"/>
+            <input ng-if="!item.rangeIndex && item.dataType  === 'number'"  type="number" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item.placeholderText }}"/>
+            <input ng-if="item.rangeIndex" type="text" class="form-control" ng-model="inputField[$index + 1]" id="input{{ $index + 1 }}" placeholder="{{ item.placeholderText }}" autocomplete="off" typeahead="suggestion for suggestion in ctrl.suggestValues({ value: $viewValue, item: item })"/>
           </div>
-          <div class="form-group">
-            <label>Path Filter</label>
-            <select ng-model="selectedDocType" ng-options="item as item for item in doctypes" class="form-control" required>
-            	<option value="">--Choose DocType</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Collection Filter</label></br>
-            <label>{{ collections }}</label>
-          </div>
-          <div class="form-group">
-            <label>Query</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The query selects which fields are available for searching."></i>
-            <select ng-model="selectedQuery" ng-options="item.queryName as item.queryName for item in queries.queries" class="form-control" required>
-            	<option value="">--Choose Query</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>View</label> <i class="help-text glyphicon glyphicon-question-sign" tooltip title="The view defines which fields from the query are displayed, and the name given to each field."></i>
-            <select ng-model="selectedView" ng-options="item.viewName as item.viewName for item in views.views" class="form-control" required>
-            	<option value="">--Choose View</option>
-            </select>
-          </div>
-          <div ng-show="textFields.length">
-            <div ng-repeat="item in textFields" class="form-group">
-              <label for="input{{index+1}}">
-                {{ item.label }}
-                <span class="index-indicator" ng-if="item.rangeIndex" tooltip="This element currently has a range index.">*</span>
-              </label>
-              <select ng-if="!item.rangeIndex && item.dataType === 'boolean'" ng-model="inputField[$index+1]" class="form-control" ng-options="item for item in ['','true', 'false']"></select>
-              <input ng-if="!item.rangeIndex && item.dataType  === 'text'"  type="text" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item.placeholderText }}"/>
-              <input ng-if="!item.rangeIndex && item.dataType  === 'number'"  type="number" class="form-control" ng-model="inputField[$index+1]" id="input{{index+1}}" placeholder="{{ item.placeholderText }}"/>
-              <input ng-if="item.rangeIndex" type="text" class="form-control" ng-model="inputField[$index + 1]" id="input{{ $index + 1 }}" placeholder="{{ item.placeholderText }}" autocomplete="off" typeahead="suggestion for suggestion in ctrl.suggestValues({ value: $viewValue, item: item })"/>
-            </div>
-            <button type="submit" ng-click="clickSearch(form)" class="btn btn-default">Search</button>
-          </div>
-        
+          <button type="submit" ng-click="clickSearch(form)" class="btn btn-default">Search</button>
+        </div>
       </div>
+
       <div class="col-md-9 search-panel">
         <div class="file-viz">
           <div id="fileVizContainer" ></div>
@@ -68,7 +68,7 @@
               <div>
                 <table class="search-results-stats">
                   <tr><td><strong>Total Results:</strong></td><td>{{results['result-count'] | number}}
-                	  <button ng-click="showExportCsv(form)" 
+                	  <button ng-click="showExportCsv(form)"
                 	  class = "btn btn-default"
                 	  data-toggle="tooltip" title="Export to csv file.">
                 	  <img src = "assets/images/icon_excel.gif">
@@ -77,11 +77,11 @@
                   </td></tr>
                   <tr><td><strong>Page:</strong></td>
                   <td>{{results['current-page']}} of {{results['page-count'] | number}}</td>
-                  </tr>              	
+                  </tr>
                 </table>
                 <pagination total-items="results['result-count']" ng-model="queryCurrentPage" max-size="5" class="pagination-sm" boundary-links="true" ng-click="search()"></pagination>
               </div>
-              <div style="max-height:calc(100vh - 660px); overflow-x:auto; overflow-y:auto;">
+              <div style="max-height:calc(100vh - 460px); overflow-x:auto; overflow-y:auto;">
                 <table class="table table-bordered">
               	  <thead>
               	    <tr>
