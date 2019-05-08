@@ -96,6 +96,9 @@ factory('$click', function() {
           }],
           title: {
               text: ''
+          },
+          chart: {
+              height: (2 / 9 * 100) + '%'
           }
       });
     };
