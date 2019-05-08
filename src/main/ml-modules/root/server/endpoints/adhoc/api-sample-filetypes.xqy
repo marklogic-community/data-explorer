@@ -16,6 +16,7 @@ declare function local:sampleFs() {
 
 declare function local:sampleFs($databaseName) {
 
+  (: TODO -- Handle error case where user has insufficient eval privileges :)
   let $out := xdmp:javascript-eval('
 
 let checkUserLib = require("/server/lib/check-user-lib.xqy");
