@@ -47,9 +47,9 @@ let HSVtoRGB = function(h, s, v) {
 let codeToHex = function(rgbColors) {
   let hex = ["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"];
   let values = [
-    math.floor(rgbColors[0] / 16) + 1, rgbColors[0] - (math.floor(rgbColors[0] / 16)*16),
-    math.floor(rgbColors[1] / 16) + 1, rgbColors[1] - (math.floor(rgbColors[1] / 16)*16),
-    math.floor(rgbColors[2] / 16) + 1, rgbColors[2] - (math.floor(rgbColors[2] / 16)*16)
+    math.floor(rgbColors[0] / 16), rgbColors[0] - (math.floor(rgbColors[0] / 16)*16),
+    math.floor(rgbColors[1] / 16), rgbColors[1] - (math.floor(rgbColors[1] / 16)*16),
+    math.floor(rgbColors[2] / 16), rgbColors[2] - (math.floor(rgbColors[2] / 16)*16)
   ]
   return "#"
     + hex[values[0]] + hex[values[1]]
