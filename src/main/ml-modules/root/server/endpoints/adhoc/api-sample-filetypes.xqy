@@ -239,7 +239,7 @@ if (graphVizOutput.length <= 0) {
 }
 
 // Order by frequency
-graphVizOutput.sort((a, b) => a.value < b.value );
+graphVizOutput.sort((a, b) => b.value - a.value );
 for (let ii = 0; ii < graphVizOutput.length; ii++) { graphVizOutput[ii].id = ii; }
 
 
