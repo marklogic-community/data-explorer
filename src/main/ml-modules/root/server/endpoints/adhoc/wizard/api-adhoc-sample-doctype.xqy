@@ -108,7 +108,6 @@ declare function local:process() {
       'import module namespace lib-adhoc = "http://marklogic.com/data-explore/lib/adhoc-lib" at "/server/lib/adhoc-lib.xqy";',
       'cts:search(/' || $eval-expr || ', lib-adhoc:get-collection-query('||"'"||$collections||"'"||'), ("unfiltered", "score-random"'||$document-format||'))[1 to ' || $max-samples || ']'
   )
-  let $_ := xdmp:log(("JOSEVAL",$eval))
   let $nodes-to-sample := xu:eval(
     $eval, 
     (), 
