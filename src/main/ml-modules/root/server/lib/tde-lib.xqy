@@ -97,7 +97,7 @@ declare private function tde-lib:get-tde-uri($form-query as element(formQuery),$
 
 declare private function tde-lib:internal-delete-tdes-for-query-or-view($form-query,$view as xs:string?)  as xs:string* {
     let $database := $form-query/database/fn:string()
-    let $schemas-database := xdmp:schema-database(xdmp:database($database))
+    let $schemas-database := (xdmp:schema-database(xdmp:database($database)), xdmp:database($database))[. ne 0][1]
     let $uris := xdmp:invoke-function(function() {
         let $uris := if ( fn:empty($view)) then
             let $pattern := tde-lib:get-tde-uri($form-query,())||"*"
