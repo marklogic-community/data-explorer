@@ -16,7 +16,7 @@ declare function tde-lib:delete-tde-for-query-view($form-query as element(formQu
 
 declare function tde-lib:has-tde($form-query as element(formQuery),$view as element(view)) as xs:boolean {
     let $database := $form-query/database/fn:string()
-    let $schemas-database := xdmp:schema-database(xdmp:database($database))
+    let $schemas-database := (xdmp:schema-database(xdmp:database($database)), xdmp:database($database))[. ne 0][1]
     return xdmp:invoke-function(function() {
         fn:exists(fn:doc(tde-lib:get-tde-uri($form-query,$view/name/fn:string())))
     },<options xmlns="xdmp:eval">
