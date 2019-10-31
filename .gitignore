@@ -1,5 +1,6 @@
 /src/main/ml-modules/root/client/assets/version.js
 /build
+/data/export
 .gradle
 .idea
 .DS_Store

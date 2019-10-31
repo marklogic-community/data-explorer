@@ -37,7 +37,7 @@ Most of the setup is self explanatory. Follow these steps to get views on your (
    * Name the query/view combo and set the database where it applies
 1. **IMPORTANT:** Update/create a user or users to have **both** a data-explorer role, "data-explorer-search-role", and whatever **role(s) needed to access data in your DB**.
    * Data Explorer explicitly checks for wizard and search roles, so even the admin user will not work without a role.
-   * See the security section below for additional details.
+   * See the [security](#security) section below for additional details.
 1. Go to the "search" tab or log out and log back in as a "search-user" to see your data
 
 **THAT'S IT** Start searching.
