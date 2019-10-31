@@ -4,13 +4,6 @@ import data_explorer.Constants;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import com.marklogic.client.DatabaseClient;
-import com.marklogic.client.DatabaseClientFactory;
-import com.marklogic.client.DatabaseClientFactory.DigestAuthContext;
-import com.marklogic.client.io.SearchHandle;
-import com.marklogic.client.query.QueryManager;
-import com.marklogic.client.query.StructuredQueryDefinition;
-import com.marklogic.client.query.StructuredQueryBuilder;
 import com.marklogic.junit.spring.AbstractSpringTest;
 import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.filter.session.SessionFilter;
@@ -20,6 +13,7 @@ import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import utils.DataTools;
 
 import java.io.IOException;
 
@@ -125,13 +119,8 @@ public abstract class AbstractTest extends AbstractSpringTest implements Constan
   }
 
   protected long getDocumentCountByCollection(String collection) {
-    DigestAuthContext auth = new DigestAuthContext(testConfig.mlUsername, testConfig.mlPassword);
-    DatabaseClient client = DatabaseClientFactory.newClient(testConfig.mlHost, 8002, testConfig.demoDatabase, auth);
-    QueryManager queryMgr = client.newQueryManager();
-    StructuredQueryBuilder qb = new StructuredQueryBuilder();
-    StructuredQueryDefinition querydef = qb.collection(collection);
-    SearchHandle results = queryMgr.search(querydef, new SearchHandle());
-    return results.getTotalResults();
+    DataTools dt = new DataTools(testConfig);
+    return dt.getDocumentCountByCollection(collection);
   }
 
 }

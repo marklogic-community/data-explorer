@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import utils.DataTools;
 
 @Configuration
 @PropertySource(value = {"file:gradle.properties"}, ignoreResourceNotFound = true)
@@ -88,16 +89,11 @@ public class TestConfig implements InitializingBean {
     // TODO: The rest endpoints should be fixed to always return JSON
     RestAssured.registerParser("text/plain", Parser.TEXT);
 
-    // TODO: Refactor
-    DatabaseClientFactory.DigestAuthContext auth = new DatabaseClientFactory.DigestAuthContext(mlUsername, mlPassword);
-    DatabaseClient client = DatabaseClientFactory.newClient(mlHost, 8002, demoDatabase, auth);
-    QueryManager queryMgr = client.newQueryManager();
-    StructuredQueryBuilder qb = new StructuredQueryBuilder();
-    StructuredQueryDefinition querydef = qb.collection("DemoData");
-    SearchHandle results = queryMgr.search(querydef, new SearchHandle());
+    DataTools dt = new DataTools(this);
+    Long resultCount = dt.getDocumentCountByCollection("DemoData");
 
     // Demo data is not present, so import it and set a shutdown hook to clean it up later.
-    if(results.getTotalResults() == 0L) {
+    if(resultCount == 0L) {
       System.out.println("Importing Demo Data for testing...");
       Runtime.getRuntime().addShutdownHook(new Thread(() -> resetDemoData()));
     }
