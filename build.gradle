@@ -83,10 +83,25 @@ task loadDemoData(type: com.marklogic.gradle.task.MlcpTask) {
   input_file_path = "DemoData/farmers-markets.csv"
   input_file_type = "delimited_text"
   delimited_root_name = "farmersMarket"
-  output_collections = "DemoData"
+  output_collections = "XMLDemoData"
   output_permissions = "data-explorer-data-role,read,data-explorer-data-role,update"
   document_type = "XML"
   output_uri_suffix = ".xml"
+  namespace = "http://marklogic.com/ferret/demodata"
+}
+
+task loadDemoDataJSON(type: com.marklogic.gradle.task.MlcpTask) {
+  description = "Load Demo Data into the Content Database; can override the database via -PdemoDatabase=some-other-database"
+  classpath = configurations.mlcp
+  command = "IMPORT"
+  database = demoDatabase
+  input_file_path = "DemoData/farmers-markets.csv"
+  input_file_type = "delimited_text"
+  delimited_root_name = "farmersMarket"
+  output_collections = "JSONDemoData"
+  output_permissions = "data-explorer-data-role,read,data-explorer-data-role,update"
+  document_type = "JSON"
+  output_uri_suffix = ".json"
   namespace = "http://marklogic.com/ferret/demodata"
 }
 
