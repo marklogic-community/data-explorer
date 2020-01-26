@@ -1,6 +1,6 @@
 {
   "role-name": "data-explorer-search-role",
-  "description": "Role for Search user in Ferret App",
+  "description": "Role for Search user in Data Explorer App",
   "role": ["data-explorer-default-role","data-explorer-data-role"],
   "privilege" : [ {
     "privilege-name" : "data-explorer-access",

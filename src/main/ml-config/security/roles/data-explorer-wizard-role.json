@@ -1,7 +1,7 @@
 {
   "role-name" : "data-explorer-wizard-role",
   "description" : "Role for Data Explorer Wizard",
-  "role" : [ "data-explorer-default-role" ,"data-explorer-data-role"],
+  "role" : [ "data-explorer-default-role" ,"data-explorer-data-role", "tde-admin", "tde-view"],
   "privilege" : [ {
     "privilege-name" : "data-explorer-access",
     "action" : "http://marklogic.com/ps/data-explorer-access",
