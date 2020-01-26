@@ -1,6 +1,6 @@
 {
   "user-name": "wizard-user",
   "password": "password",
-  "description":"Wizard user for Ferret",
+  "description":"Wizard user for Data Explorer App",
   "role":["data-explorer-wizard-role", "data-explorer-search-role"]
 }

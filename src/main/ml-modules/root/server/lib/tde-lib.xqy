@@ -1,7 +1,7 @@
 xquery version "1.0-ml";
 
 module namespace tde-lib = "http://www.marklogic.com/data-explore/lib/tde-lib";
-
+import module namespace xu = "http://marklogic.com/data-explore/lib/xdmp-utils" at "/server/lib/xdmp-utils.xqy";
 import module namespace tde = "http://marklogic.com/xdmp/tde" at "/MarkLogic/tde.xqy";
 
 declare option xdmp:mapping "false";
@@ -17,7 +17,7 @@ declare function tde-lib:delete-tde-for-query-view($form-query as element(formQu
 declare function tde-lib:has-tde($form-query as element(formQuery),$view as element(view)) as xs:boolean {
     let $database := $form-query/database/fn:string()
     let $schemas-database := xdmp:schema-database(xdmp:database($database))
-    return xdmp:invoke-function(function() {
+    return xu:invoke-function(function() {
         fn:exists(fn:doc(tde-lib:get-tde-uri($form-query,$view/name/fn:string())))
     },<options xmlns="xdmp:eval">
         <update>false</update>
@@ -79,7 +79,7 @@ declare function tde-lib:create-or-update-tde($create-tde as xs:boolean,$form-qu
                         </rows>
                     </template>
                     let $database := $form-query/database/fn:string()
-                    let $_ := xdmp:invoke-function(function() {
+                    let $_ := xu:invoke-function(function() { 
                         tde:template-insert(tde-lib:get-tde-uri($form-query,$view/name/fn:string()),$tde)
                     },<options xmlns="xdmp:eval">
                         <update>true</update>

@@ -1,6 +1,6 @@
 {
   "user-name": "default-user",
-  "description": "Ferret Default User",
+  "description": "Data Explorer App Default User",
   "password": "default-user",
   "role": [ "data-explorer-default-role"]
 }

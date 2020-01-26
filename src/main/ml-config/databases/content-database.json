@@ -4,5 +4,7 @@
   "collection-lexicon": true,
   "word-searches": true,
   "uri-lexicon": true,
-  "directory-creation": "manual"
+  "directory-creation": "manual",
+  "schema-database": "%%SCHEMAS_DATABASE%%",
+  "triggers-database": "%%TRIGGERS_DATABASE%%"
 }

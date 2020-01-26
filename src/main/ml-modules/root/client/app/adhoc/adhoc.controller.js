@@ -47,28 +47,31 @@ factory('$click', function() {
     }];
 
     ctrl.sampleFiletypes = function(dbName) {
-      return $http.get('/api/sample-filetypes', {
-        params: {
-          dbName: encodeURIComponent( (dbName) ? dbName : $scope.selectedDatabase )
-        }
-      })
-      .then(function(response) {
-        if (response.data && response.data.values) {
-          ctrl.filetypeData = response.data;
-          ctrl.makeChart();
-          return response.data.values;
-        }
-        else {
-          ctrl.filetypeData = [{
-            id: 'X',
-            name: 'Empty',
-            color: "#DFDFDF",
-            value: 1
-          }];
-          ctrl.makeChart();
-          return [];
-        }
-      });
+      // only do this if we've got the wizard-user role since the call returns a 401 if we aren't!
+      if(Auth.isWizardUser()){
+        return $http.get('/api/sample-filetypes', {
+          params: {
+            dbName: encodeURIComponent( (dbName) ? dbName : $scope.selectedDatabase )
+          }
+        })
+        .then(function(response) {
+          if (response.data && response.data.values) {
+            ctrl.filetypeData = response.data;
+            ctrl.makeChart();
+            return response.data.values;
+          }
+          else {
+            ctrl.filetypeData = [{
+              id: 'X',
+              name: 'Empty',
+              color: "#DFDFDF",
+              value: 1
+            }];
+            ctrl.makeChart();
+            return [];
+          }
+        });
+      }
     };
 
     ctrl.sampleFiletypes($scope.selectedDatabase);
