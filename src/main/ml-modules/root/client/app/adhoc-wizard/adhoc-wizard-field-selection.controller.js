@@ -298,8 +298,19 @@ angular.module('demoApp')
                 renderResultsModal('success', crudType + crudAction + 'successfully.');
                 $rootScope.noQueries = false;
             }
-        }).error(function(data, status){
-          renderResultsModal('error', 'Server Error. Please try again later.');
+        }).error(function(response, status){
+          // default error message in case we don't understand what is returned
+          let errorMessage = 'Error: Please try again later.';
+
+          // Create a better error message if we can
+          if(response.hasOwnProperty("error") && response.error.length > 0){
+            if(response.error[0].code === 'XDMP-NODB'){
+              errorMessage = "Error: Database '" + data.database + "' does not have a schemas database associated with it.";
+            }else {
+              errorMessage = "Error: " + response.error[0].code + ": " + response.error[0].message;
+            }
+          }
+          renderResultsModal('error', errorMessage);
         });
       }
     };
