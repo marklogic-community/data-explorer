@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        maven { url "http://repo1.maven.org/maven2" }
-        maven { url "http://developer.marklogic.com/maven2/" }
+        maven { url "https://repo1.maven.org/maven2" }
+        maven { url "https://developer.marklogic.com/maven2/" }
     }
 
     dependencies {
@@ -14,7 +14,7 @@ buildscript {
 plugins {
   id "java"
   id "net.saliman.properties" version "1.4.6"
-  id "com.marklogic.ml-gradle" version "3.6.2"
+  id "com.marklogic.ml-gradle" version "3.17.0"
   id "idea"
 }
 
@@ -31,7 +31,7 @@ dependencies {
   testCompile "org.gradle:gradle-tooling-api:4.3"
   testCompile "commons-io:commons-io:2.6"
 
-  compile "com.marklogic:ml-app-deployer:3.9.0"
+  compile "com.marklogic:ml-app-deployer:3.17.0"
 
   // For reading command-line args
   compile "com.beust:jcommander:1.72"
